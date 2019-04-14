@@ -17,13 +17,16 @@ import edu.wpi.first.wpilibj.TimedRobot
  * project.
  */
 class Robot : TimedRobot() {
+
+  private lateinit var robotContainer : RobotContainer
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any initialization code.
    */
   override fun robotInit() {
 
-    
+    robotContainer = RobotContainer()
 
   }
 
