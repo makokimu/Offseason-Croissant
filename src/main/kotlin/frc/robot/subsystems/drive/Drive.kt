@@ -25,9 +25,7 @@ class Drive(
         val right: FalconMotor<Length>,
         val shifter: DoubleSolenoid,
         val gyro: AHRS,
-        val localization: Localization,
-        val leftDistance: Length,
-        val rightDistance: Length
+        val localization: Localization
             ) : DifferentialTrackerDriveBase {
 
     var currentTrajectoryTracker : TrajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
@@ -98,7 +96,7 @@ class Drive(
                     rightTransmission,
                     shifter,
                     gyro,
-
+                    localization
             )
 
         }
