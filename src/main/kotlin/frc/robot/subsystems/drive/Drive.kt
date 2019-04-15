@@ -83,7 +83,7 @@ class Drive(
 
             val shifter = DoubleSolenoid(Ports.kPCMID, Ports.DrivePorts.kShifterPorts[0], Ports.DrivePorts.kShifterPorts[1])
 
-            val gyro = AHRS(edu.first.wpilibj.SPI.Port.kMXP)
+            val gyro = AHRS(SPI.Port.kMXP)
 
             val localization = TankEncoderLocalization(
                     (gyro.getFusedHeading() * -1).degree,
