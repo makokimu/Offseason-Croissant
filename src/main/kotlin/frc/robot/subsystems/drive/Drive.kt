@@ -18,6 +18,7 @@ import org.ghrobotics.lib.subsystems.drive.DifferentialTrackerDriveBase
 import org.ghrobotics.lib.wrappers.LinearFalconMotor
 import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import kotlin.properties.Delegates
+import org.ghrobotics.lib.mathematics.units.degree
 
 
 class Drive(
@@ -86,7 +87,7 @@ class Drive(
             val gyro = AHRS(SPI.Port.kMXP)
 
             val localization = TankEncoderLocalization(
-                    (gyro.getFusedHeading() * -1).degree,
+                    {(gyro.getFusedHeading() * -1).degree},
                     {leftMotors[0].sensorPosition.meter},
                     {rightMotors[0].sensorPosition.meter}
             )
