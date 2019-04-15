@@ -4,6 +4,7 @@ import edu.wpi.first.gradlerio.frc.RoboRIO
 import edu.wpi.first.toolchain.NativePlatforms
 import jaci.gradle.deploy.artifact.FileTreeArtifact
 import jaci.gradle.deploy.context.DeployContext
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("edu.wpi.first.GradleRIO") version "2019.4.1"
@@ -80,6 +81,14 @@ tasks.jar {
     }
 }
 
-tasks.withType<Wrapper>().configureEach {
-    gradleVersion = "5.0"
+tasks {
+    withType<Wrapper>().configureEach {
+        gradleVersion = "5.0"
+    }
+    withType<KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += "-Xjvm-default=compatibility"
+        }
+    }
 }
