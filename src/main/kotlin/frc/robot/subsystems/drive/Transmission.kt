@@ -36,24 +36,16 @@ class Transmission (
             master.percentOutput = value
         }
 
-    /**
-     * Setting this value will command the motor to run at the specified velocity
-     * Getting this value will return the current velocity of the motor
-     */
-    override var velocity: Velocity<Length>
+    override var velocity: Double
         get() = master.velocity
         set(value) {
             master.velocity = value
         }
 
-    override val voltageOutput: Volt
+    override val voltageOutput: Double
         get() = master.voltageOutput
 
-    /**
-     * Setting this value will command the motor to run at the specified velocity
-     * Getting this value will return the current velocity of the motor
-     */
-    override fun setVelocityAndArbitraryFeedForward(velocity: Velocity<Length>, arbitraryFeedForward: Double) {
+    override fun setVelocityAndArbitraryFeedForward(velocity: Double, arbitraryFeedForward: Double) {
         master.setVelocityAndArbitraryFeedForward(velocity, arbitraryFeedForward)
     }
 
