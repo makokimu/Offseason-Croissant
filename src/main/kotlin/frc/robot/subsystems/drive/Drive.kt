@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value.*
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SPI
 import frc.robot.Constants
+import org.ghrobotics.lib.mathematics.units.degree
+import frc.robot.Ports
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
@@ -18,7 +20,7 @@ import org.ghrobotics.lib.subsystems.drive.DifferentialTrackerDriveBase
 import org.ghrobotics.lib.wrappers.LinearFalconMotor
 import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import kotlin.properties.Delegates
-import org.ghrobotics.lib.mathematics.units.degree
+
 
 
 class Drive(
@@ -66,13 +68,13 @@ class Drive(
     companion object {
         fun createNewTalonDrive() : Drive {
             val leftMotors = listOf(
-                    FalconSRX<Length>(0, Constants.DriveConstants.kDriveLengthModel),
-                    FalconSRX<Length>(1, Constants.DriveConstants.kDriveLengthModel)
+                    FalconSRX<Length>(Ports.DrivePorts.LEFT_PORTS[0], Constants.DriveConstants.kDriveLengthModel),
+                    FalconSRX<Length>(Ports.DrivePorts.LEFT_PORTS[1], Constants.DriveConstants.kDriveLengthModel)
             )
 
             val rightMotors = listOf(
-                    FalconSRX<Length>(2, Constants.DriveConstants.kDriveLengthModel),
-                    FalconSRX<Length>(3, Constants.DriveConstants.kDriveLengthModel)
+                    FalconSRX<Length>(Ports.DrivePorts.RIGHT_PORTS[0], Constants.DriveConstants.kDriveLengthModel),
+                    FalconSRX<Length>(Ports.DrivePorts.RIGHT_PORTS[1], Constants.DriveConstants.kDriveLengthModel)
             )
 
             leftMotors.forEach{
@@ -82,7 +84,7 @@ class Drive(
             val leftTransmission = Transmission(leftMotors)
             val rightTransmission = Transmission(rightMotors)
 
-            val shifter = DoubleSolenoid(Ports.kPCMID, Ports.DrivePorts.kShifterPorts[0], Ports.DrivePorts.kShifterPorts[1])
+            val shifter = DoubleSolenoid(Ports.kPCMID, Ports.DrivePorts.SHIFTER_PORTS[0], Ports.DrivePorts.SHIFTER_PORTS[1])
 
             val gyro = AHRS(SPI.Port.kMXP)
 
