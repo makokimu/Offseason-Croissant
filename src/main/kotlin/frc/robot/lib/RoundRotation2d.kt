@@ -2,6 +2,7 @@ package frc.robot.lib
 
 import org.ghrobotics.lib.mathematics.epsilonEquals
 import org.ghrobotics.lib.mathematics.kEpsilon
+import org.ghrobotics.lib.mathematics.units.SIUnit
 
 val Number.roundRadian get() = RoundRotation2d(toDouble())
 val Number.roundDegree get() = Math.toRadians(toDouble()).roundRadian
@@ -13,8 +14,8 @@ class RoundRotation2d : SIUnit<RoundRotation2d> {
     val sin: Double
 
     constructor(value: Double) {
-        x = Math.cos(value)
-        y = Math.sin(value)
+        val x = Math.cos(value)
+        val y = Math.sin(value)
         val magnitude = Math.hypot(x, y)
         if (magnitude > kEpsilon) {
             sin = y / magnitude

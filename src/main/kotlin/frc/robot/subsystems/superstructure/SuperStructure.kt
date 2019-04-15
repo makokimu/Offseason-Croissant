@@ -2,6 +2,7 @@ package frc.robot.subsystems.superstructure
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.DemandType
+import frc.robot.lib.RoundRotation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.Acceleration
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
@@ -47,7 +48,7 @@ class SuperStructure (
         override fun periodic() {
             master.set(
                 controlMode, setpoint,
-                    DemandType.ArbitraryFeedForward, arbitraryFeedForward.invoke(master.sensorPosition).volt / 12
+                    DemandType.ArbitraryFeedForward, arbitraryFeedForward.invoke(master.sensorPosition).value / 12
             )
         }
 
