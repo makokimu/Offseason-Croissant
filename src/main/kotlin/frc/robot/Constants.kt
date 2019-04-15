@@ -66,4 +66,10 @@ object Constants {
 
     }
 
+    object ElevatorConstants {
+
+        val motionCruiseVel = 100.inch.velocity
+
+    }
+
 }

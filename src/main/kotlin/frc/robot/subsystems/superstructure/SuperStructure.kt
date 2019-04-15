@@ -1,88 +1,49 @@
 package frc.robot.subsystems.superstructure
 
 import com.ctre.phoenix.motorcontrol.ControlMode
-import com.ctre.phoenix.motorcontrol.DemandType
+import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import frc.robot.lib.RoundRotation2d
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derivedunits.Acceleration
-import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
-import org.ghrobotics.lib.mathematics.units.derivedunits.Volt
-import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import org.team5940.pantry.experimental.command.SendableSubsystemBase
-import kotlin.math.roundToInt
-import org.ghrobotics.lib.utils.Source
-import java.util.function.Function
+import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 
 class SuperStructure (
         elevator : Joint<Length>,
-        elbow : Joint<RoundRotation2d>,
-        wrist : Joint<RoundRotation2d>
+        proximal : Joint<RoundRotation2d>
 ) {
 
 
 
 
-    /**
-     * Construct a joint. The Motors passed in are assumed to already have
-     * their remote feedback sensor set up. Furthermore the master is
-     * assuemd to be index 0.
-     */
-    class Joint<T : SIUnit<T>> (
-            val motors : List<FalconSRX<T>>,
-            val arbitraryFeedForward : (pos : T) -> Volt,
-            val cruiseVel : Velocity<T>,
-            val cruiseAccel : Acceleration<T>,
-            val pidfGains : List<Double>,
-            val maxContCurrent : ElectricCurrent,
-            val maxPeakCurrent : ElectricCurrent,
-            val peakCurrentDuration : Time
-    ) : SendableSubsystemBase() {
+    companion object {
 
-        val master = motors[0]
+        fun getRealSuperStructure() {
 
-        var controlMode : ControlMode = ControlMode.MotionMagic
-
-        var setpoint: T = master.sensorPosition
-
-        override fun periodic() {
-            master.set(
-                controlMode, setpoint,
-                    DemandType.ArbitraryFeedForward, arbitraryFeedForward.invoke(master.sensorPosition).value / 12
+            val elevatorTalons = listOf(
+                    FalconSRX<Length>(ElevatorPorts.TALON_PORTS[0], ElevatorPorts.LENGTH_MODEL),
+                    FalconSRX<Length>(ElevatorPorts.TALON_PORTS[1], ElevatorPorts.LENGTH_MODEL),
+                    FalconSRX<Length>(ElevatorPorts.TALON_PORTS[2], ElevatorPorts.LENGTH_MODEL),
+                    FalconSRX<Length>(ElevatorPorts.TALON_PORTS[3], ElevatorPorts.LENGTH_MODEL)
             )
-        }
 
-        init {
-
-            motors.forEach{
-
-                it.motionCruiseVelocity = cruiseVel
-                it.motionAcceleration = cruiseAccel
-
-                it.kP = pidfGains[0]
-                it.kI = pidfGains[1]
-                it.kD = pidfGains[2]
-                it.kF = pidfGains[3]
-
-                it.configPeakCurrentLimit(maxPeakCurrent.amp.roundToInt())
-                it.configPeakCurrentDuration(peakCurrentDuration.millisecond.roundToInt())
-                it.configContinuousCurrentLimit(maxContCurrent.amp.roundToInt())
-                it.enableCurrentLimit(true)
-
-                setpoint = master.sensorPosition
+            elevatorTalons[0].run {
+                inverted = ElevatorPorts.MASTER_INVERTED
+                feedbackSensor = ElevatorPorts.SENSOR
+                setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
+                peakForwardOutput = 1.0
+                peakReverseOutput = -1.0
 
             }
+//            elevatorTalons[0].inverted = ElevatorPorts.MASTER_INVERTED
+//            elevatorTalons[0].feedbackSensor = ElevatorPorts.SENSOR
+//            elevatorTalons[0].setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
 
-        }
+            for (i in 1..3) {
+                elevatorTalons[i].set(ControlMode.Follower, elevatorTalons[0].deviceID)
+                elevatorTalons[i].setInverted(ElevatorPorts.FOLLOWER_INVERSION[i - 1])
+            }
 
-
-
-        fun getPosition() : T {
-            return master.sensorPosition
-        }
-
-        fun setPosition(newPos : T) {
-            master.sensorPosition = newPos
         }
 
     }
