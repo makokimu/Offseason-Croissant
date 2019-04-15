@@ -13,7 +13,13 @@ import kotlin.math.roundToInt
 import org.ghrobotics.lib.utils.Source
 import java.util.function.Function
 
-class SuperStructure {
+class SuperStructure (
+        elevator : Joint<Length>,
+        elbow : Joint<RoundRotation2d>,
+        wrist : Joint<RoundRotation2d>
+) {
+
+
 
 
     /**
