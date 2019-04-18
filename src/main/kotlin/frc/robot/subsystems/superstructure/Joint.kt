@@ -2,46 +2,57 @@ package frc.robot.subsystems.superstructure
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.DemandType
-import org.ghrobotics.lib.mathematics.units.ElectricCurrent
-import org.ghrobotics.lib.mathematics.units.SIUnit
-import org.ghrobotics.lib.mathematics.units.Time
+import com.ctre.phoenix.motorcontrol.can.SlotConfiguration
+import frc.robot.lib.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.Acceleration
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
 import org.ghrobotics.lib.mathematics.units.derivedunits.Volt
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnit
-import org.ghrobotics.lib.wrappers.ctre.FalconSRX
+import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
+import org.ghrobotics.lib.motors.FalconEncoder
+import org.ghrobotics.lib.motors.FalconMotor
+import org.ghrobotics.lib.motors.ctre.FalconCTRE
+import org.ghrobotics.lib.motors.ctre.FalconCTREEncoder
+import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.motors.rev.FalconMAXEncoder
+import org.team5940.pantry.exparimental.command.SendableSubsystemBase
 import kotlin.math.roundToInt
-import org.team5940.pantry.experimental.command.SendableSubsystemBase
 
 
 /**
  * Construct a joint. The Motors passed in are assumed to already have
  * their remote feedback sensor set up. Furthermore the master is
- * assuemd to be index 0.
+ * assuemd to be index 0. BE SURE TO CONFIGURE THE REMOTE FEEDBACK SENSOR
+ * IN THE MOTORS' DECLARATION! I can't do that here because FalconMotor
+ * no do dat. Also, plz configure the encoder to be connected to da master.
  */
 class Joint<T : SIUnit<T>> (
-        val motors : List<FalconSRX<T>>,
+        val motors : List<FalconMotor<T>>,
+//        val encoder : FalconEncoder<T> = motors[0].encoder,
         val arbitraryFeedForward : (pos : T) -> Volt,
+        val kZero : T,
         val cruiseVel : Velocity<T>,
         val cruiseAccel : Acceleration<T>,
-        val pidfGains : List<Double>,
+        val pidfSlot : Int,
         val minPosition : NativeUnit,
         val maxPosition : NativeUnit,
-        val maxContCurrent : ElectricCurrent,
-        val maxPeakCurrent : ElectricCurrent,
-        val peakCurrentDuration : Time
+        val slotConfiguration: SlotConfiguration = SlotConfiguration(),
+        val currentLimitConfig: FalconSRX.CurrentLimitConfig = FalconSRX.CurrentLimitConfig(40.amp, 1.second, 35.amp)
 ) : SendableSubsystemBase() {
 
     val master = motors[0]
 
+    val encoder = master.encoder
+
     var controlMode : ControlMode = ControlMode.MotionMagic
 
-    var setpoint: T = master.sensorPosition
+    var setpoint: T = position
 
     override fun periodic() {
         master.set(
                 controlMode, setpoint,
-                DemandType.ArbitraryFeedForward, arbitraryFeedForward.invoke(master.sensorPosition).value / 12
+                DemandType.ArbitraryFeedForward, arbitraryFeedForward.invoke(master.encoder.position.T).value / 12
         )
     }
 
@@ -49,21 +60,43 @@ class Joint<T : SIUnit<T>> (
 
         motors.forEach{
 
-            it.motionCruiseVelocity = cruiseVel
-            it.motionAcceleration = cruiseAccel
+            it.motionProfileCruiseVelocity = cruiseVel.value
+            it.motionProfileCruiseVelocity = cruiseAccel.value
 
-            it.kP = pidfGains[0]
-            it.kI = pidfGains[1]
-            it.kD = pidfGains[2]
-            it.kF = pidfGains[3]
+            when {
+                it is FalconSRX -> {
+                    it.configCurrentLimit(
+                            true,
+                            currentLimitConfig
+                    )
 
-            it.configPeakCurrentLimit(maxPeakCurrent.amp.roundToInt())
-            it.configPeakCurrentDuration(peakCurrentDuration.millisecond.roundToInt())
-            it.configContinuousCurrentLimit(maxContCurrent.amp.roundToInt())
-            it.enableCurrentLimit(true)
+                    val motor = it.motorController
+
+                    motor.configPeakOutputForward(1.0, 0)
+                    motor.configPeakOutputReverse(-1.0, 0)
+                    motor.config_kP(pidfSlot, slotConfiguration.kP, 0)
+                    motor.config_kI(pidfSlot, slotConfiguration.kI, 0)
+                    motor.config_kD(pidfSlot, slotConfiguration.kD, 0)
+                    motor.config_kF(pidfSlot, slotConfiguration.kF, 0)
+                    motor.config_kF(pidfSlot, slotConfiguration.kF, 0)
+                    motor.config_IntegralZone(pidfSlot, slotConfiguration.integralZone, 0)
+                    motor.configMaxIntegralAccumulator(pidfSlot, slotConfiguration.maxIntegralAccumulator, 0)
+                    motor.configAllowableClosedloopError(pidfSlot, slotConfiguration.allowableClosedloopError, 0)
+                    motor.configClosedLoopPeakOutput(pidfSlot, slotConfiguration.closedLoopPeakOutput, 0)
+                    motor.
+
+
+                }
+                else -> TODO("Config not implemented for non-CTRE and non-REV joint!")
+
+
+            }
+
+
+
         }
 
-        setpoint = master.sensorPosition
+        setpoint = position
 
         master.softLimitForward = minPosition
         master.softLimitReverse = maxPosition
@@ -74,21 +107,28 @@ class Joint<T : SIUnit<T>> (
     }
 
     /**
+     * getter/setter for the position as a typed unit of type [T]
      * Getting this will get the position [T] of the joint
      * Setting this will set the sensor position of the joint
      */
-    var sensorPosition : T
-        get() = master.sensorPosition
+    var position : T
+        get() = when {
+            encoder is FalconCTREEncoder -> encoder.model.fromNativeUnitPosition(encoder.rawPosition.nativeUnits)
+            encoder is FalconMAXEncoder -> encoder.model.fromNativeUnitPosition(encoder.rawPosition.nativeUnits)
+            else -> kZero
+//            else -> null
+        }
         set(newValue) {
-            master.sensorPosition = newValue
+            when {
+                encoder is FalconCTREEncoder -> encoder.resetPosition(encoder.model.toNativeUnitPosition(newValue).value)
+                encoder is FalconMAXEncoder -> encoder.resetPosition(encoder.model.toNativeUnitPosition(newValue).value)
+                else -> TODO("Implement setting with other motor controllers?")
+            }
         }
 
-    fun getPosition() : T {
-        return master.sensorPosition
-    }
+    var untypedPosition : Double
+        get() = encoder.position
+        set(newValue) {encoder.resetPosition(newValue)}
 
-    fun setPosition(newPos : T) {
-        master.sensorPosition = newPos
-    }
 
 }
