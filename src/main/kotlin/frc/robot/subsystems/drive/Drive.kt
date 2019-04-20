@@ -144,20 +144,6 @@ class Drive(
         return DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
     }
 
-//    fun setTeleopCurvatureDrive(leftIn : DoubleSource, rightIn : DoubleSource, quickTurn : BooleanSource) {
-//        wantedState = object : State.CustomState() {
-//            override fun update() {
-//                val output = curvatureDrive((leftIn.invoke(), rightIn.invoke(), quickTurn.invoke())
-//                leftMotor.setDutyCycle(output.left)
-//                rightMotor.setDutyCycle(output.right)
-//            }
-//        }
-//    }
-
-//    fun stop() {
-//        wantedState = State.Nothing
-//    }
-
     companion object {
 
         const val kQuickStopThreshold = edu.wpi.first.wpilibj.drive.DifferentialDrive.kDefaultQuickStopThreshold
