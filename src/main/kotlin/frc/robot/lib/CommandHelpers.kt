@@ -3,7 +3,9 @@ package frc.robot.lib
 import org.ghrobotics.lib.utils.BooleanSource
 import org.team5940.pantry.exparimental.command.*
 
-typealias Run = () -> Unit
+typealias ktRunnable = () -> Unit
+
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 
 /**
  * Decorates this command with a timeout.  If the specified timeout is exceeded before the command
@@ -55,11 +57,11 @@ infix fun Command.interruptOn(condition: BooleanSource): Command {
  * [CommandGroupBase.clearGroupedCommand].  The decorated command can, however, be
  * further decorated without issue.
  *
- * @param toRun the Runnable to run
+ * @param toKtRunnable the Runnable to run
  * @return the decorated command
  */
-infix fun Command.whenFinished(toRun: Run): Command {
-    return SequentialCommandGroup(this, InstantCommand(Runnable{toRun}))
+infix fun Command.whenFinished(toKtRunnable: ktRunnable): Command {
+    return SequentialCommandGroup(this, InstantCommand(Runnable{toKtRunnable}))
 }
 
 /**
@@ -72,11 +74,11 @@ infix fun Command.whenFinished(toRun: Run): Command {
  * [CommandGroupBase.clearGroupedCommand].  The decorated command can, however, be
  * further decorated without issue.
  *
- * @param toRun the Runnable to run
+ * @param toKtRunnable the Runnable to run
  * @return the decorated command
  */
-infix fun Command.beforeStarting(toRun: Run): Command {
-    return SequentialCommandGroup(InstantCommand(Runnable{toRun}), this)
+infix fun Command.beforeStarting(toKtRunnable: ktRunnable): Command {
+    return SequentialCommandGroup(InstantCommand(Runnable{toKtRunnable}), this)
 }
 
 /**
@@ -159,3 +161,4 @@ infix fun Command.raceWith(parallel: Command): Command {
     group.addCommands(parallel)
     return group
 }
+
