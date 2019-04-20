@@ -3,6 +3,7 @@ package frc.robot
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.XboxController
 import frc.robot.lib.AButtonButton
+import frc.robot.lib.XButtonButton
 import frc.robot.subsystems.drive.Drive
 import frc.robot.subsystems.superstructure.SuperStructure
 
@@ -23,5 +24,9 @@ class RobotContainer {
                 {primary.getX(GenericHID.Hand.kRight) * -1},
                 {primary.getBumper(GenericHID.Hand.kLeft) || primary.getBumper(GenericHID.Hand.kRight)}
         )
+
+        primary.XButtonButton.whenPressed(Runnable{drive.lowGear = true})
+        primary.AButtonButton.whenPressed(Runnable{drive.lowGear = false})
+
     }
 }
