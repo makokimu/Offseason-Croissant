@@ -118,7 +118,7 @@ class Joint<T : SIUnit<T>> (
                     motor.getReverseLimitSwitch(minPolarity)
 
                 }
-                else -> TODO("Config not implemented for non-CTRE and non-REV joint!")
+                else -> TODO("Config not implemented for non-CTR and non-REV joint!")
             }
 
 
@@ -154,13 +154,11 @@ class Joint<T : SIUnit<T>> (
         when (encoder) {
             is FalconCTREEncoder -> encoder.resetPosition(encoder.model.toNativeUnitPosition(newPos).value)
             is FalconMAXEncoder -> encoder.resetPosition(encoder.model.toNativeUnitPosition(newPos).value)
-            else -> TODO("Encoders for non-CTRE and non-REV encoders not implemented")
+            else -> TODO("Encoders for non-CTR and non-REV encoders not implemented")
         }
     }
 
     var untypedPosition : Double
         get() = encoder.position
         set(newValue) {encoder.resetPosition(newValue)}
-
-
 }

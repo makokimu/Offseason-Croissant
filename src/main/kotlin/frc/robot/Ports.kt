@@ -28,7 +28,7 @@ object Ports {
             val TALON_PORTS = listOf(21, 22, 23, 24)
             val MASTER_INVERTED = true
             val MASTER_SENSOR_PHASE = true
-//            val FOLLOWER_INVERSION = listOf(InvertType.OpposeMaster, InvertType.FollowMaster, InvertType.FollowMaster)
+            val FOLLOWER_INVERSION = listOf(InvertType.OpposeMaster, InvertType.FollowMaster, InvertType.FollowMaster)
             val LENGTH_MODEL = NativeUnitLengthModel(4096.nativeUnits, 1.5.inch)
             val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
         }
