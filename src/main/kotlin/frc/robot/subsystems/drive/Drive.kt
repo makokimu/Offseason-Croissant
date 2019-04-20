@@ -25,6 +25,8 @@ import org.ghrobotics.lib.subsystems.drive.DifferentialTrackerDriveBase
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.DoubleSource
+import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
+import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.exparimental.command.RunCommand
 import org.team5940.pantry.exparimental.command.SendableSubsystemBase
 import kotlin.math.absoluteValue
@@ -37,7 +39,7 @@ class Drive(
         override val rightMotor: FalconMotor<Length>,
         val leftEncoder: FalconEncoder<Length>,
         val rightEncoder: FalconEncoder<Length>,
-        val shifter: DoubleSolenoid,
+        val shifter: FalconSolenoid,
         val gyro: AHRS,
         val localization: TankEncoderLocalization
             ) : DifferentialTrackerDriveBase, SendableSubsystemBase() {
@@ -64,9 +66,9 @@ class Drive(
     // Shift up and down
     var lowGear : Boolean by Delegates.observable(false) { _, _, wantLow ->
         if (wantLow) {
-            shifter.set(kForward)
+            shifter.state = FalconSolenoid.State.Forward
         } else {
-            shifter.set(kReverse)
+            shifter.state = FalconSolenoid.State.Reverse
         }
     }
 
@@ -173,7 +175,7 @@ class Drive(
             val leftTransmission = Transmission(leftMotors)
             val rightTransmission = Transmission(rightMotors)
 
-            val shifter = DoubleSolenoid(Ports.kPCMID, Ports.DrivePorts.SHIFTER_PORTS[0], Ports.DrivePorts.SHIFTER_PORTS[1])
+            val shifter = FalconDoubleSolenoid(Ports.DrivePorts.SHIFTER_PORTS[0], Ports.DrivePorts.SHIFTER_PORTS[1], Ports.kPCMID)
 
             val gyro = AHRS(SPI.Port.kMXP)
 

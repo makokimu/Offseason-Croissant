@@ -1,32 +1,31 @@
 package frc.robot.subsystems.intake
 
-import edu.wpi.first.wpilibj.DoubleSolenoid
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.Volt
 import kotlin.properties.Delegates
-import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import frc.robot.Ports.kPCMID
 import frc.robot.Ports.IntakePorts.SHIFTER_PORTS
 import frc.robot.Ports.IntakePorts.CARGO_PORT
 import frc.robot.Ports.IntakePorts.HATCH_PORT
-import frc.robot.lib.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnit
-import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitModel
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
+import org.ghrobotics.lib.wrappers.FalconSolenoid
 
 class Intake(
         val hatchMotor : FalconMotor<NativeUnit>,
         val cargoMotor : FalconMotor<NativeUnit>,
-        private val clampPistons : DoubleSolenoid
+        private val clampPistons : FalconSolenoid
 ) {
 
     // Open and close the intake
     var intakeOpen : Boolean by Delegates.observable(false) { _, _, wantsClosed ->
         if (wantsClosed) {
-            clampPistons.set(kForward)
+            clampPistons.state = FalconSolenoid.State.Forward
         } else {
-            clampPistons.set(kReverse)
+            clampPistons.state = FalconSolenoid.State.Reverse
         }
     }
 
@@ -42,7 +41,7 @@ class Intake(
         fun createRealIntake() : Intake {
             val hatchMotor = FalconSRX(HATCH_PORT, DefaultNativeUnitModel)
             val cargoMotor = FalconSRX(CARGO_PORT, DefaultNativeUnitModel)
-            val solenoid = DoubleSolenoid(kPCMID, SHIFTER_PORTS[0], SHIFTER_PORTS[1])
+            val solenoid = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1], kPCMID)
 
             return Intake(hatchMotor, cargoMotor, solenoid)
         }
