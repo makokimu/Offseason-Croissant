@@ -3,17 +3,17 @@ package frc.robot.subsystems.intake
 import edu.wpi.first.wpilibj.DoubleSolenoid
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.Volt
-import org.ghrobotics.lib.wrappers.FalconMotor
 import kotlin.properties.Delegates
 import org.ghrobotics.lib.mathematics.units.derivedunits.volt
-import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import frc.robot.Ports.kPCMID
 import frc.robot.Ports.IntakePorts.SHIFTER_PORTS
 import frc.robot.Ports.IntakePorts.CARGO_PORT
 import frc.robot.Ports.IntakePorts.HATCH_PORT
+import frc.robot.lib.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnit
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitModel
-import org.ghrobotics.lib.wrappers.ctre.NativeFalconSRX
+import org.ghrobotics.lib.motors.FalconMotor
+import org.ghrobotics.lib.motors.ctre.FalconSRX
 
 class Intake(
         val hatchMotor : FalconMotor<NativeUnit>,
@@ -31,17 +31,17 @@ class Intake(
     }
 
     fun setHatchSpeed(demand : Volt) {
-        hatchMotor.percentOutput = demand.value
+        hatchMotor.setDutyCycle(demand.value / 12)
     }
 
     fun setCargoSpeed(demand : Volt) {
-        cargoMotor.velocity = demand.value
+        cargoMotor.setDutyCycle(demand.value / 12)
     }
 
     companion object {
         fun createRealIntake() : Intake {
-            val hatchMotor = NativeFalconSRX(HATCH_PORT)
-            val cargoMotor = NativeFalconSRX(CARGO_PORT)
+            val hatchMotor = FalconSRX(HATCH_PORT, DefaultNativeUnitModel)
+            val cargoMotor = FalconSRX(CARGO_PORT, DefaultNativeUnitModel)
             val solenoid = DoubleSolenoid(kPCMID, SHIFTER_PORTS[0], SHIFTER_PORTS[1])
 
             return Intake(hatchMotor, cargoMotor, solenoid)

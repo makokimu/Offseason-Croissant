@@ -4,9 +4,8 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import frc.robot.lib.RoundRotation2d
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.wrappers.ctre.FalconSRX
-import org.team5940.pantry.experimental.command.SendableSubsystemBase
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
+import org.ghrobotics.lib.motors.ctre.FalconSRX
 
 class SuperStructure (
         elevator : Joint<Length>,
@@ -18,7 +17,7 @@ class SuperStructure (
 
     companion object {
 
-        fun getRealSuperStructure() {
+        fun getRealTalonSuperStructure() {
 
             val elevatorTalons = listOf(
                     FalconSRX<Length>(ElevatorPorts.TALON_PORTS[0], ElevatorPorts.LENGTH_MODEL),
@@ -28,11 +27,15 @@ class SuperStructure (
             )
 
             elevatorTalons[0].run {
-                inverted = ElevatorPorts.MASTER_INVERTED
+                outputInverted = ElevatorPorts.MASTER_INVERTED
+//                inverted = ElevatorPorts.MASTER_INVERTED
                 feedbackSensor = ElevatorPorts.SENSOR
-                setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
-                peakForwardOutput = 1.0
-                peakReverseOutput = -1.0
+
+                feedbackSensor = FeedbackDevice.CTRE_MagEncoder_Relative
+
+                motorController.setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
+                motorController.configPeakOutputForward(1.0, 0)
+                motorController.configPeakOutputReverse(-1.0, 0)
 
             }
 //            elevatorTalons[0].inverted = ElevatorPorts.MASTER_INVERTED
@@ -40,8 +43,9 @@ class SuperStructure (
 //            elevatorTalons[0].setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
 
             for (i in 1..3) {
-                elevatorTalons[i].set(ControlMode.Follower, elevatorTalons[0].deviceID)
-                elevatorTalons[i].setInverted(ElevatorPorts.FOLLOWER_INVERSION[i - 1])
+                elevatorTalons[i].motorController.set(ControlMode.Follower, elevatorTalons[0].motorController.deviceID.toDouble())
+                // xd a breaking change TODO meme
+//                elevatorTalons[i].motorController.setInverted(ElevatorPorts.FOLLOWER_INVERSION[i - 1])
             }
 
         }
