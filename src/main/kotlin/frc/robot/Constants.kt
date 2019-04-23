@@ -2,8 +2,10 @@ package frc.robot
 
 import com.team254.lib.physics.DifferentialDrive
 import com.team254.lib.physics.DCMotorTransmission
-import org.ghrobotics.lib.mathematics.units.Length
-import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
+import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
+import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
 
@@ -56,11 +58,17 @@ object Constants {
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveRightHigh),
                 kVInterceptRightHigh)
 
-        val kLowGearDifferentialDrive : DifferentialDrive = DifferentialDrive(kRobotMass, kRobotMomentOfInertia,
+        val kLowGearDifferentialDrive = DifferentialDrive(kRobotMass, kRobotMomentOfInertia,
                 kRobotAngularDrag, kWheelRadius.meter, kTrackWidth.meter / 2.0, kLeftTransmissionModelLowGear, kRightTransmissionModelLowGear)
 
-        val kHighGearDifferentialDrive : DifferentialDrive = DifferentialDrive(kRobotMass, kRobotMomentOfInertia,
+        val kHighGearDifferentialDrive = DifferentialDrive(kRobotMass, kRobotMomentOfInertia,
                 kRobotAngularDrag, kWheelRadius.meter, kTrackWidth.meter / 2.0, kLeftTransmissionModelHighGear, kRightTransmissionModelHighGear)
+
+    }
+
+    object ElevatorConstants {
+
+        val motionCruiseVel = 100.inch.velocity
 
     }
 

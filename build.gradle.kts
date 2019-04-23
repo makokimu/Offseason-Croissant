@@ -4,6 +4,7 @@ import edu.wpi.first.gradlerio.frc.RoboRIO
 import edu.wpi.first.toolchain.NativePlatforms
 import jaci.gradle.deploy.artifact.FileTreeArtifact
 import jaci.gradle.deploy.context.DeployContext
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("edu.wpi.first.GradleRIO") version "2019.4.1"
@@ -46,7 +47,7 @@ dependencies {
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.0")
 
     // FalconLibrary
-    compile("org.ghrobotics", "FalconLibrary", "2019.3.18")
+    compile("com.github.mcm001:falconlibrary:c5019e366c")
 
     // WPILib and Vendors
     wpi.deps.wpilib().forEach { compile(it) }
@@ -59,7 +60,7 @@ dependencies {
     // Gson
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0")
 
-    compile("com.github.mcm001:pantrycommon:587caa1eab")
+    compile("com.github.mcm001:pantrycommon:7275171fd4")
 
     compile("com.github.Oblarg:Oblog:2.8.1")
 
@@ -80,6 +81,14 @@ tasks.jar {
     }
 }
 
-tasks.withType<Wrapper>().configureEach {
-    gradleVersion = "5.0"
+tasks {
+    withType<Wrapper>().configureEach {
+        gradleVersion = "5.0"
+    }
+    withType<KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += "-Xjvm-default=compatibility"
+        }
+    }
 }
