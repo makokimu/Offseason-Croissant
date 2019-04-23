@@ -19,7 +19,6 @@ import org.ghrobotics.lib.wrappers.LinearFalconMotor
 import org.ghrobotics.lib.wrappers.ctre.FalconSRX
 import kotlin.properties.Delegates
 
-
 class Drive(
         val left:  FalconMotor<Length>,
         val right: FalconMotor<Length>,
@@ -33,9 +32,7 @@ class Drive(
     init {
 //        trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
         localization.reset(Pose2d())
-        Notifier{
-            localization.update()
-        }.startPeriodic(1.0 / 100.0)
+        Notifier(localization::update).startPeriodic(1.0 / 100.0)
     }
 
     // Shift up and down
