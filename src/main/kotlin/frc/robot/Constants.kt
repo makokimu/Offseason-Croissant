@@ -72,4 +72,10 @@ object Constants {
 
     }
 
+    object IntakeConstants {
+
+        val deployTime = 0.1.second
+
+    }
+
 }

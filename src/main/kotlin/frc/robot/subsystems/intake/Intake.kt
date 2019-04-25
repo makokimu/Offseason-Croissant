@@ -21,7 +21,7 @@ class Intake(
 ) {
 
     // Open and close the intake
-    var intakeOpen : Boolean by Delegates.observable(false) { _, _, wantsClosed ->
+    var wantsOpen : Boolean by Delegates.observable(false) { _, _, wantsClosed ->
         if (wantsClosed) {
             clampPistons.state = FalconSolenoid.State.Forward
         } else {

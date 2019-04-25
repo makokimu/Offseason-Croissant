@@ -10,10 +10,9 @@ import org.ghrobotics.lib.motors.FalconMotor
  * Create a transmission. The motors should already be inverted and phases set etc before being passed.
  * @param allMotors, with [0] being the master
  */
-class Transmission (
-        private val allMotors : List<FalconMotor<Length>>
+class LinearTransmission (
+        val allMotors : List<FalconMotor<Length>>
     ) : FalconMotor<Length> {
-
 
     override val encoder: FalconEncoder<Length>
         get() = master.encoder
@@ -70,11 +69,6 @@ class Transmission (
             it.setDutyCycle(0.0)
 //            motor.percentOutput = 0.0
         }
-    }
-
-    // in case we get stuff happening
-    fun reconfigFollow() {
-        // TODO stuff
     }
 
     override var brakeMode: Boolean

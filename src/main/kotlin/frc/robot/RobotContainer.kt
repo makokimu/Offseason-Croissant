@@ -5,13 +5,18 @@ import edu.wpi.first.wpilibj.XboxController
 import frc.robot.lib.AButtonButton
 import frc.robot.lib.XButtonButton
 import frc.robot.subsystems.drive.Drive
+import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.SuperStructure
 
 class RobotContainer {
 
     val drive = Drive.getRealTalonDrive()
 
-    val superStructure = SuperStructure.getRealTalonSuperStructure()
+//    val superStructure = SuperStructure(Elevator.getTalonElevator(), SuperStructure.getProximal(), SuperStructure.getWrist(), )
+
+    init {
+//        drive.addComponent(superStructure)
+    }
 
     val primary : XboxController = XboxController(0)
 

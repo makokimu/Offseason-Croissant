@@ -60,8 +60,8 @@ infix fun Command.interruptOn(condition: BooleanSource): Command {
  * @param toKtRunnable the Runnable to run
  * @return the decorated command
  */
-infix fun Command.whenFinished(toKtRunnable: ktRunnable): Command {
-    return SequentialCommandGroup(this, InstantCommand(Runnable{toKtRunnable}))
+infix fun Command.whenFinished(toRun: ktRunnable): Command {
+    return SequentialCommandGroup(this, InstantCommand(Runnable{toRun}))
 }
 
 /**
@@ -77,8 +77,8 @@ infix fun Command.whenFinished(toKtRunnable: ktRunnable): Command {
  * @param toKtRunnable the Runnable to run
  * @return the decorated command
  */
-infix fun Command.beforeStarting(toKtRunnable: ktRunnable): Command {
-    return SequentialCommandGroup(InstantCommand(Runnable{toKtRunnable}), this)
+infix fun Command.beforeStarting(toRun: ktRunnable): Command {
+    return SequentialCommandGroup(InstantCommand(Runnable{toRun}), this)
 }
 
 /**

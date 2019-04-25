@@ -3,32 +3,28 @@ package frc.robot.subsystems.drive
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.kauailabs.navx.frc.AHRS
 import com.team254.lib.physics.DifferentialDrive
-import edu.wpi.first.wpilibj.DoubleSolenoid
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.Length
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value.*
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SPI
 import frc.robot.Constants
 import frc.robot.Ports
+import org.ghrobotics.lib.components.DriveComponent
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.units.meter
+import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.motors.FalconEncoder
 import org.ghrobotics.lib.motors.FalconMotor
-import org.ghrobotics.lib.motors.LinearFalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTREEncoder
 import org.ghrobotics.lib.motors.ctre.FalconSRX
-import org.ghrobotics.lib.subsystems.drive.DifferentialTrackerDriveBase
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.exparimental.command.RunCommand
-import org.team5940.pantry.exparimental.command.SendableSubsystemBase
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.properties.Delegates
@@ -42,7 +38,7 @@ class Drive(
         val shifter: FalconSolenoid,
         val gyro: AHRS,
         val localization: TankEncoderLocalization
-            ) : DifferentialTrackerDriveBase, SendableSubsystemBase() {
+            ) : DriveComponent(4.inch) {
 
     var currentTrajectoryTracker : TrajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
 
@@ -58,9 +54,10 @@ class Drive(
 
     inner class curvatureDriveCommand(left : DoubleSource, right : DoubleSource, isQuickTurn: BooleanSource) : RunCommand(
             Runnable {
-        val commandedInput = curvatureDrive(left.invoke(), right.invoke(), isQuickTurn.invoke())
-        leftMotor.setDutyCycle(commandedInput.left)
-        rightMotor.setDutyCycle(commandedInput.right)
+
+                val commandedInput = curvatureDrive(left.invoke(), right.invoke(), isQuickTurn.invoke())
+                wantedState = DriveComponent.State.PercentOutput(commandedInput.left, commandedInput.right)
+
     }, this)
 
     // Shift up and down
@@ -172,15 +169,15 @@ class Drive(
             val leftEncoder = FalconCTREEncoder(leftMotors[0].motorController, model=leftMotors[0].model)
             val rightEncoder = FalconCTREEncoder(rightMotors[0].motorController, model=rightMotors[0].model)
 
-            val leftTransmission = Transmission(leftMotors)
-            val rightTransmission = Transmission(rightMotors)
+            val leftTransmission = LinearTransmission(leftMotors)
+            val rightTransmission = LinearTransmission(rightMotors)
 
             val shifter = FalconDoubleSolenoid(Ports.DrivePorts.SHIFTER_PORTS[0], Ports.DrivePorts.SHIFTER_PORTS[1], Ports.kPCMID)
 
             val gyro = AHRS(SPI.Port.kMXP)
 
             val localization = TankEncoderLocalization(
-                    {(gyro.getFusedHeading() * -1).degree},
+                    {(gyro.fusedHeading * -1).degree},
                     {leftEncoder.position},
                     {rightEncoder.position}
             )
