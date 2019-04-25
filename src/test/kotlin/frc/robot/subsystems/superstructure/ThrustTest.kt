@@ -1,5 +1,8 @@
 package frc.robot.subsystems.superstructure
 
+import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.meter
+import org.ghrobotics.lib.mathematics.units.radian
 import org.junit.Test
 import org.mockito.Mockito
 
@@ -17,7 +20,7 @@ class ThrustTest {
         )
 
         val thrust = ThrustCommand(
-                12.toDouble(), 10.toDouble(), superStructure
+                12.inch.meter, 10.inch.meter, superStructure
         )
 
         thrust.initialize()
@@ -25,7 +28,7 @@ class ThrustTest {
         val traject = thrust.trajectory
 
         traject.forEach {
-            println(it)
+            println("elevator ${it.elevator.meter.inch} \t proximal ${it.proximal.radian.degree} \t wrist ${it.wrist.radian.degree}")
         }
 
     }

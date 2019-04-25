@@ -99,17 +99,37 @@ class SuperStructure(
 
     fun getPresetFromPose3d(wristAngle: Double, pose : Translation3d, isProximalUnder: Boolean, normalizeIfError: Boolean): Preset {
 
+        println("-------------------------------------------------")
+
+        println("input pose: $pose")
+
+        println("elevator zero: ${(elevator.elevatorZero).x}")
+
+        println("proximal arm len: ${proximal.armLength}")
+
         var proximalDxFromElevator : Double = (pose - elevator.elevatorZero).x
+
+
+        println("proximal tip dx from elevator $proximalDxFromElevator")
+
         // using this, determine the proximal angle for this pose
         if(proximalDxFromElevator > proximal.armLength) {
             if(normalizeIfError) proximalDxFromElevator = proximal.armLength else
                 throw IllegalStateException("Cannot extend proximal past max extension lul")
         }
 
-        val proximalAngle = ( Math.abs(Math.sin(proximalDxFromElevator / proximal.armLength)) *
-                (if (isProximalUnder) -1 else 1) ) % (2 * PI) // idk if the modulo is necessary
+        println("that sin thing to figure out proximal: ${Math.asin(proximalDxFromElevator / proximal.armLength)}")
+
+        val proximalAngle = ( Math.abs(Math.asin(proximalDxFromElevator / proximal.armLength)) *
+                (if (isProximalUnder) -1 else 1) ) //% (2 * PI) // idk if the modulo is necessary
+
+        println("proximal angle: ${Math.toDegrees(proximalAngle)}")
 
         val elevatorHeight = pose.y - (Math.acos(proximalAngle) * proximal.armLength)
+
+        println("elevator height: $elevatorHeight")
+
+        println("-------------------------------------------------")
 
         return Preset(elevatorHeight, proximalAngle, wristAngle)
     }

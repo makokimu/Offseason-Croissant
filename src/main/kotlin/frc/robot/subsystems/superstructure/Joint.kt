@@ -172,7 +172,7 @@ class Joint (
                     SimFalconMotor<Rotation2d>(),
                     null,
                     0.5,
-                    12.inch.meter,
+                    24.inch.meter,
                     Translation3d.kZero,
                     Translation3d(0.0,0.0,1.0),
                     0.degree,

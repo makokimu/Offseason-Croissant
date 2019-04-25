@@ -21,7 +21,7 @@ class Elevator(
         override val followerMotors: List<FalconMotor<*>>? = null,
         val pidfSlot: Int,
         override val elevatorKg: Double,
-        override val elevatorZero: Translation3d
+        override val elevatorZero: Translation3d = Translation3d.kZero
     ) : ElevatorComponent(elevatorZero), MultiMotorTransmission, EmergencyHandleable {
 
 
@@ -163,7 +163,7 @@ class Elevator(
                     null,
                     0,
                     1.0,
-                    Translation3d(-10.0, 3.0, 0.0)
+                    Translation3d(0.0, 0.0, 0.0)
             )
         }
 

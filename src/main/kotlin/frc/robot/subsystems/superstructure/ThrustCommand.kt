@@ -2,6 +2,8 @@ package frc.robot.subsystems.superstructure
 
 import org.ghrobotics.lib.mathematics.threedim.geometry.Pose3d
 import org.ghrobotics.lib.mathematics.threedim.geometry.Translation3d
+import org.ghrobotics.lib.mathematics.units.degree
+import org.ghrobotics.lib.mathematics.units.inch
 import org.team5940.pantry.exparimental.command.SendableCommandBase
 
 @Suppress("unused")
@@ -20,8 +22,11 @@ class ThrustCommand(
     }
 
     override fun initialize() {
-        initialState = /*superStructure.position*/ SuperStructure.Preset(10.0, 0.0, 0.0)
-        initialIntakeTransform = /*superStructure.wrist.worldTransform.translation*/ Translation3d(22.0, Math.toRadians(-90.0), 0.0)
+        initialIntakeTransform = /*superStructure.position*/  Translation3d(15.inch.meter, 25.inch.meter, 0.0)
+
+        initialState = superStructure.getPresetFromPose3d(0.0, initialIntakeTransform, true, true)
+
+//        initialIntakeTransform = /*superStructure.wrist.worldTransform.translation*/ Translation3d(10.inch.meter, 0.6096, 0.0)
         goalIntakeTransform = initialIntakeTransform + Translation3d(thrustDistance, 0.0, 0.0)
 
         trajectory = generateThrustPlan(initialIntakeTransform, goalIntakeTransform, thrustDistance)
@@ -37,6 +42,9 @@ class ThrustCommand(
 
         val deltaPos = goalIntakeTransform - initialIntakeTransform
 
+        println("initialPose: $initialIntakeTransform")
+        println("goalPose: $goalIntakeTransform")
+
         println("deltaPos: $deltaPos")
 
         val totalTime = thrustDistance / thrustVelocity
@@ -48,20 +56,30 @@ class ThrustCommand(
         val path : ArrayList<SuperStructure.Preset> = arrayListOf()
         val samples : Double = (totalTime/dt)
 
-        for(i in 0..samples.toInt()) {
+        path.add(superStructure.getPresetFromPose3d(initialPreset.wrist, initialIntakeTransform, isProximalUnderCarriage, true))
+
+        println("total samples $samples")
+
+        println("=================================================================")
+
+        for(i in 1..samples.toInt()) {
             // iterate over all the poses we need to generate
             val progress : Double = i/samples
 
             println("progress $progress")
 
-            println("distance to add ${(deltaPos / progress)}")
+            println("distance to add ${(deltaPos * progress)}")
 
-            val targetPose = initialIntakeTransform + (deltaPos / progress)
+            val targetPose = initialIntakeTransform + (deltaPos * progress)
 
             println("target pose $targetPose")
 
             // iteratively solve the needed state reeEE
-            path.add(superStructure.getPresetFromPose3d(initialPreset.wrist, targetPose, isProximalUnderCarriage, true))
+            val toAdd = superStructure.getPresetFromPose3d(initialPreset.wrist, targetPose, isProximalUnderCarriage, true)
+
+            println("calculated pose to add $toAdd")
+
+            path.add(toAdd)
 
         }
 
