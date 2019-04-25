@@ -36,6 +36,9 @@ class ThrustCommand(
         // assume that acceleration is infinite for now
 
         val deltaPos = goalIntakeTransform - initialIntakeTransform
+
+        println("deltaPos: $deltaPos")
+
         val totalTime = thrustDistance / thrustVelocity
 
         val initialPreset = initialState
@@ -49,7 +52,13 @@ class ThrustCommand(
             // iterate over all the poses we need to generate
             val progress : Double = i/samples
 
+            println("progress $progress")
+
+            println("distance to add ${(deltaPos / progress)}")
+
             val targetPose = initialIntakeTransform + (deltaPos / progress)
+
+            println("target pose $targetPose")
 
             // iteratively solve the needed state reeEE
             path.add(superStructure.getPresetFromPose3d(initialPreset.wrist, targetPose, isProximalUnderCarriage, true))

@@ -13,6 +13,7 @@ import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
+import org.ghrobotics.lib.simulation.SimFalconMotor
 import org.mockito.Mockito
 
 class Elevator(
@@ -158,7 +159,7 @@ class Elevator(
 
         fun getMockElevator() : Elevator {
             return Elevator(
-                    Mockito.mock(FalconSRX<Length>(0, Ports.SuperStructurePorts.ElevatorPorts.LENGTH_MODEL).javaClass),
+                    SimFalconMotor<Length>(),
                     null,
                     0,
                     1.0,

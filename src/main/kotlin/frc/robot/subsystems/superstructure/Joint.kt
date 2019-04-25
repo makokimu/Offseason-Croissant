@@ -24,6 +24,7 @@ import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
 import org.ghrobotics.lib.motors.ctre.FalconCTRE.LimitSwitchConfig
+import org.ghrobotics.lib.simulation.SimFalconMotor
 import org.mockito.Mockito
 
 
@@ -168,7 +169,7 @@ class Joint (
 
         fun getMockJoint() : Joint {
             return Joint(
-                    Mockito.mock(FalconSRX<Rotation2d>(0, NativeUnitRotationModel(4096.nativeUnits)).javaClass),
+                    SimFalconMotor<Rotation2d>(),
                     null,
                     0.5,
                     12.inch.meter,

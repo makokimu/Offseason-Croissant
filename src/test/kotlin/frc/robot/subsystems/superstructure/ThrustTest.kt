@@ -1,6 +1,7 @@
 package frc.robot.subsystems.superstructure
 
 import org.junit.Test
+import org.mockito.Mockito
 
 class ThrustTest {
 
@@ -21,9 +22,11 @@ class ThrustTest {
 
         thrust.initialize()
 
-        println(
-                thrust.trajectory
-        )
+        val traject = thrust.trajectory
+
+        traject.forEach {
+            println(it)
+        }
 
     }
 }

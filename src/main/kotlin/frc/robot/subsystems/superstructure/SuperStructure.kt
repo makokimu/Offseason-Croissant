@@ -15,6 +15,16 @@ class SuperStructure(
         val wrist: ArmComponent
 ) : RobotComponent(), EmergencyHandleable {
 
+    init {
+        addComponent(elevator)
+        elevator.run {
+            addComponent(proximal)
+        }
+        proximal.run {
+            addComponent(wrist)
+        }
+    }
+
     override fun activateEmergency(severity: EmergencyHandleable.Severity) {
         _children.forEach{
             when(it) {

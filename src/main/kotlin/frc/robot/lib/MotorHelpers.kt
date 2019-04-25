@@ -12,6 +12,7 @@ import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
+import org.ghrobotics.lib.simulation.SimFalconMotor
 
 object MotorHelpers {
 
@@ -80,6 +81,9 @@ object MotorHelpers {
 
                     motor.getForwardLimitSwitch(maxPolarity)
                     motor.getReverseLimitSwitch(minPolarity)
+
+                }
+                is SimFalconMotor -> {
 
                 }
                 else -> TODO("Config not implemented for non-CTR and non-REV joint!")
