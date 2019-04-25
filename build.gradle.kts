@@ -47,7 +47,10 @@ dependencies {
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.0")
 
     // FalconLibrary
-    compile("com.github.mcm001:falconlibrary:c5019e366c")
+//    compile("com.github.mcm001:falconlibrary:c5019e366c")
+    compile("com.github.mcm001:FalconLibrary:0.0.1")
+
+    implementation("org.mockito:mockito-core:2.23.+")
 
     // WPILib and Vendors
     wpi.deps.wpilib().forEach { compile(it) }
@@ -60,7 +63,7 @@ dependencies {
     // Gson
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0")
 
-    compile("com.github.mcm001:pantrycommon:7275171fd4")
+    compile("com.github.mcm001:pantrycommon:2d570ea774")
 
     compile("com.github.Oblarg:Oblog:2.8.1")
 
