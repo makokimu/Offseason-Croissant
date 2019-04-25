@@ -29,7 +29,6 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.properties.Delegates
 
-
 class Drive(
         override val leftMotor: FalconMotor<Length>,
         override val rightMotor: FalconMotor<Length>,
@@ -47,9 +46,7 @@ class Drive(
     init {
 //        trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
         localization.reset(Pose2d())
-        Notifier{
-            localization.update()
-        }.startPeriodic(1.0 / 100.0)
+        Notifier(localization::update).startPeriodic(1.0 / 100.0)
     }
 
     inner class curvatureDriveCommand(left : DoubleSource, right : DoubleSource, isQuickTurn: BooleanSource) : RunCommand(
