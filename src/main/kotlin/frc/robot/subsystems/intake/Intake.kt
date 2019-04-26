@@ -1,7 +1,5 @@
 package frc.robot.subsystems.intake
 
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value.*
-import org.ghrobotics.lib.mathematics.units.derivedunits.Volt
 import kotlin.properties.Delegates
 import frc.robot.Ports.kPCMID
 import frc.robot.Ports.IntakePorts.SHIFTER_PORTS
@@ -29,13 +27,13 @@ class Intake(
         }
     }
 
-    fun setHatchSpeed(demand : Volt) {
-        hatchMotor.setDutyCycle(demand.value / 12)
-    }
+    var hatchMotorOutput : Double
+        get() = hatchMotor.voltageOutput / 12.0
+        set(value) = hatchMotor.setDutyCycle(value)
 
-    fun setCargoSpeed(demand : Volt) {
-        cargoMotor.setDutyCycle(demand.value / 12)
-    }
+    var cargoMotorOutput : Double
+        get() = cargoMotor.voltageOutput / 12.0
+        set(value) = cargoMotor.setDutyCycle(value)
 
     companion object {
         fun createRealIntake() : Intake {
