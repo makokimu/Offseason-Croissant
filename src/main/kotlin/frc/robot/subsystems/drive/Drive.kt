@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.SPI
 import frc.robot.Constants
 import frc.robot.Ports
 import org.ghrobotics.lib.components.DriveComponent
+import org.ghrobotics.lib.components.EmergencyHandleable
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
@@ -17,8 +18,10 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.motors.FalconEncoder
 import org.ghrobotics.lib.motors.FalconMotor
+import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconCTREEncoder
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.motors.rev.FalconMAX
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.DoubleSource
@@ -37,7 +40,7 @@ class Drive(
         val shifter: FalconSolenoid,
         val gyro: AHRS,
         val localization: TankEncoderLocalization
-            ) : DriveComponent(4.inch) {
+            ) : DriveComponent(4.inch), EmergencyHandleable {
 
     var currentTrajectoryTracker : TrajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
 
@@ -139,6 +142,58 @@ class Drive(
 
         return DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
     }
+
+    // if
+    override fun customizeWantedState(wantedState: State): State {
+        if (outputsDisabled) return State.Nothing
+        return if(closedLoopForbidden) {
+            when (wantedState) {
+                is State.PercentOutput -> wantedState
+                else -> State.Nothing
+            }
+        } else super.customizeWantedState(wantedState)
+    }
+
+    override fun activateEmergency(severity: EmergencyHandleable.Severity) {
+        when(severity) {
+            is EmergencyHandleable.Severity.DisableClosedLoop -> {closedLoopForbidden = true}
+            is EmergencyHandleable.Severity.DisableOutput -> {
+                closedLoopForbidden = true
+                outputsDisabled = true
+                setOutputRange(0.0, 0.0)
+            }
+        }
+    }
+
+    override fun recoverFromEmergency() {
+        setOutputRange(-1.0, 1.0)
+        closedLoopForbidden = false
+        outputsDisabled = false
+    }
+
+    private fun setOutputRange(min: Double, max: Double) = setOutputRange(FalconCTRE.OutputConfig(min, max))
+
+    private fun setOutputRange(config: FalconCTRE.OutputConfig) {
+        when(leftMotor) {
+            is FalconCTRE -> {
+                leftMotor.setMinMaxOutput(config)
+            }
+            is FalconMAX -> {
+                leftMotor.controller.setOutputRange(config.minOutput, config.maxOutput)
+            }
+        }
+        when(rightMotor) {
+            is FalconCTRE -> {
+                rightMotor.setMinMaxOutput(config)
+            }
+            is FalconMAX -> {
+                rightMotor.controller.setOutputRange(config.minOutput, config.maxOutput)
+            }
+        }
+    }
+
+    var closedLoopForbidden = false
+    var outputsDisabled = false
 
     companion object {
 
