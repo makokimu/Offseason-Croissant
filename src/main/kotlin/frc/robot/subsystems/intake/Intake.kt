@@ -13,8 +13,8 @@ import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 
 class Intake(
-        val hatchMotor : FalconMotor<NativeUnit>,
-        val cargoMotor : FalconMotor<NativeUnit>,
+        private val hatchMotor : FalconMotor<NativeUnit>,
+        private val cargoMotor : FalconMotor<NativeUnit>,
         private val clampPistons : FalconSolenoid
 ) {
 

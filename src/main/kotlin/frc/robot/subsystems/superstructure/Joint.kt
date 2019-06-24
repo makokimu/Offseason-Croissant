@@ -19,6 +19,7 @@ import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnit
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitRotationModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
+import org.ghrobotics.lib.motors.FalconEncoder
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
@@ -56,10 +57,9 @@ class Joint (
         val maxPosition : NativeUnit,
         val model : NativeUnitModel<Rotation2d>,
         val slotConfiguration: SlotConfiguration = SlotConfiguration(),
-        val currentLimitConfig: FalconSRX.CurrentLimitConfig = FalconSRX.CurrentLimitConfig(40.amp, 1.second, 35.amp)
+        val currentLimitConfig: FalconSRX.CurrentLimitConfig = FalconSRX.CurrentLimitConfig(40.amp, 1.second, 35.amp),
+        val encoder: FalconEncoder<Rotation2d> = motor.encoder
 ) : ArmComponent(Translation3d.kZero, Translation3d.kZero, armLength), MultiMotorTransmission, EmergencyHandleable {
-
-    val encoder = motor.encoder
 
     init {
 
@@ -172,7 +172,7 @@ class Joint (
                     SimFalconMotor<Rotation2d>(),
                     null,
                     0.5,
-                    24.inch.meter,
+                    16.inch.meter,
                     Translation3d.kZero,
                     Translation3d(0.0,0.0,1.0),
                     0.degree,
