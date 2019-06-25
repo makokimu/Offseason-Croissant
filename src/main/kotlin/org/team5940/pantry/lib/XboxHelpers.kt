@@ -1,8 +1,8 @@
-package frc.robot.lib
+package org.team5940.pantry.lib
 
 import edu.wpi.first.wpilibj.XboxController
-import org.team5940.pantry.exparimental.buttons.Button
-import org.team5940.pantry.exparimental.buttons.JoystickButton
+import edu.wpi.first.wpilibj.experimental.buttons.Button
+import edu.wpi.first.wpilibj.experimental.buttons.JoystickButton
 
 private enum class Buttons(val value : Int){
     kBumperLeft(5),

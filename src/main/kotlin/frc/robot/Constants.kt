@@ -2,6 +2,7 @@ package frc.robot
 
 import com.team254.lib.physics.DifferentialDrive
 import com.team254.lib.physics.DCMotorTransmission
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
@@ -74,8 +75,46 @@ object Constants {
 
     object IntakeConstants {
 
-        val deployTime = 0.1.second
+//        val deployTime = 0.1.second
 
     }
+
+    /* Wrist stuff */
+    val kWristLength = 6.inch // distance from joint to COM
+    val kWristMass = 15.lb
+    val kWristSpeedPerVolt = 0.21 // radians/sec/volt
+    val kWristTorquePerVolt = 47.33 // Newton meters per volt, stall
+    val kWristStaticFrictionVoltage = 0.0 // volts, TODO tune
+
+    /* Elbow stuff */
+    val kElbowLength = 8.inch // distance from joint to COM
+    val kElbowMass = 3.lb
+    val kElbowSpeedPerVolt = 0.17 // radians/sec/volt
+    val kElbowTorquePerVolt = 55.0 // Newton meters per volt, stall
+    val kElbowStaticFrictionVoltage = 0.0 // volts, TODO tune
+
+    // ROBOT AND MECHANISM DIMENSIONS
+
+    val kRobotWidth = 28.75.inch
+    val kRobotLength = 31.inch
+
+    val kBumperThickness = 3.25.inch
+    val kCenterToElevator = (kRobotLength / 2) - 11.inch // 4.5
+    val kBadIntakeOffset = 0.inch
+    val kArmLength = 29.5.inch // from center of elevator to hatch part of the intake
+
+    val kIntakeProtrusionFrontExtended = kArmLength - (kRobotLength / 2.0 - kCenterToElevator) // 18.5
+    val kIntakeProtrusionBackExtended = kCenterToElevator - kArmLength + kRobotLength / 2.0 // -9.5
+
+    // TRANSFORMATIONS
+    val kFrontBumperToCenter = Pose2d(-(kRobotLength / 2.0) - kBumperThickness, 0.meter, 0.degree)
+    val kBackBumperToCenter = Pose2d((kRobotLength / 2.0) + kBumperThickness, 0.meter, 0.degree)
+
+    val kForwardIntakeToCenter = Pose2d(-(kRobotLength / 2.0) - kIntakeProtrusionFrontExtended, kBadIntakeOffset, 0.degree) // -34
+    val kCenterToForwardIntake = Pose2d((kRobotLength / 2.0) + kIntakeProtrusionFrontExtended, -kBadIntakeOffset, 0.degree) // 34
+    val kBackwardIntakeToCenter = Pose2d(kCenterToForwardIntake.translation.x.meter - kCenterToElevator, -kBadIntakeOffset, 0.degree) // 29.5
+
+    val kCenterToFrontCamera = Pose2d((-1.75).inch, 0.0.inch, 0.degree)
+    val kCenterToBackCamera = Pose2d((-6.25).inch, 0.0.inch, 180.degree)
 
 }

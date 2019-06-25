@@ -2,33 +2,59 @@
 
 package frc.robot.subsystems.intake
 
-import frc.robot.lib.andThen
-import org.team5940.pantry.exparimental.command.InstantCommand
-import org.team5940.pantry.exparimental.command.WaitCommand
-import frc.robot.Constants.IntakeConstants.deployTime
+import edu.wpi.first.wpilibj.experimental.command.Command
+import edu.wpi.first.wpilibj.experimental.command.InstantCommand
+import edu.wpi.first.wpilibj.experimental.command.RunCommand
+import edu.wpi.first.wpilibj.experimental.command.StartEndCommand
 import org.ghrobotics.lib.utils.DoubleSource
-import org.team5940.pantry.exparimental.command.RunCommand
 
-object IntakeCommands {
+val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
+val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
 
-    fun closeIntake(instance: Intake) = InstantCommand(Runnable { instance.wantsOpen = false }) andThen
-            WaitCommand(deployTime.second)
-    fun openIntake(instance: Intake) = InstantCommand(Runnable { instance.wantsOpen = true }) andThen
-            WaitCommand(deployTime.second)
+open class RunIntake(cargoSpeed: DoubleSource, hatchSpeed: DoubleSource) : RunCommand(Runnable {
+    val isOpen = Intake.wantsOpen
+    val cargo = cargoSpeed()
+    val hatch = hatchSpeed() * (if (!isOpen) -1 else 1)
 
-    fun runIntake(cargoSpeed: DoubleSource, hatchSpeed: DoubleSource, instance: Intake) = RunCommand(Runnable {
-        val isOpen = instance.wantsOpen
-        val cargo = cargoSpeed()
-        val hatch = hatchSpeed() * (if (!isOpen) -1 else 1)
+    Intake.wantsOpen = isOpen
 
-        instance.wantsOpen = isOpen
+    Intake.hatchMotorOutput = hatch
+    Intake.cargoMotorOutput = cargo
+})
 
-        instance.hatchMotorOutput = hatch
-        instance.cargoMotorOutput = cargo
+class IntakeHatchCommand(isExhausting: Boolean) : StartEndCommand(Runnable{Intake.hatchMotorOutput = 1 * isExhausting; Intake.wantsOpen = false},
+        Runnable{Intake.hatchMotorOutput = 0.0}) {
 
-//    if (!isOpen) hatch *= -1
-    })
+    var wasOpen: Boolean = false
 
+    override fun initialize() {
+        wasOpen = Intake.wantsOpen
+        Intake.wantsOpen = false
+        super.initialize()
+    }
 
+    override fun end(interrupted: Boolean) {
+        Intake.wantsOpen = wasOpen
+        super.end(interrupted)
+
+    }
 
 }
+
+class IntakeCargoCommand(isExhausting: Boolean) : RunIntake({1.0 * isExhausting}, {1.0 * isExhausting}) {
+
+    var wasOpen: Boolean = false
+
+    override fun initialize() {
+        wasOpen = Intake.wantsOpen
+        Intake.wantsOpen = true
+        super.initialize()
+    }
+
+    override fun end(interrupted: Boolean) {
+        Intake.wantsOpen = wasOpen
+        super.end(interrupted)
+    }
+}
+
+private operator fun Number.times(shouldReverse: Boolean) = if(shouldReverse) toDouble() * -1 else toDouble()

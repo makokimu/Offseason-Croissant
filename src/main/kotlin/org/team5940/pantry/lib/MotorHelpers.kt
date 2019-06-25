@@ -1,15 +1,10 @@
-package frc.robot.lib
+package org.team5940.pantry.lib
 
-import com.ctre.phoenix.motorcontrol.LimitSwitchNormal
 import com.ctre.phoenix.motorcontrol.can.SlotConfiguration
-import com.revrobotics.CANDigitalInput
-import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SIUnit
-import org.ghrobotics.lib.mathematics.units.SIValue
 import org.ghrobotics.lib.mathematics.units.derivedunits.Acceleration
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
 import org.ghrobotics.lib.motors.FalconMotor
-import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
 import org.ghrobotics.lib.simulation.SimFalconMotor
@@ -19,8 +14,7 @@ object MotorHelpers {
 
     fun configureMotor(motor: FalconMotor<*>, cruiseVel: Velocity<*>, cruiseAccel: Acceleration<*>,
                        pidfSlot: Int, currentLimitConfig: FalconSRX.CurrentLimitConfig,
-                       slotConfiguration: SlotConfiguration, minLimitConfig : FalconCTRE.LimitSwitchConfig,
-                       maxLimitConfig: FalconCTRE.LimitSwitchConfig, minPosition: SIUnit<*>, maxPosition: SIUnit<*>):
+                       slotConfiguration: SlotConfiguration, minPosition: SIUnit<*>, maxPosition: SIUnit<*>):
             FalconMotor<*> {
 
         motor.run {
@@ -53,8 +47,8 @@ object MotorHelpers {
                     miniMotor.configClosedLoopPeakOutput(pidfSlot, slotConfiguration.closedLoopPeakOutput, 0)
                     miniMotor.configClosedLoopPeriod(pidfSlot, slotConfiguration.closedLoopPeriod, 0)
 
-                    miniMotor.configForwardLimitSwitchSource(maxLimitConfig.source, maxLimitConfig.limitNormal, miniMotor.deviceID, 0)
-                    miniMotor.configReverseLimitSwitchSource(minLimitConfig.source, minLimitConfig.limitNormal, miniMotor.deviceID, 0)
+//                    miniMotor.configForwardLimitSwitchSource(maxLimitConfig.source, maxLimitConfig.limitNormal, miniMotor.deviceID, 0)
+//                    miniMotor.configReverseLimitSwitchSource(minLimitConfig.source, minLimitConfig.limitNormal, miniMotor.deviceID, 0)
 
                     miniMotor.configForwardSoftLimitThreshold(motor.model.fromNativeUnitPosition(maxPosition.value).toInt(), 0)
                     miniMotor.configReverseSoftLimitThreshold(motor.model.fromNativeUnitPosition(minPosition.value).toInt(), 0)
@@ -76,11 +70,11 @@ object MotorHelpers {
                     pid.setIMaxAccum(slotConfiguration.maxIntegralAccumulator, pidfSlot)
                     pid.setSmartMotionAllowedClosedLoopError(slotConfiguration.allowableClosedloopError.toDouble(), pidfSlot)
 
-                    val maxPolarity = if (maxLimitConfig.limitNormal == LimitSwitchNormal.NormallyOpen) CANDigitalInput.LimitSwitchPolarity.kNormallyClosed else CANDigitalInput.LimitSwitchPolarity.kNormallyOpen
-                    val minPolarity = if (minLimitConfig.limitNormal == LimitSwitchNormal.NormallyOpen) CANDigitalInput.LimitSwitchPolarity.kNormallyClosed else CANDigitalInput.LimitSwitchPolarity.kNormallyOpen
+//                    val maxPolarity = if (maxLimitConfig.limitNormal == LimitSwitchNormal.NormallyOpen) CANDigitalInput.LimitSwitchPolarity.kNormallyClosed else CANDigitalInput.LimitSwitchPolarity.kNormallyOpen
+//                    val minPolarity = if (minLimitConfig.limitNormal == LimitSwitchNormal.NormallyOpen) CANDigitalInput.LimitSwitchPolarity.kNormallyClosed else CANDigitalInput.LimitSwitchPolarity.kNormallyOpen
 
-                    motor.getForwardLimitSwitch(maxPolarity)
-                    motor.getReverseLimitSwitch(minPolarity)
+//                    motor.getForwardLimitSwitch(maxPolarity)
+//                    motor.getReverseLimitSwitch(minPolarity)
 
                 }
                 is SimFalconMotor -> {

@@ -12,11 +12,9 @@ plugins {
     id("idea")
 }
 
-val ROBOT_MAIN_CLASS = "frc.robot.Main"
-
 val roborioTargetName = "roborio"
 
-val kMainRobotClass = "frc.robot.Robot"
+val kMainRobotClass = "frc.robot.RobotKt"
 
 deploy {
     targets {
@@ -48,7 +46,11 @@ dependencies {
 
     // FalconLibrary
 //    compile("com.github.mcm001:falconlibrary:c5019e366c")
-    compile("com.github.mcm001:FalconLibrary:0.0.1")
+//    compile("com.github.mcm001:FalconLibrary:0.0.1")
+    compile("com.github.5190GreenHopeRobotics:FalconLibrary:f6db692f3c")
+
+    compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
+    compile("com.github.salomonbrys.kotson", "kotson", "2.5.0") // gson
 
     implementation("org.mockito:mockito-core:2.23.+")
 
@@ -63,7 +65,7 @@ dependencies {
     // Gson
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0")
 
-    compile("com.github.mcm001:pantrycommon:2d570ea774")
+//    compile("com.github.mcm001:pantrycommon:2d570ea774")
 
     compile("com.github.Oblarg:Oblog:2.8.1")
 

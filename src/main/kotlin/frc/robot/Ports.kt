@@ -18,9 +18,9 @@ object Ports {
     }
 
     object IntakePorts {
-        val HATCH_PORT = 35
-        val CARGO_PORT = 34
-        val SHIFTER_PORTS = listOf(0, 1)
+        const val HATCH_PORT = 35
+        const val CARGO_PORT = 34
+        val PISTON_PORTS = listOf(0, 1)
     }
 
     object SuperStructurePorts {
