@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
+import frc.robot.vision.LimeLight
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
@@ -153,5 +154,5 @@ class VisionDriveCommand(val side: TargetSide) : ManualDriveCommand() {
     override fun isFinished() = false
 }
 
-private fun Rotation2d.plus(other: UnboundedRotation) = Rotation2d(this@plus.value + other.value)
-private fun Rotation2d.minus(other: UnboundedRotation) = plus(-other)
+operator fun Rotation2d.plus(other: UnboundedRotation) = Rotation2d(this@plus.value + other.value)
+operator fun Rotation2d.minus(other: UnboundedRotation) = plus(-other)

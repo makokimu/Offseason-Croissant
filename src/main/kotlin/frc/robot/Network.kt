@@ -1,6 +1,5 @@
 /*
- * FRC Team 5190
- * Green Hope Falcons
+ * Some implementation from Team 5190 Green Hope Robotics
  */
 
 package frc.robot
@@ -8,11 +7,16 @@ package frc.robot
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
+import frc.robot.auto.Autonomous
 import frc.robot.subsystems.drive.Drive
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.wrappers.networktables.enumSendableChooser
 
 object Network {
+
+    val startingPositionChooser = enumSendableChooser<Autonomous.StartingPositions>()
+    val autoModeChooser = enumSendableChooser<Autonomous.Mode>()
 
     private val mainShuffleboardDisplay: ShuffleboardTab = Shuffleboard.getTab("5190")
 
@@ -88,16 +92,15 @@ object Network {
 //    val badIntakeOffset = visionLayout.add("Intake Offset", IntakeSubsystem.badIntakeOffset.inch).entry
 
     init {
-//        // Put choosers on dashboard
-//        autoLayout.add(
-//            "Auto Mode",
-//            autoModeChooser
-//        )
-//        autoLayout.add(
-//            "Starting Position",
-//            startingPositionChooser
-//        )
-
+        // Put choosers on dashboard
+        autoLayout.add(
+                "Auto Mode",
+                autoModeChooser
+        )
+        autoLayout.add(
+                "Starting Position",
+                startingPositionChooser
+        )
     }
 
     @Suppress("LongMethod")

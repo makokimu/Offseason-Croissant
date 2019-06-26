@@ -22,7 +22,7 @@ open class RunIntake(cargoSpeed: DoubleSource, hatchSpeed: DoubleSource) : RunCo
     Intake.cargoMotorOutput = cargo
 })
 
-class IntakeHatchCommand(isExhausting: Boolean) : StartEndCommand(Runnable{Intake.hatchMotorOutput = 1 * isExhausting; Intake.wantsOpen = false},
+class IntakeHatchCommand(exhausting: Boolean) : StartEndCommand(Runnable{Intake.hatchMotorOutput = 1 * exhausting; Intake.wantsOpen = false},
         Runnable{Intake.hatchMotorOutput = 0.0}) {
 
     var wasOpen: Boolean = false
