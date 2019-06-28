@@ -8,6 +8,8 @@ import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.UnboundedRotation
+import org.ghrobotics.lib.mathematics.units.degree
+import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
 object SuperStructure: SendableSubsystemBase(), EmergencyHandleable {
@@ -20,12 +22,23 @@ object SuperStructure: SendableSubsystemBase(), EmergencyHandleable {
     }
 
     // preset semi-singleton commands for each superstructure preset
-    val kHatchFrontFromLoadingStation: SendableCommandBase = InstantCommand()
+    val kHatchFrontFromLoadingStation: SendableCommandBase = everythingMoveTo(State(20.inch, 0.degree, 0.degree))
 
-    fun moveTo(state: State): SendableCommandBase {
+    fun everythingMoveTo(state: State) = stateCommandGroup(
+                // our first parameter is a supplier which decides between the 4 states
+                // kinda like a planner i guess
+                { /* TODO FIX ME */ MovementType.ARM_THEN_ELEVATOR },
 
-        return stateCommandGroup(
-                // our options are flip carriage or don't flip carriage
+                // our second parameter is a runnable which is run on init to add the states
+                // these InstantCommands would need to be replaced with a command to actually
+                // do the thing that the states say (ex. ARM_THEN_ELEVATOR needs to actually do that)
+                {
+                    state(MovementType.ARM_THEN_ELEVATOR, InstantCommand())
+                    state(MovementType.ELEVATOR_THEN_ARM, InstantCommand())
+                    state(MovementType.FRONT_TO_BACK, InstantCommand())
+                    state(MovementType.BACK_TO_FRONT, InstantCommand())
+
+                }
 
         )
 
@@ -48,9 +61,14 @@ object SuperStructure: SendableSubsystemBase(), EmergencyHandleable {
         @Suppress("unused")
         constructor(elevator:Length, proximal:UnboundedRotation, wrist:UnboundedRotation) :
                 this(elevator.value, proximal.value, wrist.value)
+    }
 
-        enum class 
-
+    @Suppress("unused")
+    enum class MovementType {
+        ARM_THEN_ELEVATOR,
+        ELEVATOR_THEN_ARM,
+        FRONT_TO_BACK,
+        BACK_TO_FRONT
     }
 
 }
