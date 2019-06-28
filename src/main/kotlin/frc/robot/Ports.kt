@@ -33,11 +33,19 @@ object Ports {
             val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
         }
         object ProximalPorts {
-            val TALON_PORT = 31
+            val TALON_PORTS = listOf(31, 32)
             val TALON_INVERTED = true
             val TALON_SENSOR_PHASE = false
-            val ROTATION_MODEL = NativeUnitRotationModel(4096.nativeUnits)
-            val SENSOR = FeedbackDevice.CTRE_MagEncoder_Absolute
+            val FOLLOWER_INVERSION = listOf(InvertType.OpposeMaster)
+            val ROTATION_MODEL = NativeUnitRotationModel(4096.nativeUnits * 28 / 3)
+            val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
+        }
+        object WristPorts {
+            val TALON_PORTS = 33
+            val TALON_INVERTED = true
+            val TALON_SENSOR_PHASE = false
+            val ROTATION_MODEL = NativeUnitRotationModel(4096.nativeUnits * 8)
+            val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
         }
     }
 

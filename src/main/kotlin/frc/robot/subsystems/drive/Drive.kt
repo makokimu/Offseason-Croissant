@@ -8,6 +8,7 @@ import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.Length
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SPI
+import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
 import frc.robot.Constants
 import frc.robot.Constants.DriveConstants.kDriveLengthModel
 import frc.robot.Ports
@@ -43,22 +44,28 @@ import kotlin.properties.Delegates
 object Drive : TankDriveSubsystem(), EmergencyHandleable {
 
     override val leftMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(
-            FalconSRX(LEFT_PORTS[0], kDriveLengthModel),
-            FalconSRX(LEFT_PORTS[1], DefaultNativeUnitModel)) {
+            unregisterSubsystem = true) {
+
+        override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
+        override val followers = listOf(FalconSRX(LEFT_PORTS[1], DefaultNativeUnitModel))
+
         override fun setClosedLoopGains() {
             if(lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
     }
 
     override val rightMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(
-            FalconSRX(RIGHT_PORTS[0], kDriveLengthModel),
-            FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel)) {
+            unregisterSubsystem = true) {
+
+        override val master = FalconSRX(RIGHT_PORTS[0], kDriveLengthModel)
+        override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
+
         override fun setClosedLoopGains() {
             if(lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
     }
 
-    val ahrs = AHRS(SPI.Port.kMXP)
+    private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(
             ahrs.asSource(),
             {leftMotor.encoder.position},

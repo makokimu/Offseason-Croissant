@@ -38,7 +38,7 @@ class HybridRoutine(private val mode: Mode) : AutoRoutine() {
         )
     }
 
-    override val duration: Time
+    val duration: Time
         get() = mode.path1.duration + mode.path2.duration + mode.path3.duration
 
     override val routine: FalconCommand

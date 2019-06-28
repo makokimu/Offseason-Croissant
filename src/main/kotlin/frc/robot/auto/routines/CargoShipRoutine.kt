@@ -37,7 +37,7 @@ class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() 
 
     private val pathMirrored = Autonomous.startingPosition.withEquals(Autonomous.StartingPositions.LEFT)
 
-    override val duration: Time
+    val duration: Time
         get() = mode.path1.duration + mode.path2.duration + mode.path3.duration
 
     override val routine: FalconCommand

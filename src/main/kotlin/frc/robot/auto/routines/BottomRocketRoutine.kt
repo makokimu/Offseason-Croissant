@@ -28,7 +28,7 @@ class BottomRocketRoutine : AutoRoutine() {
 
 
     // Calculates the duration of the path
-    override val duration = path1.duration + path2.duration + path3.duration
+    val duration = path1.duration + path2.duration + path3.duration
 
 
     // Auto routine

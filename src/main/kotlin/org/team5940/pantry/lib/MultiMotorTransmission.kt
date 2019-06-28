@@ -1,18 +1,33 @@
 package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
+import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
+import edu.wpi.first.wpilibj.experimental.command.SendableSubsystemBase
+import frc.robot.Ports
+import frc.robot.subsystems.superstructure.Wrist
+import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
 
-abstract class MultiMotorTransmission<T: SIUnit<T>>(
-        private val master: FalconMotor<T>, vararg followers: FalconMotor<*>)
-    : FalconMotor<T> {
+/**
+ * A MultiMotorTransmission which extends Subsystem. By default,
+ * this subsystem will be unregistered
+ */
+abstract class MultiMotorTransmission<T: SIUnit<T>>(unregisterSubsystem: Boolean = false) : FalconMotor<T>, SendableSubsystemBase(),
+        EmergencyHandleable {
 
-    protected open val allMotors: List<FalconMotor<*>> = listOf(master) + followers
+    abstract val master: FalconMotor<T>
+    protected open val followers: List<FalconMotor<*>>? = null
+
+    init {
+        if(unregisterSubsystem) CommandScheduler.getInstance().unregisterSubsystem(this)
+    }
 
     override val encoder = master.encoder
     override var motionProfileAcceleration = master.motionProfileAcceleration
@@ -25,9 +40,15 @@ abstract class MultiMotorTransmission<T: SIUnit<T>>(
 
     override fun follow(motor: FalconMotor<*>): Boolean {
         var result = true
-        allMotors.forEach{
-            result = result.and(it.follow(motor))
+
+        result = result and master.follow(motor)
+
+        val followers_ = followers
+
+        followers_?.forEach {
+            result = result and it.follow(motor)
         }
+
         return result
     }
 
@@ -50,17 +71,19 @@ abstract class MultiMotorTransmission<T: SIUnit<T>>(
         master.setVoltage(voltage, arbitraryFeedForward)
 
     fun zeroClosedLoopGains() {
-        allMotors.forEach { motor ->
+        (listOf(master) + followers).filterNotNull().forEach { motor ->
 //            motor.kP = 0.0
 //            motor.kD = 0.0
 
             when(motor) {
-                is FalconCTRE -> {motor.motorController.run {
+                is FalconCTRE<*> -> {motor.motorController.run {
                     config_kP(0, 0.0, 0)
                     config_kI(0, 0.0, 0)
                     config_kD(0, 0.0, 0)
+                    configClosedLoopPeakOutput(0, 0.0, 0)
                 }}
-                is FalconMAX -> {motor.controller.p = 0.0; motor.controller.i = 0.0; motor.controller.d = 0.0; }
+                is FalconMAX<*> -> {motor.controller.p = 0.0; motor.controller.i = 0.0; motor.controller.d = 0.0;
+                    motor.controller.setOutputRange(0.0, 0.0)}
             }
 
         }
@@ -68,29 +91,37 @@ abstract class MultiMotorTransmission<T: SIUnit<T>>(
 
     abstract fun setClosedLoopGains()
 
-    val outputCurrent = when(master) {
-        is FalconCTRE -> {
-            when(master.motorController) {
-                is IMotorControllerEnhanced -> {
-                    (master.motorController as IMotorControllerEnhanced).outputCurrent
-                } else -> 0.0
+    val outputCurrent: Double
+        get() {
+            val master_: FalconMotor<T> = master
+
+            return when(master_) {
+                is FalconCTRE -> {
+                    when(master_.motorController) {
+                        is IMotorControllerEnhanced -> {
+                            (master_.motorController as IMotorControllerEnhanced).outputCurrent
+                        } else -> 0.0
+                    }
+                }
+                is FalconMAX -> {
+                    master_.canSparkMax.outputCurrent
+                }
+                else -> 0.0
             }
         }
-        is FalconMAX -> {
-            master.canSparkMax.outputCurrent
-        }
-        else -> 0.0
-    }
 
-    fun FalconMotor<*>.setClosedLoopGains(p: Double, d: Double) {
+    fun FalconMotor<*>.setClosedLoopGains(p: Double, d: Double, ff: Double = 0.0) {
         when(this) {
             is FalconCTRE -> {this.motorController.run {
                 config_kP(0, p, 0)
                 config_kI(0, 0.0, 0)
                 config_kD(0, d, 0)
+                config_kF(0, ff, 0)
             }}
-            is FalconMAX -> {this.controller.p = p; this.controller.i = 0.0; this.controller.d = d;
-            }
+            is FalconMAX -> {this.controller.p = p; this.controller.i = 0.0; this.controller.d = d; this.controller.ff = ff}
         }
     }
+
+    override fun activateEmergency() = zeroClosedLoopGains()
+    override fun recoverFromEmergency() = setClosedLoopGains()
 }
