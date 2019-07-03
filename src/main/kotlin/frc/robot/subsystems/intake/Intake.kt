@@ -5,6 +5,7 @@ import frc.robot.Ports.kPCMID
 import frc.robot.Ports.IntakePorts.CARGO_PORT
 import frc.robot.Ports.IntakePorts.HATCH_PORT
 import frc.robot.Ports.IntakePorts.PISTON_PORTS
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnit
 import org.ghrobotics.lib.motors.FalconMotor
@@ -12,7 +13,7 @@ import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 
-object Intake {
+object Intake : FalconSubsystem() {
 
     val hatchMotor = FalconSRX(HATCH_PORT, DefaultNativeUnitModel)
     val cargoMotor = FalconSRX(CARGO_PORT, DefaultNativeUnitModel)

@@ -19,22 +19,7 @@ import org.ghrobotics.lib.mathematics.units.second
 
 object TargetTracker {
 
-    private fun getBackTargetData(): String {
-
-        if (!JeVoisManager.isBackJeVoisConnected) return ""
-
-        val newTarget = getBestTargetUsingReference(
-                DriveSubsystem.robotPosition, false)
-
-        if (newTarget == null) return ""
-
-        val transform = newTarget!!.averagedPose2d inFrameOfReferenceOf DriveSubsystem.robotPosition // TODO check math
-        val angle = Rotation2d(transform.translation.x, transform.translation.y, true)
-
-        return "angle ${angle.degree} distance ${transform.translation.norm/SILengthConstants.kFeetToMeter}"
-    }
-
-    internal val targets = mutableSetOf<TrackedTarget>()
+    private val targets = mutableSetOf<TrackedTarget>()
 
     fun update() {
         synchronized(targets) {

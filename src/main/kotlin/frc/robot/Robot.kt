@@ -9,11 +9,11 @@ package frc.robot
 
 import edu.wpi.first.wpilibj.Notifier
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.intake.Intake
 import frc.robot.vision.JeVoisManager
 import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
-import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 
@@ -33,11 +33,14 @@ object Robot : FalconTimedRobot() {
 
   override fun robotInit() {
     +DriveSubsystem
+//    +SuperStructure
+    +Intake
 
     TargetTracker
     JeVoisManager
     LimeLightManager
     VisionProcessing
+    Controls
 
     stateUpdater = Notifier { subsystemUpdateList.forEach { it.updateState() } }
     stateUpdater.startPeriodic(1.0/100.0)

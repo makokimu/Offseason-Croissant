@@ -15,6 +15,7 @@ import frc.robot.Ports
 import frc.robot.Ports.DrivePorts.LEFT_PORTS
 import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
+import frc.robot.Robot
 import org.ghrobotics.lib.localization.Localization
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
@@ -36,12 +37,13 @@ import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
+import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.MultiMotorTransmission
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.properties.Delegates
 
-object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable {
+object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     override val leftMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(
 
@@ -68,13 +70,18 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable {
     private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(
             ahrs.asSource(),
-            {leftMotor.encoder.position},
-            {rightMotor.encoder.position})
+            {leftMotor.currentState.position},
+            {rightMotor.currentState.position})
 
 
     // init localization stuff
     init {localization.reset(Pose2d()) }
-    override fun lateInit() { Notifier(localization::update).startPeriodic(1.0 / 100.0) }
+    override fun lateInit() {
+        Notifier(localization::update).startPeriodic(1.0 / 100.0)
+        Robot.subsystemUpdateList.plusAssign(this)
+
+        defaultCommand = ManualDriveCommand() // set default command
+    }
 
     // Ramsete gang is the only true gang
     override var trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
@@ -94,6 +101,10 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable {
         rightMotor.setClosedLoopGains()
     }
 
+    override fun updateState() {
+        leftMotor.updateState()
+        rightMotor.updateState()
+    }
 
     override fun setNeutral() = run { leftMotor.setNeutral();rightMotor.setNeutral() }
 
