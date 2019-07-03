@@ -10,6 +10,7 @@ package frc.robot
 import edu.wpi.first.wpilibj.Notifier
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.superstructure.SuperStructure
 import frc.robot.vision.JeVoisManager
 import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
@@ -33,7 +34,7 @@ object Robot : FalconTimedRobot() {
 
   override fun robotInit() {
     +DriveSubsystem
-//    +SuperStructure
+    +SuperStructure
     +Intake
 
     TargetTracker

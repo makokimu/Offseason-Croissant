@@ -1,6 +1,7 @@
 package frc.robot.subsystems.superstructure
 
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
+import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
@@ -19,7 +20,7 @@ object Elevator : MultiMotorTransmission<Length>(
             FalconSRX(ElevatorPorts.TALON_PORTS[3], DefaultNativeUnitModel))
 
     init {
-        master.outputInverted = true
+        master.outputInverted = MASTER_INVERTED
         master.feedbackSensor = ElevatorPorts.SENSOR
         master.talonSRX.setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
 

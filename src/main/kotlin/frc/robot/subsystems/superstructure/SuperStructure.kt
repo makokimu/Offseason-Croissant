@@ -3,6 +3,7 @@ package frc.robot.subsystems.superstructure
 import edu.wpi.first.wpilibj.experimental.command.InstantCommand
 import edu.wpi.first.wpilibj.experimental.command.SelectCommand
 import edu.wpi.first.wpilibj.experimental.command.SendableCommandBase
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.*
@@ -11,6 +12,7 @@ import org.ghrobotics.lib.mathematics.units.derivedunits.LinearVelocity
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import java.lang.IllegalArgumentException
+import java.lang.Math.toDegrees
 
 object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
@@ -56,6 +58,9 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
 
     override fun lateInit() {
         Robot.subsystemUpdateList.plusAssign(this)
+        SmartDashboard.putData(ElevatorTest())
+        SmartDashboard.putData(ProxTest())
+        SmartDashboard.putData(WristTest())
     }
 
     // preset semi-singleton commands for each superstructure preset
@@ -63,19 +68,12 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
 
     fun everythingMoveTo(state: State.Position) = SelectCommand {
 
-        // TODO in the future this should be a switch statement or something
-        val wantedMovementMode = when {
-            state.isPassedThrough && !currentState.isPassedThrough -> MovementType.FRONT_TO_BACK
-            else -> null
-        }
-
-        when(wantedMovementMode) {
-            MovementType.ARM_THEN_ELEVATOR -> InstantCommand()
-            MovementType.ELEVATOR_THEN_ARM -> InstantCommand()
-            MovementType.FRONT_TO_BACK -> InstantCommand()
-            MovementType.BACK_TO_FRONT -> InstantCommand()
+        when {
+            state.isPassedThrough && !currentState.isPassedThrough -> InstantCommand()
             else -> InstantCommand()
         }
+
+
 
     }
 
@@ -94,6 +92,12 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
     override fun activateEmergency() { listOf(Elevator, Proximal, Wrist).forEach { it.activateEmergency() } }
 
     override fun recoverFromEmergency() {listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() } }
+
+    override fun setNeutral() {
+        Elevator.setNeutral()
+        Proximal.setNeutral()
+        Wrist.setNeutral()
+    }
 
     sealed class State {
 
@@ -114,28 +118,22 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
             @Suppress("unused")
             internal constructor(elevator:Double, proximal:Double, wrist:Double, wristUnDumb: Boolean = false
             ) :
-                    this(elevator, proximal, (if(wristUnDumb) getDumbWrist(wrist, proximal) else wrist), isWristUnDumb = false)
+                    this(elevator, proximal, (if(wristUnDumb) getDumbWrist(wrist, proximal) else wrist), isWristUnDumb = wristUnDumb)
 
             constructor() : this(20.inch, 0.degree, 0.degree) // semi-sane numbers?
 
-            val dumbState = if(!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
-            val trueState = if(isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
+            fun dumbState() = if(!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
+            fun trueState() = if(isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
+
+            fun asString(): String {
+                return "True state: Elevator ${elevator/SILengthConstants.kInchToMeter} proximal ${toDegrees(proximal)} wrist ${toDegrees(wrist)}"
+            }
         }
 
         abstract class CustomState : State() {
             abstract fun useState()
         }
 
-    }
-
-
-
-    @Suppress("unused")
-    enum class MovementType {
-        ARM_THEN_ELEVATOR,
-        ELEVATOR_THEN_ARM,
-        FRONT_TO_BACK,
-        BACK_TO_FRONT
     }
 
 }

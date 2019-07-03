@@ -17,7 +17,7 @@ object Wrist : MultiMotorTransmission<UnboundedRotation>(
             Ports.SuperStructurePorts.WristPorts.ROTATION_MODEL)
 
     init {
-        master.outputInverted = true
+        master.outputInverted = Ports.SuperStructurePorts.WristPorts.TALON_INVERTED
         master.feedbackSensor = Ports.SuperStructurePorts.WristPorts.SENSOR
         master.talonSRX.setSensorPhase(Ports.SuperStructurePorts.WristPorts.TALON_SENSOR_PHASE)
 

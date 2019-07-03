@@ -26,7 +26,7 @@ object Ports {
     object SuperStructurePorts {
         object ElevatorPorts {
             val TALON_PORTS = listOf(21, 22, 23, 24)
-            val MASTER_INVERTED = true
+            val MASTER_INVERTED = false
             val MASTER_SENSOR_PHASE = true
             val FOLLOWER_INVERSION = listOf(InvertType.OpposeMaster, InvertType.FollowMaster, InvertType.FollowMaster)
             val LENGTH_MODEL = NativeUnitLengthModel(4096.nativeUnits, 1.5.inch)
@@ -43,7 +43,7 @@ object Ports {
         object WristPorts {
             val TALON_PORTS = 33
             val TALON_INVERTED = true
-            val TALON_SENSOR_PHASE = false
+            val TALON_SENSOR_PHASE = true
             val ROTATION_MODEL = NativeUnitRotationModel(4096.nativeUnits * 8)
             val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
         }

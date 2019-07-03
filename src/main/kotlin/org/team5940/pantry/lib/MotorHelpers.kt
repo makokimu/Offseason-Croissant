@@ -58,8 +58,8 @@ fun configureMotor(motor: FalconMotor<*>, cruiseVel: Velocity<*>, cruiseAccel: A
 
             }
             is FalconMAX -> {
-                val motor = motor.canSparkMax
-                val pid = motor.pidController
+                val motorController = motor.canSparkMax
+                val pid = motorController.pidController
 
                 pid.setOutputRange(-1.0, 1.0)
                 pid.setP(slotConfiguration.kP, pidfSlot)

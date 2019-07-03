@@ -24,7 +24,7 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
         if(Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION.size < followers.size)
             throw ArrayIndexOutOfBoundsException("Follower inversion list size contains less indices than the number of followers!")
 
-        master.outputInverted = true
+        master.outputInverted = Ports.SuperStructurePorts.ProximalPorts.TALON_INVERTED
         master.feedbackSensor = Ports.SuperStructurePorts.ProximalPorts.SENSOR
         master.talonSRX.setSensorPhase(Ports.SuperStructurePorts.ProximalPorts.TALON_SENSOR_PHASE)
 
