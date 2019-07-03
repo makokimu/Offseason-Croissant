@@ -7,12 +7,15 @@
 
 package frc.robot
 
-import frc.robot.subsystems.drive.Drive
+import edu.wpi.first.wpilibj.Notifier
+import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.vision.JeVoisManager
 import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
+import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,15 +26,25 @@ import org.ghrobotics.lib.wrappers.FalconTimedRobot
  */
 object Robot : FalconTimedRobot() {
 
+  private lateinit var stateUpdater: Notifier
+  private lateinit var stateUser: Notifier
+  var subsystemUpdateList = arrayListOf<ConcurrentlyUpdatingComponent>()
+    @Synchronized get
+
   override fun robotInit() {
-    +Drive
+    +DriveSubsystem
 
     TargetTracker
     JeVoisManager
     LimeLightManager
     VisionProcessing
 
-//    +SuperStructure
+    stateUpdater = Notifier { subsystemUpdateList.forEach { it.updateState() } }
+    stateUpdater.startPeriodic(1.0/100.0)
+
+    stateUser = Notifier { subsystemUpdateList.forEach { it.useState() } }
+    stateUser.startPeriodic(1.0/100.0)
+
   }
 
   override fun robotPeriodic() {

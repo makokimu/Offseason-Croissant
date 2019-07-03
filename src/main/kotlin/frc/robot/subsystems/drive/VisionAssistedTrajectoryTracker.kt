@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drive
 
-import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.experimental.command.SendableCommandBase
 import frc.robot.Constants
 import frc.robot.Network
@@ -47,7 +46,7 @@ class VisionAssistedTrajectoryTracker(
      */
     override fun initialize() {
         trajectory = trajectorySource()
-        Drive.trajectoryTracker.reset(trajectory)
+        DriveSubsystem.trajectoryTracker.reset(trajectory)
         trajectoryFinished = false
         LiveDashboard.isFollowingPath = true
     }
@@ -57,10 +56,10 @@ class VisionAssistedTrajectoryTracker(
     override fun execute() {
 //        val robotPositionWithIntakeOffset = IntakeSubsystem.robotPositionWithIntakeOffset
 
-        val robotPosition = Drive.robotPosition
+        val robotPosition = DriveSubsystem.robotPosition
 
         // get the next state from the trajectory tracker
-        val nextState = Drive.trajectoryTracker.nextState(
+        val nextState = DriveSubsystem.trajectoryTracker.nextState(
                 robotPosition)
 
         // check if we are close enough to the last pose to engage vision
@@ -132,7 +131,7 @@ class VisionAssistedTrajectoryTracker(
                 turn = kJevoisKp * error + kJevoisKd * (error - prevError)
             } else {
                 println("NO TARGET FOUND, mega prank (you should never see this...), returning...")
-                Drive.setOutput(nextState) // go back to RAMSETE tracking mode
+                DriveSubsystem.setOutput(nextState) // go back to RAMSETE tracking mode
                 return
             }
 
@@ -146,17 +145,17 @@ class VisionAssistedTrajectoryTracker(
             println("demanding output with turn ${turn.radian.velocity.value}")
 
             // set the drivetrain to the RAMSETE/whatever linear velocity and the PD loop's output for turn
-            Drive.setOutput(
+            DriveSubsystem.setOutput(
                     newCommandedOutput
             )
 
             prevError = error // save error for the PD loop
         } else { // just do the boring Ramsete stuff
-            Drive.setOutput(nextState)
+            DriveSubsystem.setOutput(nextState)
         }
 
         // update LiveDashboard
-        val referencePoint = Drive.trajectoryTracker.referencePoint
+        val referencePoint = DriveSubsystem.trajectoryTracker.referencePoint
         if (referencePoint != null) {
             val referencePose = referencePoint.state.state.pose
 
@@ -166,14 +165,14 @@ class VisionAssistedTrajectoryTracker(
             LiveDashboard.pathHeading = referencePose.rotation.radian
         }
 
-        trajectoryFinished = Drive.trajectoryTracker.isFinished
+        trajectoryFinished = DriveSubsystem.trajectoryTracker.isFinished
     }
 
     /**
      * Make sure that the drivetrain is stopped at the end of the command.
      */
     override fun end(interrupted: Boolean) {
-        Drive.zeroOutputs()
+        DriveSubsystem.zeroOutputs()
         LiveDashboard.isFollowingPath = false
         visionActive = false
     }

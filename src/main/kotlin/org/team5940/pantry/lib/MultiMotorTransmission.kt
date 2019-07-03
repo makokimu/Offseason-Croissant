@@ -1,3 +1,5 @@
+@file:Suppress("LeakingThis")
+
 package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
@@ -20,7 +22,7 @@ import org.ghrobotics.lib.subsystems.EmergencyHandleable
  * this subsystem will be unregistered
  */
 abstract class MultiMotorTransmission<T: SIUnit<T>>(unregisterSubsystem: Boolean = false) : FalconMotor<T>, SendableSubsystemBase(),
-        EmergencyHandleable {
+        EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     abstract val master: FalconMotor<T>
     protected open val followers: List<FalconMotor<*>>? = null
@@ -71,9 +73,10 @@ abstract class MultiMotorTransmission<T: SIUnit<T>>(unregisterSubsystem: Boolean
         master.setVoltage(voltage, arbitraryFeedForward)
 
     fun zeroClosedLoopGains() {
-        (listOf(master) + followers).filterNotNull().forEach { motor ->
-//            motor.kP = 0.0
-//            motor.kD = 0.0
+        val list = followers
+        val motorList: List<FalconMotor<*>> = if(list == null) listOf(master) else list + master
+
+        motorList.forEach { motor ->
 
             when(motor) {
                 is FalconCTRE<*> -> {motor.motorController.run {
@@ -124,4 +127,20 @@ abstract class MultiMotorTransmission<T: SIUnit<T>>(unregisterSubsystem: Boolean
 
     override fun activateEmergency() = zeroClosedLoopGains()
     override fun recoverFromEmergency() = setClosedLoopGains()
+
+    data class State(
+            val position: Double, // the position in [T] units
+            val velocity: Double,
+            val acceleration: Double = 0.0
+    )
+
+    var currentState = State(0.0, 0.0, 0.0)
+
+    override fun updateState() {
+        synchronized(currentState) {
+            val lastState = currentState
+            val velocity = encoder.velocity
+            currentState = State(encoder.position, velocity, velocity - lastState.velocity)
+        }
+    }
 }

@@ -2,11 +2,9 @@ package frc.robot.vision
 
 import edu.wpi.first.wpilibj.Timer
 //import edu.wpi.first.wpilibj.command.Subsystem
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
-import frc.robot.subsystems.drive.Drive
+import frc.robot.subsystems.drive.DriveSubsystem
 //import frc.robot.Network
 //import frc.robot.subsystems.DriveTrain
-import frc.robot.vision.JeVoisManager
 // import org.ghrobotics.frc2019.?Constants
 // import org.ghrobotics.frc2019.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.debug.LiveDashboard
@@ -26,11 +24,11 @@ object TargetTracker {
         if (!JeVoisManager.isBackJeVoisConnected) return ""
 
         val newTarget = getBestTargetUsingReference(
-                Drive.robotPosition, false)
+                DriveSubsystem.robotPosition, false)
 
         if (newTarget == null) return ""
 
-        val transform = newTarget!!.averagedPose2d inFrameOfReferenceOf Drive.robotPosition // TODO check math
+        val transform = newTarget!!.averagedPose2d inFrameOfReferenceOf DriveSubsystem.robotPosition // TODO check math
         val angle = Rotation2d(transform.translation.x, transform.translation.y, true)
 
         return "angle ${angle.degree} distance ${transform.translation.norm/SILengthConstants.kFeetToMeter}"
@@ -42,7 +40,7 @@ object TargetTracker {
         synchronized(targets) {
             val currentTime = Timer.getFPGATimestamp()
 
-            val currentRobotPose = Drive.localization()
+            val currentRobotPose = DriveSubsystem.localization()
 
             // Update and remove old targets
             targets.removeIf {

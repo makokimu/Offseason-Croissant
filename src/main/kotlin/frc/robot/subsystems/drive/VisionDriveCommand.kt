@@ -25,7 +25,7 @@ class VisionDriveCommand(val side: TargetSide) : ManualDriveCommand() {
     private var prevError = 0.0
 
     override fun initialize() {
-        referencePose = Drive.robotPosition
+        referencePose = DriveSubsystem.robotPosition
     }
 
     override fun execute() {
@@ -70,7 +70,7 @@ class VisionDriveCommand(val side: TargetSide) : ManualDriveCommand() {
                 println("no vision targets found!")
             } else {
                 println("jevois target found!")
-                val transform = lastKnownTargetPose inFrameOfReferenceOf Drive.robotPosition // TODO check math
+                val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition // TODO check math
                 var angle = Rotation2d(transform.translation.x, transform.translation.y, true)
 
                 // since it's the back i don't care
@@ -100,7 +100,7 @@ class VisionDriveCommand(val side: TargetSide) : ManualDriveCommand() {
 
             var forward = speedSource()
             forward *= abs(forward)
-            if (Drive.lowGear) {
+            if (DriveSubsystem.lowGear) {
                 forward *= 0.8
             }
 
@@ -120,7 +120,7 @@ class VisionDriveCommand(val side: TargetSide) : ManualDriveCommand() {
 
             println("Commanding state $forward, $turn")
 
-            Drive.arcadeDrive(forward, turn)
+            DriveSubsystem.arcadeDrive(forward, turn)
 
             prevError = turnInput
         }

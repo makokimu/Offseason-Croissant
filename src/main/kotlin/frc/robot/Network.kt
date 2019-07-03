@@ -7,9 +7,8 @@ package frc.robot
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser
 import frc.robot.auto.Autonomous
-import frc.robot.subsystems.drive.Drive
+import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.wrappers.networktables.enumSendableChooser
 
@@ -32,7 +31,7 @@ object Network {
         .withSize(3, 3)
         .withPosition(0, 2)
 
-    private val driveSubsystemLayout = mainShuffleboardDisplay.getLayout("Drive", BuiltInLayouts.kGrid)
+    private val driveSubsystemLayout = mainShuffleboardDisplay.getLayout("DriveSubsystem", BuiltInLayouts.kGrid)
         .withSize(2, 2)
         .withPosition(4, 0)
 
@@ -87,8 +86,8 @@ object Network {
     private val frontLimitSwitch = climbSubsystemLayout.add("F Limit", false).entry
     private val backLimitSwitch = climbSubsystemLayout.add("R Limit", false).entry
 
-    val visionDriveAngle = visionLayout.add("Vision Drive Angle", 0.0).entry
-    val visionDriveActive = visionLayout.add("Vision Drive Active", false).entry
+    val visionDriveAngle = visionLayout.add("Vision DriveSubsystem Angle", 0.0).entry
+    val visionDriveActive = visionLayout.add("Vision DriveSubsystem Active", false).entry
 //    val badIntakeOffset = visionLayout.add("Intake Offset", IntakeSubsystem.badIntakeOffset.inch).entry
 
     init {
@@ -105,15 +104,15 @@ object Network {
 
     @Suppress("LongMethod")
     fun update() {
-        globalXEntry.setDouble(Drive.localization().translation.x / SILengthConstants.kFeetToMeter)
-        globalYEntry.setDouble(Drive.localization().translation.y / SILengthConstants.kFeetToMeter)
-        globalAEntry.setDouble(Drive.localization().rotation.degree)
+        globalXEntry.setDouble(DriveSubsystem.localization().translation.x / SILengthConstants.kFeetToMeter)
+        globalYEntry.setDouble(DriveSubsystem.localization().translation.y / SILengthConstants.kFeetToMeter)
+        globalAEntry.setDouble(DriveSubsystem.localization().rotation.degree)
 
-        leftPositionEntry.setDouble(Drive.leftMotor.encoder.position)
-        rightPositionEntry.setDouble(Drive.rightMotor.encoder.position)
+        leftPositionEntry.setDouble(DriveSubsystem.leftMotor.encoder.position)
+        rightPositionEntry.setDouble(DriveSubsystem.rightMotor.encoder.position)
 
-        leftAmperageEntry.setDouble(Drive.leftMotor.outputCurrent)
-        rightAmperageEntry.setDouble(Drive.rightMotor.outputCurrent)
+        leftAmperageEntry.setDouble(DriveSubsystem.leftMotor.outputCurrent)
+        rightAmperageEntry.setDouble(DriveSubsystem.rightMotor.outputCurrent)
 
 //        elevatorRawPosition.setDouble(ElevatorSubsystem.rawSensorPosition.toDouble())
 //        elevatorPosition.setDouble(ElevatorSubsystem.position / SILengthConstants.kInchToMeter)

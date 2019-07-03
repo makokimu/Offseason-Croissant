@@ -2,7 +2,7 @@ package frc.robot.auto.routines
 
 import edu.wpi.first.wpilibj.experimental.command.*
 import frc.robot.Constants
-import frc.robot.subsystems.drive.Drive
+import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionAssistedTrajectoryTracker
 import org.ghrobotics.lib.commands.parallelRace
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -14,13 +14,10 @@ import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.Time
 import org.ghrobotics.lib.utils.BooleanSource
+import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 
-open class AutoRoutine() : SequentialCommandGroup() {
-
-    constructor(wrappedCommand: SendableCommandBase) : this() {
-        +wrappedCommand
-    }
+abstract class AutoRoutine() : SequentialCommandGroup() {
 
     // Experimental!!
     fun withExit(exit: BooleanSource): SendableCommandBase {
@@ -45,16 +42,16 @@ open class AutoRoutine() : SequentialCommandGroup() {
         val newPosition = Pose2d(
                 pathMirrored.map(position.mirror, position)().translation, // if pathMirrored is true, mirror the pose
                 // otherwise, don't. Use that translation2d for the new position
-                Drive.localization().rotation
+                DriveSubsystem.localization().rotation
         ) + if (forward) Constants.kForwardIntakeToCenter else Constants.kBackwardIntakeToCenter
         println("RESETTING LOCALIZATION TO ${newPosition.asString()}")
-        Drive.localization.reset(newPosition)
+        DriveSubsystem.localization.reset(newPosition)
     })
 
     private fun Pose2d.asString() = "Pose X:${translation.x/SILengthConstants.kFeetToMeter}\' Y:${translation.y/SILengthConstants.kFeetToMeter}' Theta:${rotation.degree}deg"
 
     fun notWithinRegion(region: Rectangle2d) = object : SendableCommandBase() {
-        override fun isFinished() = !region.contains(Drive.robotPosition.translation)
+        override fun isFinished() = !region.contains(DriveSubsystem.robotPosition.translation)
     }
 
     operator fun Command.unaryPlus() {

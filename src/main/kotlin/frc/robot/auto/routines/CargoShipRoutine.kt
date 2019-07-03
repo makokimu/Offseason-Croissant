@@ -1,6 +1,7 @@
 /*
  * Some implementation from Team 5190 Green Hope Robotics
- */
+ *//*
+
 
 package frc.robot.auto.routines
 
@@ -89,4 +90,4 @@ class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() 
             }
         }
 
-}
+}*/

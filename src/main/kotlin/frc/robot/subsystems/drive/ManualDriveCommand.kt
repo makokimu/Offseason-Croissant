@@ -101,8 +101,8 @@ open class ManualDriveCommand : FalconCommand() {
             leftPercent: Double,
             rightPercent: Double
     ) {
-        Drive.leftMotor.setDutyCycle(leftPercent, 0.0)
-        Drive.rightMotor.setDutyCycle(rightPercent, 0.0)
+        DriveSubsystem.leftMotor.setDutyCycle(leftPercent, 0.0)
+        DriveSubsystem.rightMotor.setDutyCycle(rightPercent, 0.0)
 
     }
 

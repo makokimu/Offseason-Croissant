@@ -41,9 +41,10 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.properties.Delegates
 
-object Drive : TankDriveSubsystem(), EmergencyHandleable {
+object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable {
 
     override val leftMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(
+
             unregisterSubsystem = true) {
 
         override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
@@ -54,8 +55,7 @@ object Drive : TankDriveSubsystem(), EmergencyHandleable {
         }
     }
 
-    override val rightMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(
-            unregisterSubsystem = true) {
+    override val rightMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(unregisterSubsystem = true) {
 
         override val master = FalconSRX(RIGHT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
@@ -71,42 +71,35 @@ object Drive : TankDriveSubsystem(), EmergencyHandleable {
             {leftMotor.encoder.position},
             {rightMotor.encoder.position})
 
+
+    // init localization stuff
+    init {localization.reset(Pose2d()) }
+    override fun lateInit() { Notifier(localization::update).startPeriodic(1.0 / 100.0) }
+
+    // Ramsete gang is the only true gang
     override var trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
 
+    // the "differential drive" model, with a custom getter which changes based on the current gear
     override val differentialDrive: DifferentialDrive
         get() = if(lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
     // Shift up and down
-    val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1])
+    private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1])
     var lowGear : Boolean by Delegates.observable(false) { _, _, wantLow ->
-        if (wantLow) {
-            shifter.state = FalconSolenoid.State.Forward
-        } else {
-            shifter.state = FalconSolenoid.State.Reverse
-        }
+        if (wantLow) { shifter.state = FalconSolenoid.State.Forward }
+        else { shifter.state = FalconSolenoid.State.Reverse }
 
         // update PID gains
         leftMotor.setClosedLoopGains()
         rightMotor.setClosedLoopGains()
     }
 
-    init {localization.reset(Pose2d()) }
-    override fun lateInit() { Notifier(localization::update).startPeriodic(1.0 / 100.0) }
-    override fun setNeutral() {
-        leftMotor.setNeutral()
-        rightMotor.setNeutral()
-    }
 
-    override fun activateEmergency() {
-        zeroOutputs()
-        leftMotor.zeroClosedLoopGains()
-        rightMotor.zeroClosedLoopGains()
-    }
+    override fun setNeutral() = run { leftMotor.setNeutral();rightMotor.setNeutral() }
 
-    override fun recoverFromEmergency() {
-        leftMotor.setClosedLoopGains()
-        rightMotor.setClosedLoopGains()
-    }
+    override fun activateEmergency() = run { zeroOutputs();leftMotor.zeroClosedLoopGains();rightMotor.zeroClosedLoopGains() }
+
+    override fun recoverFromEmergency() = run { leftMotor.setClosedLoopGains();rightMotor.setClosedLoopGains() }
 
 }
 

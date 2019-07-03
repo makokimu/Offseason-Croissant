@@ -1,7 +1,7 @@
 package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
-import frc.robot.subsystems.drive.Drive
+import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
@@ -25,8 +25,8 @@ object Controls {
             button(kB).change(VisionDriveCommand(VisionDriveCommand.TargetSide.BACK))
 
             // Shifting
-            button(kA).changeOn { Drive.lowGear = true }
-            button(kA).changeOff { Drive.lowGear = false }
+            button(kA).changeOn { DriveSubsystem.lowGear = true }
+            button(kA).changeOff { DriveSubsystem.lowGear = false }
 
             // Intake
             triggerAxisButton(GenericHID.Hand.kLeft).change(IntakeHatchCommand(true))

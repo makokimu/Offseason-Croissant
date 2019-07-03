@@ -5,20 +5,17 @@
 package frc.robot.auto
 
 import frc.robot.Network
-import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
-import frc.robot.auto.routines.BottomRocketRoutine
-import frc.robot.auto.routines.CargoShipRoutine
-import frc.robot.auto.routines.HybridRoutine
-import frc.robot.subsystems.drive.Drive
+//import frc.robot.auto.routines.BottomRocketRoutine
+//import frc.robot.auto.routines.CargoShipRoutine
+//import frc.robot.auto.routines.HybridRoutine
+import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.Source
-import org.ghrobotics.lib.utils.and
 import org.ghrobotics.lib.utils.monitor
-import org.ghrobotics.lib.utils.onChangeToTrue
 
 /**
  * Manages the autonomous mode of the game.
@@ -40,7 +37,7 @@ object Autonomous {
     // Update the autonomous listener.
     fun s3ndIt() {
         // Update localization.
-        Drive.localization.reset(startingPositionMonitor.lastValue.pose)
+        DriveSubsystem.localization.reset(startingPositionMonitor.lastValue.pose)
 
 //        isReadyMonitor.onChangeToTrue {
         JUST S3ND IT
@@ -54,20 +51,20 @@ object Autonomous {
 //                state(Autonomous.Mode.TEST_TRAJECTORIES, TestTrajectoriesRoutine())
                 state(Autonomous.Mode.FORWARD_CARGO_SHIP, sequential {})
                 state(Autonomous.Mode.DO_NOTHING, sequential {})
-                state(Autonomous.Mode.BOTTOM_ROCKET, BottomRocketRoutine())
-                state(Autonomous.Mode.SIDE_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.SIDE))
+//                state(Autonomous.Mode.BOTTOM_ROCKET, BottomRocketRoutine())
+//                state(Autonomous.Mode.SIDE_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.SIDE))
                 state(Autonomous.Mode.HYBRID_LEFT, sequential {})
                 state(Autonomous.Mode.HYBRID_RIGHT, sequential {})
             }
         }
         state(Autonomous.StartingPositions.CENTER) {
             stateCommandGroup(autoMode) {
-                state(Autonomous.Mode.FORWARD_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.FRONT))
+//                state(Autonomous.Mode.FORWARD_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.FRONT))
 //                state(Autonomous.Mode.TEST_TRAJECTORIES, TestTrajectoriesRoutine())
                 state(Autonomous.Mode.BOTTOM_ROCKET, sequential {})
                 state(Autonomous.Mode.SIDE_CARGO_SHIP, sequential {})
-                state(Autonomous.Mode.HYBRID_LEFT, HybridRoutine(HybridRoutine.Mode.LEFT))
-                state(Autonomous.Mode.HYBRID_RIGHT, HybridRoutine(HybridRoutine.Mode.RIGHT))
+//                state(Autonomous.Mode.HYBRID_LEFT, HybridRoutine(HybridRoutine.Mode.LEFT))
+//                state(Autonomous.Mode.HYBRID_RIGHT, HybridRoutine(HybridRoutine.Mode.RIGHT))
             }
         }
     }
