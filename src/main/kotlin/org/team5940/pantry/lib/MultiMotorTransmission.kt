@@ -1,5 +1,3 @@
-@file:Suppress("LeakingThis")
-
 package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
@@ -31,14 +29,33 @@ abstract class MultiMotorTransmission<T: SIUnit<T>>(unregisterSubsystem: Boolean
         if(unregisterSubsystem) CommandScheduler.getInstance().unregisterSubsystem(this)
     }
 
-    override val encoder = master.encoder
-    override var motionProfileAcceleration = master.motionProfileAcceleration
-    override var motionProfileCruiseVelocity = master.motionProfileCruiseVelocity
-    override var outputInverted = master.outputInverted
-    override var useMotionProfileForPosition = master.useMotionProfileForPosition
-    override var voltageCompSaturation = master.voltageCompSaturation
-    override val voltageOutput = master.voltageOutput
-    override var brakeMode = master.brakeMode
+    override val encoder by lazy { master.encoder }
+    override var motionProfileAcceleration
+        get() = master.motionProfileAcceleration
+        set(value) {master.motionProfileAcceleration = value}
+
+    override var motionProfileCruiseVelocity
+        get() = master.motionProfileAcceleration
+        set(value) {master.motionProfileAcceleration = value}
+    override var outputInverted
+        get() = master.outputInverted
+        set(value) {
+            master.outputInverted = value
+            followers?.forEach {
+                it.outputInverted = value
+            }
+        }
+    override var useMotionProfileForPosition
+        get() = master.useMotionProfileForPosition
+        set(value) {master.useMotionProfileForPosition = value}
+    override var voltageCompSaturation
+        get() = master.voltageCompSaturation
+        set(value) {master.voltageCompSaturation = value}
+    override val voltageOutput
+        get() = master.voltageOutput
+    override var brakeMode
+        get() = master.brakeMode
+        set(value) {master.brakeMode = value}
 
     override fun follow(motor: FalconMotor<*>): Boolean {
         var result = true

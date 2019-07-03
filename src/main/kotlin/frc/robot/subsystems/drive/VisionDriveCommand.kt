@@ -1,158 +1,95 @@
+// implementation from Team 5190 Green Hope Robotics
+
 package frc.robot.subsystems.drive
 
+import edu.wpi.first.wpilibj.command.Command
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
-import frc.robot.vision.LimeLight
+import frc.robot.Robot
+import frc.robot.subsystems.superstructure.SuperStructure
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
-import org.ghrobotics.lib.mathematics.units.UnboundedRotation
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.radian
-import kotlin.math.abs
+import kotlin.math.absoluteValue
 
-class VisionDriveCommand(val side: TargetSide) : ManualDriveCommand() {
+class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
-    enum class TargetSide {
-        FRONT, BACK
-    }
+    override fun isFinished() = false
 
-    private var lemonLightHasTarget: Boolean = false
-    private var lastKnownAngle: Double = 0.0
     private var referencePose = Pose2d()
     private var lastKnownTargetPose: Pose2d? = null
 
     private var prevError = 0.0
 
     override fun initialize() {
+        isActive = true
         referencePose = DriveSubsystem.robotPosition
     }
 
     override fun execute() {
 
-        var isFront = side == TargetSide.FRONT//!SuperStructure.getInstance().isPassedThrough
+//        val isFront = !SuperStructure.getInstance().isPassedThrough
+//        val isFront = 
 
-//        isFront = false // for debugging
+        println("IS FRONT? $isFront")
 
-        var turnInput: Double?
+        val newTarget = TargetTracker.getBestTargetUsingReference(referencePose, isFront)
 
-        println("looking for vision targets on the ${if (isFront) "front" else "back"}")
+        val newPose = newTarget?.averagedPose2d
+        if (newTarget?.isAlive == true && newPose != null) lastKnownTargetPose = newPose
 
-        if (isFront) {
-            // it's LimeLight Time
-            val lemonLight = LimeLight
-            val hasTarget = lemonLight.trackedTargets > 0.5
+        val lastKnownTargetPose = this.lastKnownTargetPose
 
-            this.lemonLightHasTarget = hasTarget
+        val source = speedSource()
 
-            // check that we have a target
-            if (!hasTarget) {
-                turnInput = null
-                println("no vision targets found!")
-            } else {
-                println("limelight found vision target!")
-                val dx = lemonLight.dx.degree
-                turnInput = dx
-            }
-        } else {
-
-            // is YeeVois Time
-            val newTarget = TargetTracker.getBestTargetUsingReference(referencePose, false)
-
-//            println("is the back jevois even connected? ${JeVoisManager.isBackJeVoisConnected}")
-
-            val newPose = newTarget?.averagedPose2d
-            if (newTarget?.isAlive == true && newPose != null) lastKnownTargetPose = newPose
-
-            val lastKnownTargetPose = this.lastKnownTargetPose
-            if (lastKnownTargetPose == null) {
-                turnInput = null
-                println("no vision targets found!")
-            } else {
-                println("jevois target found!")
-                val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition // TODO check math
-                var angle = Rotation2d(transform.translation.x, transform.translation.y, true)
-
-                // since it's the back i don't care
-
-                if (angle.degree < -90) angle = angle.plus(180.degree)
-
-                if (angle.degree > 90) angle = angle.minus(180.degree)
-
-                Network.visionDriveAngle.setDouble(angle.degree)
-                Network.visionDriveActive.setBoolean(true)
-
-                val angleError = angle + if (isFront) Rotation2d() else Math.PI.radian.toRotation2d()
-
-
-                turnInput = angleError.degree
-
-            }
-        }
-
-        // check if our vision even sees anything - if not, normal drive time
-        if (turnInput == null) {
-            println("no target, going to default execute method")
+        if (lastKnownTargetPose == null) {
+//            ElevatorSubsystem.wantedVisionMode = true
             super.execute()
         } else {
+//            ElevatorSubsystem.wantedVisionMode = false
+            val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
+            val angle = Rotation2d(transform.translation.x, transform.translation.y, true)
 
-            this.lastKnownAngle = turnInput
+            Network.visionDriveAngle.setDouble(angle.degree)
+            Network.visionDriveActive.setBoolean(true)
 
-            var forward = speedSource()
-            forward *= abs(forward)
-            if (DriveSubsystem.lowGear) {
-                forward *= 0.8
+            val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d()
+
+            if (angleError.degree.absoluteValue > 45) {
+                // plz no disable us when going to loading station, kthx
+                this.lastKnownTargetPose = null
             }
 
-            println("angle error $turnInput")
+            val error = angleError.radian
 
-            println("kp $kp_mutable kd $kd_mutable")
-            var turn = if (isFront) {
-                println("limelightPID")
-                kLemonLightkP * turnInput - kLemonLightkD * (turnInput - prevError)
-            } else {
-                println("jevoisPID")
-                kJevoiskP * turnInput - kJevoiskD * (turnInput - prevError)
-            }
+            val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
+            DriveSubsystem.tankDrive(source - turn, source + turn)
 
-            if (turn > 0.6) turn = 0.6
-            if (turn < -0.6) turn = -0.6
-
-            println("Commanding state $forward, $turn")
-
-            DriveSubsystem.arcadeDrive(forward, turn)
-
-            prevError = turnInput
+            prevError = error
         }
     }
 
-    private var kp_mutable = kJevoiskP
-    private var kd_mutable = kJevoiskD
+    override fun end(interrupted: Boolean) {
+        Network.visionDriveActive.setBoolean(false)
+        this.lastKnownTargetPose = null
+//        ElevatorSubsystem.wantedVisionMode = false
+        isActive = false
+    }
 
     override fun initSendable(builder: SendableBuilder) {
 
-        builder.addDoubleProperty("angle", { Math.toDegrees(lastKnownAngle) }, null)
-
-        builder.addDoubleProperty("kp", { kp_mutable }, {
-            this.kp_mutable = it
-        })
-
-        builder.addDoubleProperty("kd", { kd_mutable }, {
-            this.kd_mutable = it
-        })
+        builder.addDoubleProperty("forwardKp", { kCorrectionKp }, { newP -> kCorrectionKp = newP })
+        builder.addDoubleProperty("forwardKd", { kCorrectionKd }, { newD -> kCorrectionKd = newD })
 
         super.initSendable(builder)
     }
 
     companion object {
-        const val kJevoiskP = 0.002
-        const val kJevoiskD = 0.04
-        const val kLemonLightkP = 0.04
-        const val kLemonLightkD = 0.0
+        var kCorrectionKp = 0.8
+        var kCorrectionKd = 8.0
+        var isActive = false
+            private set
     }
-
-    override fun isFinished() = false
 }
-
-operator fun Rotation2d.plus(other: UnboundedRotation) = Rotation2d(this@plus.value + other.value)
-operator fun Rotation2d.minus(other: UnboundedRotation) = plus(-other)

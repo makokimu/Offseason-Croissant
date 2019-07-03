@@ -52,6 +52,7 @@ object Robot : FalconTimedRobot() {
 
   override fun robotPeriodic() {
     TargetTracker.update()
+    Controls.update()
   }
 
 }

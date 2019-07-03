@@ -12,14 +12,14 @@ object Ports {
     const val kPCMID = 9
 
     object DrivePorts {
-        val LEFT_PORTS = listOf(0, 1)
-        val RIGHT_PORTS = listOf(2, 3)
+        val LEFT_PORTS = listOf(1, 2)
+        val RIGHT_PORTS = listOf(3, 4)
         val SHIFTER_PORTS = listOf(4, 5)
     }
 
     object IntakePorts {
-        const val HATCH_PORT = 35
         const val CARGO_PORT = 34
+        const val HATCH_PORT = 35
         val PISTON_PORTS = listOf(0, 1)
     }
 

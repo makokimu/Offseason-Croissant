@@ -21,8 +21,8 @@ object Controls {
 
         state({ !isClimbing }) {
             // Vision align
-            button(kY).change(VisionDriveCommand(VisionDriveCommand.TargetSide.FRONT))
-            button(kB).change(VisionDriveCommand(VisionDriveCommand.TargetSide.BACK))
+            button(kY).change(VisionDriveCommand(true))
+            button(kB).change(VisionDriveCommand(false))
 
             // Shifting
             button(kA).changeOn { DriveSubsystem.lowGear = true }
@@ -35,6 +35,10 @@ object Controls {
             triggerAxisButton(GenericHID.Hand.kRight).change(IntakeCargoCommand(true))
             button(kBumperRight).change(IntakeCargoCommand(false))
         }
+    }
+
+    fun update() {
+        driverFalconXbox.update()
     }
 
 }

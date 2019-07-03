@@ -15,12 +15,15 @@ import frc.robot.Ports
 import frc.robot.Ports.DrivePorts.LEFT_PORTS
 import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
+import frc.robot.Ports.kPCMID
 import frc.robot.Robot
 import org.ghrobotics.lib.localization.Localization
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
+import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitLengthModel
@@ -52,6 +55,10 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(LEFT_PORTS[1], DefaultNativeUnitModel))
 
+        init {
+            outputInverted = true
+        }
+
         override fun setClosedLoopGains() {
             if(lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
@@ -70,14 +77,21 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(
             ahrs.asSource(),
-            {leftMotor.currentState.position},
+            {
+                leftMotor.currentState.position},
             {rightMotor.currentState.position})
 
 
     // init localization stuff
     init {localization.reset(Pose2d()) }
     override fun lateInit() {
-        Notifier(localization::update).startPeriodic(1.0 / 100.0)
+
+        robotPosition = Pose2d(Translation2d(20.feet, 20.feet))
+
+        Notifier {
+            localization.update()
+//            println("localization updated")
+        }.startPeriodic(1.0 / 100.0)
         Robot.subsystemUpdateList.plusAssign(this)
 
         defaultCommand = ManualDriveCommand() // set default command
@@ -91,7 +105,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         get() = if(lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
     // Shift up and down
-    private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1])
+    private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1], kPCMID)
     var lowGear : Boolean by Delegates.observable(false) { _, _, wantLow ->
         if (wantLow) { shifter.state = FalconSolenoid.State.Forward }
         else { shifter.state = FalconSolenoid.State.Reverse }
@@ -102,6 +116,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     }
 
     override fun updateState() {
+//        println("updating motor states")
         leftMotor.updateState()
         rightMotor.updateState()
     }
