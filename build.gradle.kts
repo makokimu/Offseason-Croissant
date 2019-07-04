@@ -47,7 +47,7 @@ dependencies {
     // FalconLibrary
 //    compile("com.github.mcm001:falconlibrary:c5019e366c")
 //    compile("com.github.mcm001:FalconLibrary:0.0.1")
-    compile("com.github.5190GreenHopeRobotics:FalconLibrary:f6db692f3c")
+    compile("com.github.5190GreenHopeRobotics:FalconLibrary:8de4e158f0")
 
     compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0") // gson
