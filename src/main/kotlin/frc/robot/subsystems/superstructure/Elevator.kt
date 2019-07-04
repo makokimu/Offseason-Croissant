@@ -8,6 +8,7 @@ import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.MultiMotorTransmission
+import java.lang.Math.abs
 
 object Elevator : MultiMotorTransmission<Length>(
         unregisterSubsystem = false
@@ -72,5 +73,11 @@ object Elevator : MultiMotorTransmission<Length>(
         object Nothing : WantedState()
 
         class Position(internal val targetPosition: Double) : WantedState()
+    }
+
+    fun isWithTolerance(tolerance: Double /* meters */): Boolean {
+        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
+
+        return abs(state.targetPosition - currentState.position) < tolerance
     }
 }

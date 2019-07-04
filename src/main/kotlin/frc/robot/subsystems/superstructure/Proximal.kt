@@ -7,6 +7,7 @@ import org.ghrobotics.lib.mathematics.units.UnboundedRotation
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.MultiMotorTransmission
+import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.withSign
 
@@ -83,5 +84,11 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
         object Nothing : WantedState()
 
         class Position(internal val targetPosition: Double) : WantedState()
+    }
+
+    fun isWithTolerance(tolerance: Double /* radian */): Boolean {
+        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
+
+        return abs(state.targetPosition - currentState.position) < tolerance
     }
 }

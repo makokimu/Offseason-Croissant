@@ -74,12 +74,12 @@ object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         Wrist.updateState()
 
         // use these updated states to build our current state
-        synchronized(currentState) {currentState = State.Position(
+        synchronized(currentState) { currentState = State.Position(
                 Elevator.currentState.position,
                 Proximal.currentState.position,
                 Wrist.currentState.position,
                 wristUnDumb = false
-        )}
+        ) }
     }
 
     fun customizeWantedState(state: State): State {
