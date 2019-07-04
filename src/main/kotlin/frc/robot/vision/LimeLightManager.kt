@@ -20,7 +20,7 @@ object LimeLightManager : SendableSubsystemBase() {
             Timer.getFPGATimestamp() - pipelineLatency)
 
     private val table = NetworkTableInstance.getDefault().getTable("limelight")
-    private val txEntry = table.getEntry("tcornx")
+    private val txEntry = table.getEntry("tx")
 
     private operator fun NetworkTableEntry.invoke() = getDouble(0.0)
 
@@ -30,10 +30,14 @@ object LimeLightManager : SendableSubsystemBase() {
         val angle = -txEntry()
 
         val estimatedPose: Pose2d? = Pose2d(Translation2d(distance, angle.degree.toRotation2d())).let {
-           if (it.translation.x.absoluteValue < (Constants.kRobotLength / 2.0 - 5.inch).value ||
-                    it.translation.y.absoluteValue < (Constants.kRobotWidth / 2.0).value) return@let null
 
-            return@let robotPosition + (Constants.kCenterToFrontCamera + it)
+            if (!(it.translation.x.absoluteValue > (Constants.kRobotLength / 2.0 - 5.inch).value ||
+                    it.translation.y.absoluteValue > (Constants.kRobotWidth / 2.0).value)) return@let null
+
+            val toReturn = robotPosition + (Constants.kCenterToFrontCamera + it)
+//            println("returning ${toReturn.translation.x}, ${toReturn.translation.y}")
+
+            toReturn
         }
 
         TargetTracker.addSamples(
