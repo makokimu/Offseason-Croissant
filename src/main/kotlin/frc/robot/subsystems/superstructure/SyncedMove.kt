@@ -119,53 +119,39 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
         return toReturn
     }
 
-   companion object {
-       private const val kProximalMaxVel = 190.0 / 360.0 * 2.0 * Math.PI / 0.85
-       private const val kWristMaxVel = kProximalMaxVel // 190d / 360d * 2 * Math.PI;
+    companion object {
+        private const val kProximalMaxVel = 190.0 / 360.0 * 2.0 * Math.PI / 0.85
+        private const val kWristMaxVel = kProximalMaxVel // 190d / 360d * 2 * Math.PI;
 
-       val kFrontToBack by lazy {
-           sequential {
-               +PrintCommand("passiing thru front to back")
-               +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-               +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
-               +SyncedMove(-160 * kDegreesToRadians, true)
-               +parallel {
-                   +ClosedLoopProximalMove(-193.0 * kDegreesToRadians)
-                   +ClosedLoopWristMove(-112.0 * kDegreesToRadians)
-               }
-               +ClosedLoopElevatorMove(5.5 * SILengthConstants.kInchToMeter)
-           }
-       }
+        val frontToBack
+            get() = sequential {
+                +PrintCommand("passiing thru front to back")
+                +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
+                +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
+                +SyncedMove(-160 * kDegreesToRadians, true)
+                +parallel {
+                    +ClosedLoopProximalMove(-193.0 * kDegreesToRadians)
+                    +ClosedLoopWristMove(-112.0 * kDegreesToRadians)
+                }
+                +ClosedLoopElevatorMove(5.5 * SILengthConstants.kInchToMeter)
+            }
 
-       val kBackToFront by lazy {
-           sequential {
-               +PrintCommand("passiing thru back to front")
-               +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-               +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
-               +SyncedMove(0.0 * kDegreesToRadians, false)
-               +parallel {
-                   +ClosedLoopProximalMove(0.0 * kDegreesToRadians)
-                   +ClosedLoopWristMove(0.0 * kDegreesToRadians)
-                   +ClosedLoopElevatorMove(15.0 * SILengthConstants.kInchToMeter)
-               }
-           }
-       }
-   }
+        val backToFront
+            get() = sequential {
+                +PrintCommand("passiing thru back to front")
+                +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
+                +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
+                +SyncedMove(0.0 * kDegreesToRadians, false)
+                +parallel {
+                    +ClosedLoopProximalMove(0.0 * kDegreesToRadians)
+                    +ClosedLoopWristMove(0.0 * kDegreesToRadians)
+                    +ClosedLoopElevatorMove(15.0 * SILengthConstants.kInchToMeter)
+                }
+            }
+
+        val shortPassthrough
+            get() = sequential {
+                +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
+                +SyncedMove(0.0 * kDegreesToRadians, false) }
+    }
 }
-
-// 	public static class BackToFront extends CommandGroup {
-//
-// 		public BackToFront(SuperStructure structure) {
-//
-// 			setInterruptible(false);
-//
-// 			addSequential(new PrintCommand("passing thru back to front"));
-// 			addSequential(new SetHatchMech(Intake.HatchMechState.kClamped));
-// 			addSequential(new ElevatorMove(LengthKt.getInch(22.5))); //todo check height
-// 			//			addSequential(new SyncedMove(Math.toRadians(-58), false, structure));
-// 			addSequential(new SyncedMove(Math.toRadians(0), false, structure));
-// 			addSequential(new ArmMove(SuperStructure.iPosition.HATCH_GRAB_INSIDE.getAngle()));
-// 			addSequential(new ElevatorMove(SuperStructure.iPosition.HATCH_GRAB_INSIDE.getElevator()));
-//
-// 		}
-// 	}

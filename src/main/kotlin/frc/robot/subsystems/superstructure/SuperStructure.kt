@@ -1,14 +1,15 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.wpilibj.experimental.command.InstantCommand
 import edu.wpi.first.wpilibj.experimental.command.SelectCommand
-import edu.wpi.first.wpilibj.experimental.command.SendableCommandBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.commands.parallel
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
+import org.team5940.pantry.lib.radianToDegree
 import java.lang.Math.toDegrees
 
 object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
@@ -20,14 +21,98 @@ object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         Wrist
     }
 
-    // preset semi-singleton commands for each superstructure preset
-    val kHatchFrontFromLoadingStation: SendableCommandBase = everythingMoveTo(State.Position(19.inch, 0.degree, 0.degree, isWristUnDumb = true))
+    val kHatchBackFronLoadingStation get() = SyncedMove.frontToBack
+    val kStowed get() = everythingMoveTo(17.5.inch, (-58).degree, 36.degree)
 
-    fun everythingMoveTo(state: State.Position) = SelectCommand {
+    val kHatchLow get() = everythingMoveTo(6.5.inch, 5.degree, 4.degree)
+    val kHatchMid get() = everythingMoveTo(31.5.inch, 5.degree, 4.degree)
+    val kHatchHigh get() = everythingMoveTo(53.inch, 5.degree, 4.degree)
 
-        when {
-            state.isPassedThrough && !currentState.isPassedThrough -> InstantCommand()
-            else -> InstantCommand()
+    val kCargoLow get() = everythingMoveTo(9.inch, 6.degree, 16.degree)
+    val kCargoMid get() = everythingMoveTo(34.inch, 6.degree, 16.degree)
+    val kCargoHigh get() = everythingMoveTo(54.inch, 9.degree, 20.degree)
+
+    fun everythingMoveTo(elevator: Length, proximal: UnboundedRotation, wrist: UnboundedRotation) = everythingMoveTo(State.Position(elevator, proximal, wrist))
+    fun everythingMoveTo(elevator: Double, proximal: Double, wrist: Double) = everythingMoveTo(State.Position(elevator, proximal, wrist))
+    fun everythingMoveTo(goalState: State.Position) = SelectCommand {
+        // This whole {} thing is a Supplier<Command> that will return a Command that moves everything safely (hopefully)
+
+        val currentState = this.currentState
+
+        // returns if we can move everything at the same time or not
+        fun safeToMoveSynced(): Boolean {
+            val proximalThreshold = -68
+            val nowOutsideCrossbar = currentState.proximal.radianToDegree > proximalThreshold
+            val willBeOutsideCrossbar = goalState.proximal.radianToDegree > proximalThreshold
+            val mightHitElectronics = (goalState.elevator / SILengthConstants.kInchToMeter < 15 && goalState.proximal.radianToDegree > proximalThreshold) || (goalState.elevator / SILengthConstants.kInchToMeter < 20 && goalState.proximal.radianToDegree < proximalThreshold) // TODO check angles?
+            val proximalStartSafe = currentState.proximal.radianToDegree > -80
+            val proximalEndSafe = goalState.proximal.radianToDegree > -80
+            val startHighEnough = currentState.elevator / SILengthConstants.kInchToMeter > 18
+            val endHighEnough = goalState.elevator / SILengthConstants.kInchToMeter > 20
+            val needsExceptionForCargoGrab = currentState.proximal.radianToDegree > -62 && currentState.elevator / SILengthConstants.kInchToMeter > 25 && goalState.proximal.radianToDegree > -62
+            val safeToMoveSynced = (nowOutsideCrossbar && willBeOutsideCrossbar && (!mightHitElectronics || needsExceptionForCargoGrab)) ||
+                    (proximalStartSafe && proximalEndSafe && startHighEnough && endHighEnough)
+
+// 				SmartDashboard.putString("passthru data", "nowOutsideCrossbar " + nowOutsideCrossbar + " willBeOutsideCrossbar " + willBeOutsideCrossbar + " might hit electronics? " + mightHitElectronics +
+// 						" proximalStartSafe " + proximalStartSafe + " proximalEndSafe? " + proximalEndSafe + " startHighEnough " + startHighEnough
+// 						+ " endHighEnough " + endHighEnough);
+
+            println("Safe to move synced? $safeToMoveSynced")
+            return safeToMoveSynced
+        }
+
+        // returns which joint to move first
+        fun shouldMoveElevatorFirst(): Boolean {
+            val proximalThreshold = -18.0
+//            var currentState = currentst
+            val startAboveSafe = goalState.elevator / SILengthConstants.kInchToMeter > 25.0
+            var endAboveSafe = currentState.elevator / SILengthConstants.kInchToMeter > 25.0
+            val nowOutsideFrame = currentState.proximal.radianToDegree > proximalThreshold
+            val willBeOutsideFrame = goalState.proximal.radianToDegree > proximalThreshold
+            val shouldMoveElevatorFirst = (nowOutsideFrame && !willBeOutsideFrame && !startAboveSafe) ||
+                    (nowOutsideFrame && willBeOutsideFrame) ||
+                    ((-35 >= currentState.proximal.radianToDegree && currentState.proximal.radianToDegree >= -90) && (-50 >= goalState.proximal.radianToDegree && goalState.proximal.radianToDegree >= -100))
+
+            println("requested state: $goalState")
+
+            println((if (shouldMoveElevatorFirst) "We are moving the elevator first!" else "We are moving the arm first!"))
+
+            return shouldMoveElevatorFirst
+        }
+
+        return@SelectCommand sequential {
+
+            // first check if we need to pass through front to back or not
+            if (!currentState.isPassedThrough and goalState.isPassedThrough) +SyncedMove.shortPassthrough
+
+            // next check if we can move everything at once
+            if (safeToMoveSynced()) {
+                +parallel {
+                    +ClosedLoopElevatorMove(goalState.elevator)
+                    +ClosedLoopProximalMove(goalState.proximal)
+                    +ClosedLoopWristMove(goalState.wrist)
+                }
+            } else {
+                // otherwise, pick the elevator or elbow/wrist to move first
+                if (shouldMoveElevatorFirst()) {
+                    +sequential {
+                        +ClosedLoopElevatorMove(goalState.elevator)
+                        +parallel {
+                            +ClosedLoopProximalMove(goalState.proximal)
+                            +ClosedLoopWristMove(goalState.wrist)
+                        }
+                    }
+                } else {
+                    // move arm first
+                    +sequential {
+                        +parallel {
+                            +ClosedLoopProximalMove(goalState.proximal)
+                            +ClosedLoopWristMove(goalState.wrist)
+                        }
+                        +ClosedLoopElevatorMove(goalState.elevator)
+                    }
+                }
+            }
         }
     }
 
@@ -59,14 +144,12 @@ object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
     var currentState: State.Position = State.Position()
         private set
-    var wantedState: State = State.Nothing
-        private set
 
     override fun periodic() {
         SmartDashboard.putString("Superstructurestate", currentState.asString())
     }
 
-    // this Runnable will be run to update the State through a separate Thread periodically
+    @Synchronized
     override fun updateState() {
         // update the states of our components
         Elevator.updateState()
@@ -82,12 +165,11 @@ object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         ) }
     }
 
-    fun customizeWantedState(state: State): State {
-
-        // todo modify state (ex vision being blocked, illegal state, etc
-        return state
-    }
-
+//    fun customizeWantedState(state: State): State {
+//
+//        // todo modify state (ex vision being blocked, illegal state, etc
+//        return state
+//    }
 //    override fun useState() {
 //        val wantedState = customizeWantedState(this.wantedState)
 //
@@ -123,10 +205,6 @@ object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         val zero = ZeroSuperStructureRoutine()
         zero.schedule()
         SmartDashboard.putData(zero)
-
-        SmartDashboard.putData(ClosedLoopElevatorMove(25.inch.meter))
-        SmartDashboard.putData(ClosedLoopProximalMove(-5.degree.radian))
-        SmartDashboard.putData(ClosedLoopWristMove(0.degree.radian))
     }
 
     sealed class State {
