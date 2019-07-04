@@ -11,7 +11,7 @@ class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevato
         Elevator.wantedState = Elevator.WantedState.Position(target)
     }
 
-    override fun isFinished() = abs(target-Elevator.currentState.position/SILengthConstants.kInchToMeter) < 1.0
+    override fun isFinished() = abs(target - Elevator.currentState.position / SILengthConstants.kInchToMeter) < 1.0
 }
 
 class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proximal) {
@@ -20,7 +20,7 @@ class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proxima
         Proximal.wantedState = Proximal.WantedState.Position(target)
     }
 
-    override fun isFinished() = toDegrees(abs(target-Proximal.currentState.position)) < 5.0
+    override fun isFinished() = toDegrees(abs(target - Proximal.currentState.position)) < 5.0
 }
 
 class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
@@ -29,5 +29,5 @@ class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
         Wrist.wantedState = Wrist.WantedState.Position(target)
     }
 
-    override fun isFinished() = toDegrees(abs(target-Wrist.currentState.position)) < 5.0
+    override fun isFinished() = toDegrees(abs(target - Wrist.currentState.position)) < 5.0
 }

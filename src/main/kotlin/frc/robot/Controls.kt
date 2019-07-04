@@ -40,7 +40,6 @@ object Controls {
     fun update() {
         driverFalconXbox.update()
     }
-
 }
 
 private fun FalconXboxBuilder.registerEmergencyMode() {

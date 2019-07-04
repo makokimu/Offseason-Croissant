@@ -1,7 +1,6 @@
 
 package frc.robot
 
-import com.ctre.phoenix.motorcontrol.ControlMode
 import edu.wpi.first.wpilibj.Notifier
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.Intake
@@ -12,13 +11,6 @@ import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import edu.wpi.first.wpilibj.RobotController
-import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.Timer.getFPGATimestamp
-import frc.robot.subsystems.superstructure.Proximal
-import edu.wpi.first.networktables.NetworkTableInstance
-import edu.wpi.first.networktables.NetworkTableEntry
-import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Wrist
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.radian
@@ -42,10 +34,10 @@ object Robot : FalconTimedRobot() {
     Controls
 
     stateUpdater = Notifier { subsystemUpdateList.forEach { it.updateState() } }
-    stateUpdater.startPeriodic(1.0/50.0)
+    stateUpdater.startPeriodic(1.0 / 50.0)
 
     stateUser = Notifier { subsystemUpdateList.forEach { it.useState() } }
-    stateUser.startPeriodic(1.0/50.0)
+    stateUser.startPeriodic(1.0 / 50.0)
 
     Wrist.position = ((-90).degree.radian)
     Wrist.encoder.resetPosition(Wrist.master.model.toNativeUnitPosition((-90).degree.radian))
@@ -53,7 +45,6 @@ object Robot : FalconTimedRobot() {
     Wrist.encoder.resetPosition(Wrist.master.model.toNativeUnitPosition((-90).degree.radian))
     Wrist.position = ((-90).degree.radian)
     Wrist.encoder.resetPosition(Wrist.master.model.toNativeUnitPosition((-90).degree.radian))
-
   }
 
   override fun robotPeriodic() {
@@ -62,7 +53,6 @@ object Robot : FalconTimedRobot() {
   }
 
   override fun disabledInit() {
-
   }
 
 //  var autoSpeedEntry = NetworkTableInstance.getDefault().getEntry("/robot/autospeed")
@@ -102,11 +92,11 @@ object Robot : FalconTimedRobot() {
 //    priorAutospeed = autospeed
 //
 //    // command motors to do things
-////    println("setting prox to $autospeed")
+// //    println("setting prox to $autospeed")
 //    Wrist.setDutyCycle(autospeed, 0.0)
-////    armMotor.set(autospeed)
+// //    armMotor.set(autospeed)
 //
-////    println("reporting position $position")
+// //    println("reporting position $position")
 //
 //    // send telemetry data array back to NT
 //    numberArray[0] = now
@@ -117,7 +107,6 @@ object Robot : FalconTimedRobot() {
 //    numberArray[5] = rate
 //    telemetryEntry.setNumberArray(numberArray)
 //  }
-
 }
 
 fun main() {

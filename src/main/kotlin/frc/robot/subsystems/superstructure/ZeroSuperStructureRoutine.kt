@@ -86,15 +86,15 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putBoolean("Wrist zeroed", true)
 
         val proximal = Proximal
-        val tickkkkks = (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048)// * if(Proximal.master.talonSRX.sensorCollection.pulseWidthPosition > 0) 1 else -1
-        val targetProximal_COMP = 500//1900
+        val tickkkkks = (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048) // * if(Proximal.master.talonSRX.sensorCollection.pulseWidthPosition > 0) 1 else -1
+        val targetProximal_COMP = 500 // 1900
         val delta = (tickkkkks - targetProximal_COMP) * -1
-        val startingAngleTicks = proximal.master.model.toNativeUnitPosition((-90).degree).value//.talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
+        val startingAngleTicks = proximal.master.model.toNativeUnitPosition((-90).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
         proximal.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
 
         val wrist = Wrist
-        val wristStart = wrist.master.model.toNativeUnitPosition((-45).degree).value//.getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
-        val targetWristComp = 1050//1500 + 150
+        val wristStart = wrist.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
+        val targetWristComp = 1050 // 1500 + 150
         val correctionDelta = Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048 * if (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition > 0) 1 else -1
         val deltaW = (correctionDelta - targetWristComp) * 1
         wrist.master.talonSRX.selectedSensorPosition = (deltaW + wristStart).toInt()
@@ -112,7 +112,6 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 //        Elevator.elevatorZeroed = !interrupted
         SmartDashboard.putString("Zeroing state", mCurrentState!!.name)
     }
-
 
     companion object {
         private val kZeroHeight = 21.5.inch

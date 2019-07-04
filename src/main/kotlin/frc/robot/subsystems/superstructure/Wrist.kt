@@ -1,12 +1,9 @@
 package frc.robot.subsystems.superstructure
 
-import frc.robot.Constants
 import frc.robot.Ports
 import org.ghrobotics.lib.mathematics.units.UnboundedRotation
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.MultiMotorTransmission
-import kotlin.math.cos
-import kotlin.math.withSign
 
 object Wrist : MultiMotorTransmission<UnboundedRotation>(
         unregisterSubsystem = false
@@ -39,7 +36,7 @@ object Wrist : MultiMotorTransmission<UnboundedRotation>(
     override fun setClosedLoopGains() {
         master.useMotionProfileForPosition = true
         // TODO use FalconSRX properties for velocities and accelerations
-        master.talonSRX.configMotionCruiseVelocity(2000,0) // about 3500 theoretical max
+        master.talonSRX.configMotionCruiseVelocity(2000, 0) // about 3500 theoretical max
         master.talonSRX.configMotionAcceleration(3500)
         master.talonSRX.configMotionSCurveStrength(0)
 
@@ -52,7 +49,7 @@ object Wrist : MultiMotorTransmission<UnboundedRotation>(
     private var previousState: WantedState = WantedState.Nothing
 
     override fun useState() {
-        when(wantedState) {
+        when (wantedState) {
             is WantedState.Position -> {
                 val state = wantedState as WantedState.Position
                 val ff = 0.0
@@ -67,5 +64,4 @@ object Wrist : MultiMotorTransmission<UnboundedRotation>(
         object Nothing : WantedState()
         class Position(internal val targetPosition: Double) : WantedState()
     }
-
 }

@@ -7,10 +7,11 @@ import kotlin.math.withSign
  * A model using kv-ka-kStatic modeling
  * kV is in <T>
  */
-class OblargianTransmissionModel(private val kv: Double, // volts/[T]/sec
-                                 private val ka: Double, //volts/[T]/sec/sec
-                                 private val kStatic: Double, // volts
-                                 private val kCos: Double = 0.0 // volts
+class OblargianTransmissionModel(
+    private val kv: Double, // volts/[T]/sec
+    private val ka: Double, // volts/[T]/sec/sec
+    private val kStatic: Double, // volts
+    private val kCos: Double = 0.0 // volts
 ) {
 
     fun getFeedForward(position: Double, velocity: Double, accel: Double) =
@@ -28,7 +29,5 @@ class OblargianTransmissionModel(private val kv: Double, // volts/[T]/sec
         val usableVoltage = maxVoltage - kStatic - cos(position) * kCos
 
         return ka * usableVoltage
-
     }
-
 }

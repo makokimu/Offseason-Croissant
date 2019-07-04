@@ -1,22 +1,22 @@
-///*
+// /*
 // * Some implementation from Team 5190 Green Hope Robotics
 // */
 //
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import org.ghrobotics.lib.commands.FalconCommand
-//import org.ghrobotics.lib.commands.parallel
-//import org.ghrobotics.lib.commands.sequential
-//import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
-//import org.ghrobotics.lib.mathematics.units.Time
-//import org.ghrobotics.lib.mathematics.units.feet
-//import org.ghrobotics.lib.mathematics.units.second
-//import org.ghrobotics.lib.utils.Source
+// import org.ghrobotics.lib.commands.FalconCommand
+// import org.ghrobotics.lib.commands.parallel
+// import org.ghrobotics.lib.commands.sequential
+// import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
+// import org.ghrobotics.lib.mathematics.units.Time
+// import org.ghrobotics.lib.mathematics.units.feet
+// import org.ghrobotics.lib.mathematics.units.second
+// import org.ghrobotics.lib.utils.Source
 //
-//class HybridRoutine(private val mode: Mode) : AutoRoutine() {
+// class HybridRoutine(private val mode: Mode) : AutoRoutine() {
 //
 //    enum class Mode(
 //        val path1: TimedTrajectory<Pose2dWithCurvature>,
@@ -94,4 +94,4 @@
 //                }
 //            }
 //        }
-//}
+// }

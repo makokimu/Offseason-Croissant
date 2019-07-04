@@ -34,7 +34,7 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
             FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[1], DefaultNativeUnitModel))
 
     init {
-        if(Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION.size < followers.size)
+        if (Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION.size < followers.size)
             throw ArrayIndexOutOfBoundsException("Follower inversion list size contains less indices than the number of followers!")
 
         master.outputInverted = Ports.SuperStructurePorts.ProximalPorts.TALON_INVERTED
@@ -51,7 +51,6 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
 
         master.talonSRX.configForwardSoftLimitEnable(false)
         master.talonSRX.configReverseSoftLimitEnable(false)
-
     }
 
     override fun setClosedLoopGains() {
@@ -69,7 +68,7 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
     var wantedState: WantedState = WantedState.Nothing
 
     override fun useState() {
-        when(wantedState) {
+        when (wantedState) {
             is WantedState.Position -> {
                 val state = wantedState as WantedState.Position
                 val ff = kProximalStatic.withSign(currentState.velocity) + cos(currentState.position) * kProximalCos
@@ -85,5 +84,4 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
 
         class Position(internal val targetPosition: Double) : WantedState()
     }
-
 }

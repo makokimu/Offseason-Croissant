@@ -6,9 +6,9 @@ package frc.robot.auto
 
 import frc.robot.Network
 import frc.robot.auto.paths.TrajectoryWaypoints
-//import frc.robot.auto.routines.BottomRocketRoutine
-//import frc.robot.auto.routines.CargoShipRoutine
-//import frc.robot.auto.routines.HybridRoutine
+// import frc.robot.auto.routines.BottomRocketRoutine
+// import frc.robot.auto.routines.CargoShipRoutine
+// import frc.robot.auto.routines.HybridRoutine
 import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.sequential
@@ -75,7 +75,6 @@ object Autonomous {
     private val startingPositionMonitor = startingPosition.monitor
     private val isReadyMonitor = isReady.monitor
 //    private val modeMonitor = { Robot.lastRobotMode }.monitor
-
 
     enum class StartingPositions(val pose: Pose2d) {
         LEFT(TrajectoryWaypoints.kSideStart.mirror),

@@ -1,20 +1,24 @@
 package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.can.SlotConfiguration
-import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SIUnit
-import org.ghrobotics.lib.mathematics.units.SIValue
 import org.ghrobotics.lib.mathematics.units.derivedunits.Acceleration
 import org.ghrobotics.lib.mathematics.units.derivedunits.Velocity
 import org.ghrobotics.lib.motors.FalconMotor
-import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
 import org.ghrobotics.lib.simulation.SimFalconMotor
 
-fun configureMotor(motor: FalconMotor<*>, cruiseVel: Velocity<*>, cruiseAccel: Acceleration<*>,
-                   pidfSlot: Int, currentLimitConfig: FalconSRX.CurrentLimitConfig,
-                   slotConfiguration: SlotConfiguration, minPosition: SIUnit<*>, maxPosition: SIUnit<*>):
+fun configureMotor(
+    motor: FalconMotor<*>,
+    cruiseVel: Velocity<*>,
+    cruiseAccel: Acceleration<*>,
+    pidfSlot: Int,
+    currentLimitConfig: FalconSRX.CurrentLimitConfig,
+    slotConfiguration: SlotConfiguration,
+    minPosition: SIUnit<*>,
+    maxPosition: SIUnit<*>
+):
         FalconMotor<*> {
 
     motor.run {
@@ -55,7 +59,6 @@ fun configureMotor(motor: FalconMotor<*>, cruiseVel: Velocity<*>, cruiseAccel: A
 
                 miniMotor.configForwardSoftLimitEnable(true, 0)
                 miniMotor.configReverseSoftLimitEnable(true, 0)
-
             }
             is FalconMAX -> {
                 val motorController = motor.canSparkMax
@@ -75,15 +78,12 @@ fun configureMotor(motor: FalconMotor<*>, cruiseVel: Velocity<*>, cruiseAccel: A
 
 //                    motor.getForwardLimitSwitch(maxPolarity)
 //                    motor.getReverseLimitSwitch(minPolarity)
-
             }
             is SimFalconMotor -> {
-
             }
             else -> TODO("Config not implemented for non-CTR and non-REV joint!")
         }
 
         return motor
     }
-
 }

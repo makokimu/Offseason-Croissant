@@ -14,7 +14,6 @@ import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.Time
 import org.ghrobotics.lib.utils.BooleanSource
-import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 
 abstract class AutoRoutine() : SequentialCommandGroup() {
@@ -38,7 +37,7 @@ abstract class AutoRoutine() : SequentialCommandGroup() {
             useAbsoluteVision
     )
 
-    protected fun relocalize(position: Pose2d, forward: Boolean, pathMirrored: BooleanSource) = InstantCommand(Runnable{
+    protected fun relocalize(position: Pose2d, forward: Boolean, pathMirrored: BooleanSource) = InstantCommand(Runnable {
         val newPosition = Pose2d(
                 pathMirrored.map(position.mirror, position)().translation, // if pathMirrored is true, mirror the pose
                 // otherwise, don't. Use that translation2d for the new position
@@ -48,7 +47,7 @@ abstract class AutoRoutine() : SequentialCommandGroup() {
         DriveSubsystem.localization.reset(newPosition)
     })
 
-    private fun Pose2d.asString() = "Pose X:${translation.x/SILengthConstants.kFeetToMeter}\' Y:${translation.y/SILengthConstants.kFeetToMeter}' Theta:${rotation.degree}deg"
+    private fun Pose2d.asString() = "Pose X:${translation.x / SILengthConstants.kFeetToMeter}\' Y:${translation.y / SILengthConstants.kFeetToMeter}' Theta:${rotation.degree}deg"
 
     fun notWithinRegion(region: Rectangle2d) = object : SendableCommandBase() {
         override fun isFinished() = !region.contains(DriveSubsystem.robotPosition.translation)

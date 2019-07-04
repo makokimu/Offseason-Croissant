@@ -1,21 +1,21 @@
-///*
+// /*
 // * Some implementation from Team 5190 Green Hope Robotics
 // */
 //
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import frc.robot.auto.Autonomous
-//import frc.robot.auto.paths.TrajectoryFactory
-//import frc.robot.subsystems.drive.DriveSubsystem
-//import frc.robot.subsystems.intake.IntakeHatchCommand
-//import org.ghrobotics.lib.commands.parallel
-//import org.ghrobotics.lib.commands.sequential
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.units.feet
-//import org.ghrobotics.lib.mathematics.units.second
-//import org.ghrobotics.lib.utils.withEquals
+// import frc.robot.auto.Autonomous
+// import frc.robot.auto.paths.TrajectoryFactory
+// import frc.robot.subsystems.drive.DriveSubsystem
+// import frc.robot.subsystems.intake.IntakeHatchCommand
+// import org.ghrobotics.lib.commands.parallel
+// import org.ghrobotics.lib.commands.sequential
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.units.feet
+// import org.ghrobotics.lib.mathematics.units.second
+// import org.ghrobotics.lib.utils.withEquals
 //
-//class BottomRocketRoutine : AutoRoutine() {
+// class BottomRocketRoutine : AutoRoutine() {
 //
 //    // First path goes to the far side of the rocket
 //    private val path1 = TrajectoryFactory.sideStartToRocketF
@@ -113,4 +113,4 @@
 //        }
 //
 //    }
-//}
+// }

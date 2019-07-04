@@ -14,7 +14,6 @@ import org.ghrobotics.lib.wrappers.hid.kX
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
     override fun execute() {
@@ -34,9 +33,9 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
      */
     @Suppress("ComplexMethod")
     private fun curvatureDrive(
-            linearPercent: Double,
-            curvaturePercent: Double,
-            isQuickTurn: Boolean
+        linearPercent: Double,
+        curvaturePercent: Double,
+        isQuickTurn: Boolean
     ) {
         val angularPower: Double
         val overPower: Boolean
@@ -98,12 +97,11 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
      * Tank drive control
      */
     protected fun tankDrive(
-            leftPercent: Double,
-            rightPercent: Double
+        leftPercent: Double,
+        rightPercent: Double
     ) {
         DriveSubsystem.leftMotor.setDutyCycle(leftPercent, 0.0)
         DriveSubsystem.rightMotor.setDutyCycle(rightPercent, 0.0)
-
     }
 
     companion object {
@@ -116,5 +114,4 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband) }
         private val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kX) }
     }
-
 }

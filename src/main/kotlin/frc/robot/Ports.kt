@@ -48,5 +48,4 @@ object Ports {
             val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
         }
     }
-
 }

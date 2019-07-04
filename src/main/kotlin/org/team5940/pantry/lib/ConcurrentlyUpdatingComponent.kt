@@ -6,5 +6,4 @@ interface ConcurrentlyUpdatingComponent {
 
     @JvmDefault
     fun useState() = run { }
-
 }

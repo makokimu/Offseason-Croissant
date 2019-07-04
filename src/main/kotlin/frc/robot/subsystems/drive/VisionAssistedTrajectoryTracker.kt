@@ -24,10 +24,10 @@ import kotlin.math.PI
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class VisionAssistedTrajectoryTracker(
-        val trajectorySource: Source<Trajectory<Time, TimedEntry<Pose2dWithCurvature>>>,
-        val radiusFromEnd: Length,
-        val useAbsoluteVision: Boolean = false,
-        val useLimeLightOverTargetTracker: Boolean = true
+    val trajectorySource: Source<Trajectory<Time, TimedEntry<Pose2dWithCurvature>>>,
+    val radiusFromEnd: Length,
+    val useAbsoluteVision: Boolean = false,
+    val useLimeLightOverTargetTracker: Boolean = true
 ) : SendableCommandBase() {
 
     private var trajectoryFinished = false
@@ -160,8 +160,8 @@ class VisionAssistedTrajectoryTracker(
             val referencePose = referencePoint.state.state.pose
 
             // Update Current Path Location on Live Dashboard
-            LiveDashboard.pathX = referencePose.translation.x/SILengthConstants.kFeetToMeter
-            LiveDashboard.pathY = referencePose.translation.y/SILengthConstants.kFeetToMeter
+            LiveDashboard.pathX = referencePose.translation.x / SILengthConstants.kFeetToMeter
+            LiveDashboard.pathY = referencePose.translation.y / SILengthConstants.kFeetToMeter
             LiveDashboard.pathHeading = referencePose.rotation.radian
         }
 

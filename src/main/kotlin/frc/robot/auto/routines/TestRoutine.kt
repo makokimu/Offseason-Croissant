@@ -1,13 +1,13 @@
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import edu.wpi.first.wpilibj.experimental.command.InstantCommand
-//import frc.robot.auto.paths.TrajectoryFactory
-//import frc.robot.subsystems.drive.DriveSubsystem
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.units.feet
-//import org.ghrobotics.lib.mathematics.units.second
+// import edu.wpi.first.wpilibj.experimental.command.InstantCommand
+// import frc.robot.auto.paths.TrajectoryFactory
+// import frc.robot.subsystems.drive.DriveSubsystem
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.units.feet
+// import org.ghrobotics.lib.mathematics.units.second
 //
-//class TestRoutine : AutoRoutine() {
+// class TestRoutine : AutoRoutine() {
 //
 //    init {
 //
@@ -15,7 +15,7 @@
 //            DriveSubsystem.localization.reset(TrajectoryFactory.tenFootTest.firstState.state.pose)
 //        })
 //
-////        +JankyGoToState(RobotConfig.auto.fieldPositions.hatchLowGoal, SuperStructure.iPosition.HATCH)
+// //        +JankyGoToState(RobotConfig.auto.fieldPositions.hatchLowGoal, SuperStructure.iPosition.HATCH)
 //
 //        +parallel(
 //
@@ -30,4 +30,4 @@
 //                RunIntake.grabHatchFor(0.5.second)
 //        )
 //    }
-//}
+// }

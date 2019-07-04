@@ -1,6 +1,5 @@
 package frc.robot.vision
 
-import edu.wpi.first.networktables.NetworkTable
 import edu.wpi.first.networktables.NetworkTableEntry
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.Timer
@@ -35,7 +34,6 @@ object LimeLightManager : SendableSubsystemBase() {
                     it.translation.y.absoluteValue < (Constants.kRobotWidth / 2.0).value) return@let null
 
             return@let robotPosition + (Constants.kCenterToFrontCamera + it)
-
         }
 
         TargetTracker.addSamples(
@@ -44,14 +42,12 @@ object LimeLightManager : SendableSubsystemBase() {
     }
 
     private val pipelineLatency
-        get() = (table.getEntry("tl").getDouble(0.0)+11) / 1000.0
+        get() = (table.getEntry("tl").getDouble(0.0) + 11) / 1000.0
 
     private fun getDistanceToTarget(): Length {
-        val focalLen = 707.0 * (57.0 / 53.0)// = (isHighRes) ? x_focal_length_high : x_focal_length_low;
+        val focalLen = 707.0 * (57.0 / 53.0) // = (isHighRes) ? x_focal_length_high : x_focal_length_low;
         val width = 14.6.inch
-        val targetSizePx = table.getEntry("tlong").getDouble(0.0)//getTargetXPixels();
+        val targetSizePx = table.getEntry("tlong").getDouble(0.0) // getTargetXPixels();
         return width.times(focalLen).div(targetSizePx)
     }
-
-
 }

@@ -3,20 +3,15 @@ package frc.robot
 import com.team254.lib.physics.DifferentialDrive
 import com.team254.lib.physics.DCMotorTransmission
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
-import org.ghrobotics.lib.mathematics.units.derivedunits.volt
 import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
-
 
 object Constants {
 
     object DriveConstants {
         const val kBeta = 2.0
         const val kZeta = 0.7
-
 
         private val kRobotMass = (50.0 /* Robot, kg */ + 5.0 /* Battery, kg */ + 2.0 /* Bumpers, kg */).toDouble()
         private val kRobotMomentOfInertia = 10.0 // kg m^2 // TODO Tune
@@ -45,11 +40,11 @@ object Constants {
 
         private val kVDriveLeftHigh = 0.143 * 1.0 // Volts per radians per second - Calculated emperically
         private val kADriveLeftHigh = 0.043 * 1.0 // Volts per radians per second per second
-        private val kVInterceptLeftHigh = 1.33 * 1.0//4 * 0.4d; // Volts - tuned!
+        private val kVInterceptLeftHigh = 1.33 * 1.0 // 4 * 0.4d; // Volts - tuned!
 
         private val kVDriveRightHigh = 0.14 * 1.0 // Volts per radians per second - Calculated emperically
         private val kADriveRightHigh = 0.043 * 1.0 // Volts per radians per second per second
-        private val kVInterceptRightHigh = 1.34 * 1.0//4 * 0.4d; // Volts - tuned!
+        private val kVInterceptRightHigh = 1.34 * 1.0 // 4 * 0.4d; // Volts - tuned!
 
         private val kLeftTransmissionModelHighGear = DCMotorTransmission(1 / kVDriveLeftHigh,
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveLeftHigh),
@@ -64,7 +59,6 @@ object Constants {
 
         val kHighGearDifferentialDrive = DifferentialDrive(kRobotMass, kRobotMomentOfInertia,
                 kRobotAngularDrag, kWheelRadius.meter, kTrackWidth.meter / 2.0, kLeftTransmissionModelHighGear, kRightTransmissionModelHighGear)
-
     }
 
     object SuperStructureConstants {
@@ -75,7 +69,6 @@ object Constants {
     object IntakeConstants {
 
 //        val deployTime = 0.1.second
-
     }
 
     /* Wrist stuff */
@@ -113,7 +106,6 @@ object Constants {
     val kCenterToForwardIntake = Pose2d((kRobotLength / 2.0) + kIntakeProtrusionFrontExtended, -kBadIntakeOffset, 0.degree) // 34
     val kBackwardIntakeToCenter = Pose2d(kCenterToForwardIntake.translation.x.meter - kCenterToElevator, -kBadIntakeOffset, 0.degree) // 29.5
 
-    val kCenterToFrontCamera = Pose2d(kRobotLength/2 - 13.inch, 0.0.inch, 0.degree)
-    val kCenterToBackCamera = Pose2d(kRobotLength/2 - 16.inch, 0.0.inch, 180.degree)
-
+    val kCenterToFrontCamera = Pose2d(kRobotLength / 2 - 13.inch, 0.0.inch, 0.degree)
+    val kCenterToBackCamera = Pose2d(kRobotLength / 2 - 16.inch, 0.0.inch, 180.degree)
 }

@@ -7,14 +7,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derivedunits.AngularVelocity
-import org.ghrobotics.lib.mathematics.units.derivedunits.LinearVelocity
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import java.lang.IllegalArgumentException
 import java.lang.Math.toDegrees
 
-object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
+object SuperStructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     init {
         // force instantiation of subsystems
@@ -32,9 +29,6 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
             state.isPassedThrough && !currentState.isPassedThrough -> InstantCommand()
             else -> InstantCommand()
         }
-
-
-
     }
 
     fun getUnDumbWrist(dumbWrist: UnboundedRotation, relevantProx: UnboundedRotation) =
@@ -51,7 +45,7 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
 
     override fun activateEmergency() { listOf(Elevator, Proximal, Wrist).forEach { it.activateEmergency() } }
 
-    override fun recoverFromEmergency() {listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() } }
+    override fun recoverFromEmergency() { listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() } }
 
     override fun setNeutral() {
         Elevator.wantedState = Elevator.WantedState.Nothing
@@ -80,19 +74,18 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
         Wrist.updateState()
 
         // use these updated states to build our current state
-        currentState = State.Position(
+        synchronized(currentState) {currentState = State.Position(
                 Elevator.currentState.position,
                 Proximal.currentState.position,
                 Wrist.currentState.position,
                 wristUnDumb = false
-        )
+        )}
     }
 
     fun customizeWantedState(state: State): State {
 
         // todo modify state (ex vision being blocked, illegal state, etc
         return state
-
     }
 
 //    override fun useState() {
@@ -104,14 +97,14 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
 //                "proximal ${wantedState.proximal/(2*Math.PI)*360.0}" +
 //                "wrist ${wantedState.wrist/(2*Math.PI)*360.0}")
 //
-////        Elevator.wantedState = Elevator.WantedState.Position(wantedState.elevator)
-////        Elevator.useState()
+// //        Elevator.wantedState = Elevator.WantedState.Position(wantedState.elevator)
+// //        Elevator.useState()
 //
 //        Proximal.wantedState = Proximal.WantedState.Position(wantedState.proximal)
 //        Proximal.useState()
 //
-////        Wrist.wantedState = Wrist.WantedState.Position(wantedState.wrist)
-////        Wrist.useState()
+// //        Wrist.wantedState = Wrist.WantedState.Position(wantedState.wrist)
+// //        Wrist.useState()
 //    }
 
     override fun useState() {
@@ -134,7 +127,6 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
         SmartDashboard.putData(ClosedLoopElevatorMove(25.inch.meter))
         SmartDashboard.putData(ClosedLoopProximalMove(-5.degree.radian))
         SmartDashboard.putData(ClosedLoopWristMove(0.degree.radian))
-
     }
 
     sealed class State {
@@ -142,36 +134,42 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
         object Nothing : State()
 
         data class Position(
-                val elevator: Double,
-                val proximal: Double,
-                val wrist: Double,
-                val isPassedThrough: Boolean = proximal < Math.toRadians(-135.0),
-                val isWristUnDumb: Boolean = false
-        ): State() {
+            val elevator: Double,
+            val proximal: Double,
+            val wrist: Double,
+            val isPassedThrough: Boolean = proximal < Math.toRadians(-135.0),
+            val isWristUnDumb: Boolean = false
+        ) : State() {
             @Suppress("unused")
-            constructor(elevator:Length, proximal:UnboundedRotation, wrist:UnboundedRotation, isWristUnDumb: Boolean = false
+            constructor(
+                elevator: Length,
+                proximal: UnboundedRotation,
+                wrist: UnboundedRotation,
+                isWristUnDumb: Boolean = false
             ) :
-                    this(elevator.value, proximal.value, (if(isWristUnDumb) getDumbWrist(wrist, proximal) else wrist).value)
+                    this(elevator.value, proximal.value, (if (isWristUnDumb) getDumbWrist(wrist, proximal) else wrist).value)
 
             @Suppress("unused")
-            internal constructor(elevator:Double, proximal:Double, wrist:Double, wristUnDumb: Boolean = false
+            internal constructor(
+                elevator: Double,
+                proximal: Double,
+                wrist: Double,
+                wristUnDumb: Boolean = false
             ) :
-                    this(elevator, proximal, (if(wristUnDumb) getDumbWrist(wrist, proximal) else wrist), isWristUnDumb = wristUnDumb)
+                    this(elevator, proximal, (if (wristUnDumb) getDumbWrist(wrist, proximal) else wrist), isWristUnDumb = wristUnDumb)
 
             constructor() : this(20.inch, 0.degree, 0.degree) // semi-sane numbers?
 
-            fun dumbState() = if(!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
-            fun trueState() = if(isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
+            fun dumbState() = if (!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
+            fun trueState() = if (isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
 
             fun asString(): String {
-                return "state: Elevator ${elevator/SILengthConstants.kInchToMeter} proximal ${toDegrees(proximal)} wrist ${toDegrees(wrist)}"
+                return "state: Elevator ${elevator / SILengthConstants.kInchToMeter} proximal ${toDegrees(proximal)} wrist ${toDegrees(wrist)}"
             }
         }
 
         abstract class CustomState : State() {
             abstract fun useState()
         }
-
     }
-
 }

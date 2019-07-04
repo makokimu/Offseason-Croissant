@@ -57,10 +57,10 @@ object Elevator : MultiMotorTransmission<Length>(
     var wantedState: WantedState = WantedState.Nothing
 
     override fun useState() {
-        when(wantedState) {
+        when (wantedState) {
             is WantedState.Position -> {
                 val state = wantedState as WantedState.Position
-                val ff = if(currentState.position > 22.0 * SILengthConstants.kInchToMeter) 1.2 else -0.06 // volts
+                val ff = if (currentState.position > 22.0 * SILengthConstants.kInchToMeter) 1.2 else -0.06 // volts
 
                 setPosition(state.targetPosition, ff)
             }
@@ -73,5 +73,4 @@ object Elevator : MultiMotorTransmission<Length>(
 
         class Position(internal val targetPosition: Double) : WantedState()
     }
-
 }

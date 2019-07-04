@@ -2,17 +2,13 @@
 
 package frc.robot.subsystems.intake
 
-import edu.wpi.first.wpilibj.experimental.command.Command
 import edu.wpi.first.wpilibj.experimental.command.InstantCommand
-import edu.wpi.first.wpilibj.experimental.command.RunCommand
-import edu.wpi.first.wpilibj.experimental.command.StartEndCommand
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.utils.DoubleSource
 
 val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
 val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
 
-class IntakeHatchCommand(val exhausting: Boolean): FalconCommand(Intake) {
+class IntakeHatchCommand(val exhausting: Boolean) : FalconCommand(Intake) {
 
     var wasOpen: Boolean = false
 
@@ -30,10 +26,9 @@ class IntakeHatchCommand(val exhausting: Boolean): FalconCommand(Intake) {
         Intake.hatchMotorOutput = 0.0
         Intake.cargoMotorOutput = 0.0
     }
-
 }
 
-class IntakeCargoCommand(val isExhausting: Boolean): FalconCommand(Intake){
+class IntakeCargoCommand(val isExhausting: Boolean) : FalconCommand(Intake) {
 
     var wasOpen: Boolean = false
 
@@ -56,4 +51,4 @@ class IntakeCargoCommand(val isExhausting: Boolean): FalconCommand(Intake){
     }
 }
 
-private operator fun Number.times(shouldReverse: Boolean) = if(shouldReverse) toDouble() * -1 else toDouble()
+private operator fun Number.times(shouldReverse: Boolean) = if (shouldReverse) toDouble() * -1 else toDouble()

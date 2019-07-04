@@ -12,9 +12,11 @@ import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.Time
 import org.ghrobotics.lib.mathematics.units.second
 
-class DriveTrajectory(val trajectory: Trajectory<Time, TimedEntry<Pose2dWithCurvature>>,
-                      val tracker: TrajectoryTracker,
-                      val reset: Boolean) : FalconCommand(DriveSubsystem) {
+class DriveTrajectory(
+    val trajectory: Trajectory<Time, TimedEntry<Pose2dWithCurvature>>,
+    val tracker: TrajectoryTracker,
+    val reset: Boolean
+) : FalconCommand(DriveSubsystem) {
 
     override fun initialize() {
         tracker.reset(trajectory)
@@ -22,7 +24,7 @@ class DriveTrajectory(val trajectory: Trajectory<Time, TimedEntry<Pose2dWithCurv
         LiveDashboard.isFollowingPath = false
         LiveDashboard.isFollowingPath = true
 
-        if(reset) {
+        if (reset) {
             DriveSubsystem.localization.reset(trajectory.firstState.state.pose)
         }
     }
@@ -31,7 +33,7 @@ class DriveTrajectory(val trajectory: Trajectory<Time, TimedEntry<Pose2dWithCurv
         val nextState = tracker.nextState(DriveSubsystem.robotPosition,
                 Timer.getFPGATimestamp().second)
 
-        val refState : Pose2d?= tracker.referencePoint?.state?.state?.pose
+        val refState: Pose2d? = tracker.referencePoint?.state?.state?.pose
 
         if (refState != null) {
             LiveDashboard.pathX = refState.translation.x / SILengthConstants.kFeetToMeter
@@ -41,5 +43,4 @@ class DriveTrajectory(val trajectory: Trajectory<Time, TimedEntry<Pose2dWithCurv
 
         DriveSubsystem.setOutput(nextState)
     }
-
 }

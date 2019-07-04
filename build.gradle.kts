@@ -2,14 +2,13 @@ import edu.wpi.first.gradlerio.GradleRIOPlugin
 import edu.wpi.first.gradlerio.frc.FRCJavaArtifact
 import edu.wpi.first.gradlerio.frc.RoboRIO
 import edu.wpi.first.toolchain.NativePlatforms
-import jaci.gradle.deploy.artifact.FileTreeArtifact
-import jaci.gradle.deploy.context.DeployContext
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("edu.wpi.first.GradleRIO") version "2019.4.1"
     id("org.jetbrains.kotlin.jvm") version "1.3.11"
     id("idea")
+    id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
 }
 
 val roborioTargetName = "roborio"
@@ -68,7 +67,6 @@ dependencies {
 //    compile("com.github.mcm001:pantrycommon:2d570ea774")
 
     compile("com.github.Oblarg:Oblog:2.8.1")
-
 
     // XChart for Simulations and Tests
     compile("org.knowm.xchart", "xchart", "3.2.2")
