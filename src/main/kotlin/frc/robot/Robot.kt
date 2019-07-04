@@ -34,7 +34,7 @@ object Robot : FalconTimedRobot() {
     Controls
 
     stateUpdater = Notifier { subsystemUpdateList.forEach { it.updateState() } }
-    stateUpdater.startPeriodic(1.0 / 50.0)
+    stateUpdater.startPeriodic(1.0 / 100.0)
 
     stateUser = Notifier { subsystemUpdateList.forEach { it.useState() } }
     stateUser.startPeriodic(1.0 / 50.0)
