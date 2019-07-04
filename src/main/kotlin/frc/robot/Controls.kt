@@ -1,10 +1,12 @@
 package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
+import edu.wpi.first.wpilibj.Joystick
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
+import frc.robot.subsystems.superstructure.SuperStructure
 import org.ghrobotics.lib.wrappers.hid.*
 
 object Controls {
@@ -37,8 +39,30 @@ object Controls {
         }
     }
 
+    val operatorFalconHID = Joystick(5).mapControls {
+
+        state({ !isClimbing }) {
+
+            // cargo presets
+            button(12).changeOn(SuperStructure.kCargoIntake).changeOff { SuperStructure.kStowed.schedule() }
+            button(7).changeOn(SuperStructure.kCargoLow).changeOff { SuperStructure.kStowed.schedule() }
+            button(6).changeOn(SuperStructure.kCargoMid).changeOff { SuperStructure.kStowed.schedule() }
+            button(5).changeOn(SuperStructure.kCargoHigh).changeOff { SuperStructure.kStowed.schedule() }
+            button(8).changeOn(SuperStructure.kCargoShip).changeOff { SuperStructure.kStowed.schedule() }
+
+            // hatch presets
+            button(3).changeOn(SuperStructure.kHatchLow).changeOff { SuperStructure.kStowed.schedule() }
+            button(2).changeOn(SuperStructure.kHatchMid).changeOff { SuperStructure.kStowed.schedule() }
+            button(1).changeOn(SuperStructure.kHatchHigh).changeOff { SuperStructure.kStowed.schedule() }
+
+            // that one passthrough preset that doesnt snap back to normal
+            button(4).changeOn(SuperStructure.kHatchBackFronLoadingStation)
+        }
+    }
+
     fun update() {
         driverFalconXbox.update()
+        operatorFalconHID.update()
     }
 }
 
