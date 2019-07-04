@@ -31,8 +31,8 @@ object LimeLightManager : SendableSubsystemBase() {
         val angle = -txEntry()
 
         val estimatedPose: Pose2d? = Pose2d(Translation2d(distance, angle.degree.toRotation2d())).let {
-           if (it.translation.x.absoluteValue > (Constants.kRobotLength / 2.0 - 5.inch).value ||
-                    it.translation.y.absoluteValue > (Constants.kRobotWidth / 2.0).value) return@let null
+           if (it.translation.x.absoluteValue < (Constants.kRobotLength / 2.0 - 5.inch).value ||
+                    it.translation.y.absoluteValue < (Constants.kRobotWidth / 2.0).value) return@let null
 
             return@let robotPosition + (Constants.kCenterToFrontCamera + it)
 

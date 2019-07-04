@@ -23,46 +23,6 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
         Wrist
     }
 
-    var currentState: State.Position = State.Position()
-        private set
-    var watedSate: State = State.Nothing
-        private set
-    private var lastWantedState: State = State.Nothing
-
-    // this Runnable will be run to update the State through a separate Thread periodically
-    override fun updateState() {
-        // update the states of our components
-        Elevator.updateState()
-        Proximal.updateState()
-        Wrist.updateState()
-
-        // use these updated states to build our current state
-        currentState = State.Position(
-                Elevator.currentState.position,
-                Proximal.currentState.position,
-                Wrist.currentState.position,
-                wristUnDumb = false
-        )
-    }
-
-    fun customizeWantedState(state: State): State {
-
-        // todo modify state (ex vision being blocked, illegal state, etc
-        return state
-
-    }
-
-    val useState = {
-//        val wantedState
-    }
-
-    override fun lateInit() {
-        Robot.subsystemUpdateList.plusAssign(this)
-        SmartDashboard.putData(ElevatorTest())
-        SmartDashboard.putData(ProxTest())
-        SmartDashboard.putData(WristTest())
-    }
-
     // preset semi-singleton commands for each superstructure preset
     val kHatchFrontFromLoadingStation: SendableCommandBase = everythingMoveTo(State.Position(19.inch, 0.degree, 0.degree, isWristUnDumb = true))
 
@@ -94,9 +54,87 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
     override fun recoverFromEmergency() {listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() } }
 
     override fun setNeutral() {
+        Elevator.wantedState = Elevator.WantedState.Nothing
+        Proximal.wantedState = Proximal.WantedState.Nothing
+        Wrist.wantedState = Wrist.WantedState.Nothing
+
         Elevator.setNeutral()
         Proximal.setNeutral()
         Wrist.setNeutral()
+    }
+
+    var currentState: State.Position = State.Position()
+        private set
+    var wantedState: State = State.Nothing
+        private set
+
+    override fun periodic() {
+        SmartDashboard.putString("Superstructurestate", currentState.asString())
+    }
+
+    // this Runnable will be run to update the State through a separate Thread periodically
+    override fun updateState() {
+        // update the states of our components
+        Elevator.updateState()
+        Proximal.updateState()
+        Wrist.updateState()
+
+        // use these updated states to build our current state
+        currentState = State.Position(
+                Elevator.currentState.position,
+                Proximal.currentState.position,
+                Wrist.currentState.position,
+                wristUnDumb = false
+        )
+    }
+
+    fun customizeWantedState(state: State): State {
+
+        // todo modify state (ex vision being blocked, illegal state, etc
+        return state
+
+    }
+
+//    override fun useState() {
+//        val wantedState = customizeWantedState(this.wantedState)
+//
+//        if(wantedState !is State.Position) {setNeutral(); return}
+//
+//        println("moving superstructure to elevator ${wantedState.elevator/SILengthConstants.kInchToMeter}" +
+//                "proximal ${wantedState.proximal/(2*Math.PI)*360.0}" +
+//                "wrist ${wantedState.wrist/(2*Math.PI)*360.0}")
+//
+////        Elevator.wantedState = Elevator.WantedState.Position(wantedState.elevator)
+////        Elevator.useState()
+//
+//        Proximal.wantedState = Proximal.WantedState.Position(wantedState.proximal)
+//        Proximal.useState()
+//
+////        Wrist.wantedState = Wrist.WantedState.Position(wantedState.wrist)
+////        Wrist.useState()
+//    }
+
+    override fun useState() {
+        Elevator.useState()
+        Proximal.useState()
+        Wrist.useState()
+    }
+
+    override fun lateInit() {
+        Elevator.encoder.resetPosition(0.0)
+        Proximal.encoder.resetPosition(0.0)
+        Wrist.encoder.resetPosition(0.0)
+
+        Robot.subsystemUpdateList.plusAssign(this)
+
+        val zero = ZeroSuperStructureRoutine()
+        zero.schedule()
+        SmartDashboard.putData(zero)
+
+        SmartDashboard.putData(ClosedLoopElevatorMove(25.inch.meter))
+        SmartDashboard.putData(ClosedLoopProximalMove(-5.degree.radian))
+        SmartDashboard.putData(ClosedLoopWristMove(0.degree.radian))
+
     }
 
     sealed class State {
@@ -126,7 +164,7 @@ object SuperStructure: FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdat
             fun trueState() = if(isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
 
             fun asString(): String {
-                return "True state: Elevator ${elevator/SILengthConstants.kInchToMeter} proximal ${toDegrees(proximal)} wrist ${toDegrees(wrist)}"
+                return "state: Elevator ${elevator/SILengthConstants.kInchToMeter} proximal ${toDegrees(proximal)} wrist ${toDegrees(wrist)}"
             }
         }
 

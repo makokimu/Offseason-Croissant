@@ -67,10 +67,9 @@ object Constants {
 
     }
 
-    object ElevatorConstants {
-
-        val motionCruiseVel = 100.inch.velocity
-
+    object SuperStructureConstants {
+        const val kProximalStatic = 0.4 // volts
+        const val kProximalCos = 0.94 // volts
     }
 
     object IntakeConstants {
