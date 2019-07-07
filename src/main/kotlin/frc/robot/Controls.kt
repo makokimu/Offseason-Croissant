@@ -2,12 +2,18 @@ package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
+import edu.wpi.first.wpilibj.experimental.command.ConditionalCommand
+import edu.wpi.first.wpilibj.experimental.command.PrintCommand
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
-import frc.robot.subsystems.superstructure.SuperStructure
+import frc.robot.subsystems.superstructure.Superstructure
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.wrappers.hid.*
+import org.team5940.pantry.lib.greaterThanAxisButton
+import org.team5940.pantry.lib.lessThanAxisButton
+import java.util.function.BooleanSupplier
 
 object Controls {
 
@@ -17,46 +23,47 @@ object Controls {
     val driverFalconXbox = xboxController(0) {
         registerEmergencyMode()
 
-//        pov(90).changeOn(TuneElevatorRoutines.tuneKgRoutine)
-//        pov(270).changeOn { IntakeSubsystem.badIntakeOffset += .25.inch }
-//        pov(90).changeOn { IntakeSubsystem.badIntakeOffset -= .25.inch }
-
         state({ !isClimbing }) {
             // Vision align
-            button(kY).change(VisionDriveCommand(true))
-            button(kB).change(VisionDriveCommand(false))
+            triggerAxisButton(GenericHID.Hand.kRight).change(
+                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
+                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
 
             // Shifting
-            button(kA).changeOn { DriveSubsystem.lowGear = true }
-            button(kA).changeOff { DriveSubsystem.lowGear = false }
-
-            // Intake
-            triggerAxisButton(GenericHID.Hand.kLeft).change(IntakeHatchCommand(true))
-            button(kBumperLeft).change(IntakeHatchCommand(false))
-
-            triggerAxisButton(GenericHID.Hand.kRight).change(IntakeCargoCommand(true))
-            button(kBumperRight).change(IntakeCargoCommand(false))
+            button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
         }
     }
 
-    val operatorFalconHID = Joystick(5).mapControls {
+    private val operatorJoy = Joystick(5)
+    val operatorFalconHID = operatorJoy.mapControls {
 
         state({ !isClimbing }) {
 
             // cargo presets
-            button(12).changeOn(SuperStructure.kCargoIntake).changeOff { SuperStructure.kStowed.schedule() }
-            button(7).changeOn(SuperStructure.kCargoLow).changeOff { SuperStructure.kStowed.schedule() }
-            button(6).changeOn(SuperStructure.kCargoMid).changeOff { SuperStructure.kStowed.schedule() }
-            button(5).changeOn(SuperStructure.kCargoHigh).changeOff { SuperStructure.kStowed.schedule() }
-            button(8).changeOn(SuperStructure.kCargoShip).changeOff { SuperStructure.kStowed.schedule() }
+            button(12).changeOn(Superstructure.kCargoIntake).changeOff { Superstructure.kStowed.schedule() }
+            button(7).changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
+            button(6).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
+            button(5).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
+            button(8).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
 
             // hatch presets
-            button(3).changeOn(SuperStructure.kHatchLow).changeOff { SuperStructure.kStowed.schedule() }
-            button(2).changeOn(SuperStructure.kHatchMid).changeOff { SuperStructure.kStowed.schedule() }
-            button(1).changeOn(SuperStructure.kHatchHigh).changeOff { SuperStructure.kStowed.schedule() }
+            button(3).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
+            button(2).changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
+            button(1).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
 
             // that one passthrough preset that doesnt snap back to normal
-            button(4).changeOn(SuperStructure.kHatchBackFronLoadingStation)
+            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
+
+            // hatches
+            lessThanAxisButton(operatorJoy, 1).change(IntakeHatchCommand(releasing = false))
+            greaterThanAxisButton(operatorJoy, 1).change(IntakeHatchCommand(releasing = true))
+
+            // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
+            // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
+            val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
+            lessThanAxisButton(operatorJoy, 0).changeOff { Superstructure.kStowed.schedule() }.change(cargoCommand)
+            greaterThanAxisButton(operatorJoy,0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
+
         }
     }
 
@@ -65,6 +72,7 @@ object Controls {
         operatorFalconHID.update()
     }
 }
+
 
 private fun FalconXboxBuilder.registerEmergencyMode() {
     button(kBack).changeOn {
