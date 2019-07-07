@@ -6,6 +6,7 @@ import com.team254.lib.physics.DifferentialDrive
 import org.ghrobotics.lib.mathematics.units.Length
 import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SPI
+import edu.wpi.first.wpilibj.experimental.command.WaitUntilCommand
 import frc.robot.Constants
 import frc.robot.Constants.DriveConstants.kDriveLengthModel
 import frc.robot.Ports.DrivePorts.LEFT_PORTS
@@ -16,6 +17,7 @@ import frc.robot.Robot
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
@@ -106,4 +108,6 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
 
     override fun recoverFromEmergency() = run { leftMotor.setClosedLoopGains(); rightMotor.setClosedLoopGains() }
+    fun notWithinRegion(region: Rectangle2d) =
+            WaitUntilCommand { !region.contains(robotPosition.translation) }
 }

@@ -3,6 +3,7 @@ package org.team5940.pantry.lib
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
 import edu.wpi.first.wpilibj.experimental.command.SendableSubsystemBase
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
@@ -13,10 +14,11 @@ import org.ghrobotics.lib.subsystems.EmergencyHandleable
  * A MultiMotorTransmission which extends Subsystem. By default,
  * this subsystem will be unregistered
  */
-abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolean = false) : FalconMotor<T>, SendableSubsystemBase(),
+abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolean = false) : FalconMotor<T>, FalconSubsystem(),
         EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     abstract val master: FalconMotor<T>
+
     protected open val followers: List<FalconMotor<*>>? = null
 
     init {
@@ -24,6 +26,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
     }
 
     override val encoder by lazy { master.encoder }
+        @Synchronized get
     override var motionProfileAcceleration
         get() = master.motionProfileAcceleration
         set(value) { master.motionProfileAcceleration = value }
@@ -143,9 +146,11 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
     )
 
     var currentState = State(0.0, 0.0, 0.0)
+        @Synchronized get
+        @Synchronized set
 
     override fun updateState() {
-        synchronized(currentState) {
+        synchronized(this) {
             val lastState = currentState
             val velocity = encoder.velocity
             currentState = State(encoder.position, velocity, velocity - lastState.velocity)
