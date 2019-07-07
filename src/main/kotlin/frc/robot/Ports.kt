@@ -29,7 +29,7 @@ object Ports {
             val MASTER_INVERTED = false
             val MASTER_SENSOR_PHASE = true
             val FOLLOWER_INVERSION = listOf(InvertType.OpposeMaster, InvertType.FollowMaster, InvertType.FollowMaster)
-            val LENGTH_MODEL = NativeUnitLengthModel(4096.nativeUnits, 1.5.inch)
+            val LENGTH_MODEL = NativeUnitLengthModel(4096.nativeUnits, 1.5.inch / 2)
             val SENSOR = FeedbackDevice.CTRE_MagEncoder_Relative
         }
         object ProximalPorts {
