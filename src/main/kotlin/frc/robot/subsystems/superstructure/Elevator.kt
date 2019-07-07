@@ -1,6 +1,7 @@
 package frc.robot.subsystems.superstructure
 
 import edu.wpi.first.wpilibj.DigitalInput
+import frc.robot.Constants
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
 import org.ghrobotics.lib.mathematics.units.Length
@@ -8,6 +9,7 @@ import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.MultiMotorTransmission
+import org.team5940.pantry.lib.boundTo
 import java.lang.Math.abs
 
 object Elevator : MultiMotorTransmission<Length>(
@@ -16,6 +18,8 @@ object Elevator : MultiMotorTransmission<Length>(
 
     override val master: FalconSRX<Length> = FalconSRX(ElevatorPorts.TALON_PORTS[0],
             ElevatorPorts.LENGTH_MODEL)
+        @Synchronized get
+
 
     override val followers: List<FalconSRX<*>> = listOf(
             FalconSRX(ElevatorPorts.TALON_PORTS[1], DefaultNativeUnitModel),
@@ -46,7 +50,7 @@ object Elevator : MultiMotorTransmission<Length>(
 
         master.useMotionProfileForPosition = true
         // TODO use FalconSRX properties for velocities and accelerations
-        master.talonSRX.configMotionCruiseVelocity(4000) // about 3500 theoretical max
+        master.talonSRX.configMotionCruiseVelocity((4000.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
         master.talonSRX.configMotionAcceleration(8000)
         master.talonSRX.configMotionSCurveStrength(0)
 
@@ -55,15 +59,27 @@ object Elevator : MultiMotorTransmission<Length>(
         )
     }
 
-    var wantedState: WantedState = WantedState.Nothing
+    var elevatorOffset: Double = 0.0
+        set(newvalue) {
 
+            field = newvalue.boundTo(-3.0 / SILengthConstants.kInchToMeter, 3.0 / SILengthConstants.kInchToMeter)
+        }
+
+    var wantedState: WantedState = WantedState.Nothing
+        @Synchronized set
+        @Synchronized get
+
+    @Synchronized
     override fun useState() {
         when (wantedState) {
             is WantedState.Position -> {
                 val state = wantedState as WantedState.Position
                 val ff = if (currentState.position > 22.0 * SILengthConstants.kInchToMeter) 1.2 else -0.06 // volts
 
-                setPosition(state.targetPosition, ff)
+                synchronized(this) {
+                    setPosition(state.targetPosition + elevatorOffset, ff)
+                }
+
             }
             else -> setNeutral()
         }

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.superstructure
 
+import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kProximalCos
 import frc.robot.Constants.SuperStructureConstants.kProximalStatic
 import frc.robot.Ports
@@ -30,6 +31,7 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
 
     override val master: FalconSRX<UnboundedRotation> = FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[0],
             Ports.SuperStructurePorts.ProximalPorts.ROTATION_MODEL)
+        @Synchronized get
 
     override val followers: List<FalconSRX<*>> = listOf(
             FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[1], DefaultNativeUnitModel))
@@ -57,7 +59,7 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
     override fun setClosedLoopGains() {
         master.useMotionProfileForPosition = true
         // TODO use FalconSRX properties for velocities and accelerations
-        master.talonSRX.configMotionCruiseVelocity(1785) // about 3500 theoretical max
+        master.talonSRX.configMotionCruiseVelocity((1785.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
         master.talonSRX.configMotionAcceleration(5000)
         master.talonSRX.configMotionSCurveStrength(0)
 
@@ -67,14 +69,20 @@ object Proximal : MultiMotorTransmission<UnboundedRotation>(
     }
 
     var wantedState: WantedState = WantedState.Nothing
+        @Synchronized set
+        @Synchronized get
 
+    @Synchronized
     override fun useState() {
         when (wantedState) {
             is WantedState.Position -> {
                 val state = wantedState as WantedState.Position
                 val ff = kProximalStatic.withSign(currentState.velocity) + cos(currentState.position) * kProximalCos
 
-                setPosition(state.targetPosition, ff)
+                synchronized(this) {
+                    setPosition(state.targetPosition, ff)
+                }
+
             }
             else -> setNeutral()
         }
