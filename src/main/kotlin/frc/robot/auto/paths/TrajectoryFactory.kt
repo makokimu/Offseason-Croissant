@@ -1,7 +1,3 @@
-/**
- * Implementation from Team 5190 Green Hope Robotics
- */
-
 package frc.robot.auto.paths
 
 import frc.robot.Constants
@@ -21,17 +17,17 @@ object TrajectoryFactory {
 
     /** Constraints **/
 
-    private val kMaxVelocity = 7.5.feet.velocity
+    private val kMaxVelocity = 12.feet.velocity
     private val kMaxAcceleration = 6.feet.acceleration
 
     private val kMaxHabitatVelocity = 3.feet.velocity
 
     private val kFirstPathMaxAcceleration = 6.feet.acceleration
 
-    private val kVelocityRadiusConstraintRadius = 4.feet
-    private val kVelocityRadiusConstraintVelocity = 2.5.feet.velocity
+    private val kVelocityRadiusConstraintRadius = 3.feet
+    private val kVelocityRadiusConstraintVelocity = 3.feet.velocity
 
-    private val kMaxCentripetalAccelerationElevatorUp = 7.feet.acceleration
+    private val kMaxCentripetalAccelerationElevatorUp = 6.feet.acceleration
     private val kMaxCentripetalAccelerationElevatorDown = 9.feet.acceleration
 
     private val kMaxVoltage = 10.volt
@@ -70,10 +66,10 @@ object TrajectoryFactory {
             transform = Constants.kBackwardIntakeToCenter,
             translationalOffset = Translation2d((-9).inch, 0.inch)
     )
-    val rocketFAdjusted = TrajectoryWaypoints.Waypoint(
+    private val rocketFAdjusted = TrajectoryWaypoints.Waypoint(
             trueLocation = TrajectoryWaypoints.kRocketF,
-            transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d((-1).inch, (-8).inch)),
-            translationalOffset = Translation2d((4).inch, (-4).inch)
+            transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(-1.inch, 0.inch)),
+            translationalOffset = Translation2d(0.inch, -4.inch)
     )
     private val rocketNAdjusted = TrajectoryWaypoints.Waypoint(
             trueLocation = TrajectoryWaypoints.kRocketN,
@@ -196,6 +192,15 @@ object TrajectoryFactory {
             getConstraints(false, depotAdjusted), kMaxVelocity, kMaxAcceleration, kMaxVoltage
     )
 
+    val rocketFPrepareToRocketF = generateTrajectory(
+            false,
+            listOf(
+                    Pose2d(24.074.feet, 3.753.feet, -143.degree).asWaypoint(),
+                    rocketFAdjusted.position.transformBy(Pose2d(Translation2d(-4.inch, 0.inch))).asWaypoint()
+            ),
+            getConstraints(false, Pose2d()), 3.feet.velocity, kMaxAcceleration, kMaxVoltage
+    )
+
     val rocketFToDepot = generateTrajectory(
             true,
             listOf(
@@ -243,18 +248,15 @@ object TrajectoryFactory {
             getConstraints(false, rocketFAdjusted), kMaxVelocity, kMaxAcceleration, kMaxVoltage
     )
 
-    val tenFootTest = generateTrajectory(
+    val sideStartReversedToRocketFPrepare = generateTrajectory(
             true,
             listOf(
-                    Pose2d(
-                            10.feet, 10.feet, 180.degree
-                    ).asWaypoint(),
-                    Pose2d(
-                            20.feet, 10.feet, 180.degree
-                    ).asWaypoint()
+                    TrajectoryWaypoints.kSideStartReversed.asWaypoint(),
+                    Pose2d(15.214.feet, 8.7.feet, 165.degree).asWaypoint(),
+                    Pose2d(22.488.feet, 5.639.feet, 143.degree).asWaypoint(),
+                    Pose2d(24.074.feet, 3.753.feet, -143.degree).asWaypoint()
             ),
-            getConstraints(false, rocketFAdjusted), 6.feet.velocity, kMaxAcceleration, kMaxVoltage
-
+            getConstraints(false, Pose2d()), kMaxVelocity, 7.feet.acceleration, kMaxVoltage
     )
 
     /** Generation **/
@@ -279,13 +281,13 @@ object TrajectoryFactory {
             getConstraints(elevatorUp, trajectoryEndpoint.position)
 
     private fun generateTrajectory(
-        reversed: Boolean,
-        points: List<TrajectoryWaypoints.Waypoint>,
-        constraints: List<TimingConstraint<Pose2dWithCurvature>>,
-        maxVelocity: LinearVelocity,
-        maxAcceleration: LinearAcceleration,
-        maxVoltage: Volt,
-        optimizeCurvature: Boolean = true
+            reversed: Boolean,
+            points: List<TrajectoryWaypoints.Waypoint>,
+            constraints: List<TimingConstraint<Pose2dWithCurvature>>,
+            maxVelocity: LinearVelocity,
+            maxAcceleration: LinearAcceleration,
+            maxVoltage: Volt,
+            optimizeCurvature: Boolean = true
     ): TimedTrajectory<Pose2dWithCurvature> {
 
         val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kLowGearDifferentialDrive, maxVoltage)

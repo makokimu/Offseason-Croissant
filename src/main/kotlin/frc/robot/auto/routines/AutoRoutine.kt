@@ -2,9 +2,13 @@ package frc.robot.auto.routines
 
 import edu.wpi.first.wpilibj.experimental.command.*
 import frc.robot.Constants
+import frc.robot.Robot
+import frc.robot.auto.Autonomous
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionAssistedTrajectoryTracker
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallelRace
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
@@ -13,18 +17,23 @@ import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.Time
+import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.BooleanSource
+import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 
-abstract class AutoRoutine() : SequentialCommandGroup() {
+abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
 
-    // Experimental!!
-    fun withExit(exit: BooleanSource): SendableCommandBase {
-        return parallelRace {
-            +this@AutoRoutine
-            +WaitUntilCommand(exit)
-        }
-    }
+    abstract val duration: Time
+    abstract val routine: Command
+
+    override fun invoke(): Command = sequential {
+        +InstantCommand(Runnable{
+            println("[AutoRoutine] Starting routine...")
+            DriveSubsystem.localization.reset(Autonomous.startingPosition().pose)
+        })
+        +routine
+    }.raceWith(WaitUntilCommand{ Robot.emergencyActive })
 
     fun followVisionAssistedTrajectory(
         originalTrajectory: TimedTrajectory<Pose2dWithCurvature>,
@@ -47,6 +56,11 @@ abstract class AutoRoutine() : SequentialCommandGroup() {
         DriveSubsystem.localization.reset(newPosition)
     })
 
+    protected fun executeFor(time: Time, command: FalconCommand) = sequential {
+        +command
+        +WaitCommand(100.0)
+    }.withTimeout(time)
+
     private fun Pose2d.asString() = "Pose X:${translation.x / SILengthConstants.kFeetToMeter}\' Y:${translation.y / SILengthConstants.kFeetToMeter}' Theta:${rotation.degree}deg"
 
     fun notWithinRegion(region: Rectangle2d) = object : SendableCommandBase() {
@@ -56,9 +70,15 @@ abstract class AutoRoutine() : SequentialCommandGroup() {
     operator fun Command.unaryPlus() {
         addCommands(this@unaryPlus)
     }
-}
 
-fun SendableCommandBase.withTimeout(second: Time) = parallelRace {
-    +this@withTimeout
-    +WaitCommand(second.second)
+    fun Command.withTimeout(second: Time) = parallelRace {
+        +this@withTimeout
+        +WaitCommand(second.second)
+    }
+
+    fun Command.withExit(exit: BooleanSource) = parallelRace {
+        +this@withExit
+        +WaitUntilCommand(exit)
+    }
+
 }

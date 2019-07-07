@@ -1,11 +1,13 @@
-/*
- * Some implementation from Team 5190 Green Hope Robotics
- *//*
-
-
 package frc.robot.auto.routines
 
+import edu.wpi.first.wpilibj.experimental.command.WaitCommand
+import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
+import frc.robot.auto.paths.TrajectoryWaypoints
+import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.intake.IntakeCloseCommand
+import frc.robot.subsystems.intake.IntakeHatchCommand
+import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
@@ -38,17 +40,17 @@ class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() 
 
     private val pathMirrored = Autonomous.startingPosition.withEquals(Autonomous.StartingPositions.LEFT)
 
-    val duration: Time
+    override val duration: Time
         get() = mode.path1.duration + mode.path2.duration + mode.path3.duration
 
-    override val routine: FalconCommand
+    override val routine
         get() = sequential {
 
             +parallel {
                 +followVisionAssistedTrajectory(mode.path1, pathMirrored, 4.feet, true)
                 +sequential {
-                    +DelayCommand(mode.path1.duration - 3.5.second)
-                    +Superstructure.kFrontHatchFromLoadingStation.withTimeout(2.0.second)
+                    +WaitCommand(mode.path1.duration.second - 3.5.second.second)
+                    +Superstructure.kHatchLow.withTimeout(2.0.second)
                 }
             }
 
@@ -61,7 +63,7 @@ class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() 
                     +IntakeHatchCommand(true).withTimeout(0.5.second)
                     +IntakeCloseCommand()
                     +Superstructure.kBackHatchFromLoadingStation
-                    +IntakeHatchCommand(false).withExit { path2.wrappedValue.isCompleted }
+                    +IntakeHatchCommand(false).withExit { path2.isFinished }
                 }
             }
 
@@ -71,23 +73,24 @@ class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() 
                 +IntakeHatchCommand(false).withTimeout(0.75.second)
                 +followVisionAssistedTrajectory(mode.path3, pathMirrored, 4.feet, true)
                 +sequential {
-                    +executeFor(2.second, Superstructure.kStowedPosition)
-                    +Superstructure.kFrontHatchFromLoadingStation.withTimeout(3.second)
+//                    +executeFor(2.second, Superstructure.kStowedPosition)
+                    +WaitCommand(1.0)
+                    +Superstructure.kHatchLow.withTimeout(4.second)
                 }
             }
 
             +parallel {
                 +IntakeHatchCommand(true).withTimeout(0.5.second)
                 +object : FalconCommand(DriveSubsystem) {
-                    override suspend fun execute() {
+                    override fun execute() {
                         DriveSubsystem.tankDrive(-0.3, -0.3)
                     }
 
-                    override suspend fun dispose() {
+                    override fun end(i: Boolean) {
                         DriveSubsystem.zeroOutputs()
                     }
                 }.withTimeout(1.second)
             }
         }
 
-}*/
+}
