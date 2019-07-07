@@ -27,7 +27,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
     override fun execute() {
 
-//        val isFront = !SuperStructure.getInstance().isPassedThrough
+//        val isFront = !Superstructure.getInstance().isPassedThrough
 //        val isFront = 
 
         println("IS FRONT? $isFront")

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.experimental.command.InstantCommand
 import edu.wpi.first.wpilibj.experimental.command.PrintCommand
 import frc.robot.subsystems.intake.Intake
-import frc.robot.subsystems.superstructure.SuperStructure.getDumbWrist
+import frc.robot.subsystems.superstructure.Superstructure.getDumbWrist
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
@@ -18,7 +18,7 @@ import kotlin.math.abs
 import kotlin.math.min
 
 class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double, private val isFrontToBack: Boolean) : FalconCommand(
-        SuperStructure, Proximal, Wrist
+        Superstructure, Proximal, Wrist
 ) {
 
     private val goal: Double = goalAngle + if (isFrontToBack) -30 else 0
@@ -28,12 +28,12 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
     private val proximalVelocity = abs(min(abs(proximalMaxVel), abs(wristMaxVel))) * 0.8 * (if (isFrontToBack) -1 else 1).toDouble()
     private var lastTime = 0.0
     private var moveIteratorFinished = false
-    private var lastObservedState = SuperStructure.State.Position()
+    private var lastObservedState = Superstructure.State.Position()
 
     constructor(goalAngle: Double, isFrontToBack: Boolean) : this(goalAngle, kProximalMaxVel, kWristMaxVel, isFrontToBack)
 
     override fun initialize() {
-        lastCommandedProximal = SuperStructure.currentState.proximal.radian
+        lastCommandedProximal = Superstructure.currentState.proximal.radian
         lastTime = Timer.getFPGATimestamp()
         moveIteratorFinished = false
 
@@ -49,12 +49,12 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
 
         val now = Timer.getFPGATimestamp()
         val dt = now - lastTime
-        val currentState = SuperStructure.currentState
+        val currentState = Superstructure.currentState
         this.lastObservedState = currentState
 
         var nextProximal = lastCommandedProximal
 
-        if (Math.abs(SuperStructure.getUnDumbWrist(lastObservedState.wrist, lastObservedState.proximal) * kRadianToDegrees - lastCommandedProximal!!.degree) < 50) {
+        if (Math.abs(Superstructure.getUnDumbWrist(lastObservedState.wrist, lastObservedState.proximal) * kRadianToDegrees - lastCommandedProximal!!.degree) < 50) {
             nextProximal = this.lastCommandedProximal!!.plus((proximalVelocity * dt).radian)
         }
 

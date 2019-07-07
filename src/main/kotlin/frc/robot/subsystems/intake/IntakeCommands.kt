@@ -3,22 +3,23 @@
 package frc.robot.subsystems.intake
 
 import edu.wpi.first.wpilibj.experimental.command.InstantCommand
+import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
+import kotlin.math.abs
 
 val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
 val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
 
-class IntakeHatchCommand(val exhausting: Boolean) : FalconCommand(Intake) {
+class IntakeHatchCommand(val releasing: Boolean) : FalconCommand(Intake) {
 
     var wasOpen: Boolean = false
 
     override fun initialize() {
         println("intaking hatch command")
-        Intake.hatchMotorOutput = 1 * exhausting
+        Intake.hatchMotorOutput = 1 * releasing
         Intake.cargoMotorOutput = 0.0
         Intake.wantsOpen = false
         wasOpen = Intake.wantsOpen
-        Intake.wantsOpen = false
     }
 
     override fun end(interrupted: Boolean) {
@@ -28,17 +29,17 @@ class IntakeHatchCommand(val exhausting: Boolean) : FalconCommand(Intake) {
     }
 }
 
-class IntakeCargoCommand(val isExhausting: Boolean) : FalconCommand(Intake) {
+class IntakeCargoCommand(val releasing: Boolean) : FalconCommand(Intake) {
 
     var wasOpen: Boolean = false
 
     override fun initialize() {
-        println("intaking cargo")
+        println("${if(releasing) "releasing" else "intaking"} cargo command!")
         wasOpen = Intake.wantsOpen
-        Intake.wantsOpen = !isExhausting
+        Intake.wantsOpen = !releasing
 
-        Intake.hatchMotorOutput = 1.0 * !isExhausting
-        Intake.cargoMotorOutput = 1.0 * isExhausting
+        Intake.hatchMotorOutput = 1.0 * !releasing
+        Intake.cargoMotorOutput = 1.0 * releasing
 
         super.initialize()
     }
@@ -48,6 +49,38 @@ class IntakeCargoCommand(val isExhausting: Boolean) : FalconCommand(Intake) {
         Intake.cargoMotorOutput = 0.0
         Intake.hatchMotorOutput = 0.0
         super.end(interrupted)
+    }
+}
+
+class IntakeTeleopCommand : FalconCommand(Intake) {
+
+    override fun execute() {
+        val cargoSpeed = -cargoSource()
+        val hatchSpeed = -hatchSource()
+
+        if (abs(cargoSpeed) > 0.2) {
+            Intake.hatchMotorOutput = -1.0 * cargoSpeed
+            Intake.cargoMotorOutput = cargoSpeed
+        } else {
+            Intake.hatchMotorOutput = hatchSpeed
+            Intake.cargoMotorOutput = 0.0
+        }
+    }
+
+    override fun end(interrupted: Boolean) {
+        Intake.hatchMotorOutput = 0.0
+        Intake.cargoMotorOutput = 0.0
+    }
+
+    companion object {
+        val cargoSource by lazy { Controls.operatorFalconHID.getRawAxis(0) }
+        val hatchSource by lazy { Controls.operatorFalconHID.getRawAxis(1) }
+    }
+}
+
+class IntakeCloseCommand : FalconCommand(Intake) {
+    init {
+        Intake.wantsOpen = false
     }
 }
 

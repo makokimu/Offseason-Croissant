@@ -22,13 +22,12 @@ import org.ghrobotics.lib.utils.Source
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class VisionAssistedTrajectoryTracker(
-        val trajectorySource: Source<Trajectory<Time, TimedEntry<Pose2dWithCurvature>>>,
-        val radiusFromEnd: Length,
-        val useAbsoluteVision: Boolean = false
+    val trajectorySource: Source<Trajectory<Time, TimedEntry<Pose2dWithCurvature>>>,
+    val radiusFromEnd: Length,
+    val useAbsoluteVision: Boolean = false
 ) : FalconCommand(DriveSubsystem) {
 
     private var trajectoryFinished = false
-    private var hasGeneratedVisionPath = false
 
     private var prevError = 0.0
 
@@ -44,20 +43,19 @@ class VisionAssistedTrajectoryTracker(
         trajectory = trajectorySource()
         DriveSubsystem.trajectoryTracker.reset(trajectory)
         trajectoryFinished = false
-        hasGeneratedVisionPath = false
         LiveDashboard.isFollowingPath = true
     }
 
     private var lastKnownTargetPose: Pose2d? = null
 
     override fun execute() {
-        val robotPositionWithIntakeOffset = DriveSubsystem.robotPosition//IntakeSubsystem.robotPositionWithIntakeOffset
+        val robotPositionWithIntakeOffset = DriveSubsystem.robotPosition // IntakeSubsystem.robotPositionWithIntakeOffset
 
         val nextState = DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition)
 
         val withinVisionRadius =
                 robotPositionWithIntakeOffset.translation.distance(
-                        trajectory.lastState.state.pose.translation// + Translation2d(
+                        trajectory.lastState.state.pose.translation // + Translation2d(
 //                                Length.kZero,
 //                                IntakeSubsystem.badIntakeOffset
 //                        )
@@ -98,7 +96,6 @@ class VisionAssistedTrajectoryTracker(
             )
 
             prevError = error
-
         } else {
             DriveSubsystem.setOutput(nextState)
         }
@@ -130,4 +127,4 @@ class VisionAssistedTrajectoryTracker(
         const val kCorrectionKd = 0.0
         var visionActive = false
     }
-} 
+}

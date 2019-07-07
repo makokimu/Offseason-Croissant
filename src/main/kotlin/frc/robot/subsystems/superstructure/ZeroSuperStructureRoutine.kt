@@ -10,7 +10,7 @@ import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.inch
 
-class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(SuperStructure,
+class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(Superstructure,
         Elevator, Proximal, Wrist) {
 
     private var mCurrentState: ZeroingState? = null
@@ -39,7 +39,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
         val limitTriggered = Elevator.limitSwitchTriggered
 
-        println("limitTriggered $limitTriggered")
+//        println("limitTriggered $limitTriggered")
 
         SmartDashboard.putString("Zeroing state", mCurrentState!!.name)
         SmartDashboard.putBoolean("Elevator limit switch", limitTriggered)
@@ -81,15 +81,17 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         Proximal.setNeutral()
         Wrist.setNeutral()
 
+//        Wrist.master.talonSRX.configFeedbackNotContinuous()
+
         SmartDashboard.putBoolean("Elevator zeroed", true)
         SmartDashboard.putBoolean("Proximal zeroed", true)
         SmartDashboard.putBoolean("Wrist zeroed", true)
 
         val proximal = Proximal
         val tickkkkks = (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048) // * if(Proximal.master.talonSRX.sensorCollection.pulseWidthPosition > 0) 1 else -1
-        val targetProximal_COMP = 500 // 1900
+        val targetProximal_COMP = 400 // 1900
         val delta = (tickkkkks - targetProximal_COMP) * -1
-        val startingAngleTicks = proximal.master.model.toNativeUnitPosition((-90).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
+        val startingAngleTicks = proximal.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
         proximal.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
 
         val wrist = Wrist
@@ -114,6 +116,6 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     }
 
     companion object {
-        private val kZeroHeight = 21.5.inch
+        private val kZeroHeight = 33.inch//21.5.inch, delta is 11.5in
     }
 }
