@@ -19,8 +19,6 @@ import org.team5940.pantry.lib.SIRotationConstants
 import org.team5940.pantry.lib.radianToDegree
 import java.lang.Math.toDegrees
 
-typealias SuperstructureState = Superstructure.State.Position
-
 object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     init {
@@ -47,131 +45,8 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
     fun everythingMoveTo(elevator: Length, proximal: UnboundedRotation, wrist: UnboundedRotation) = everythingMoveTo(State.Position(elevator, proximal, wrist))
     fun everythingMoveTo(elevator: Double, proximal: Double, wrist: Double) = everythingMoveTo(State.Position(elevator, proximal, wrist))
-    fun everythingMoveTo(goalState: State.Position): SendableCommandBase = object : FalconCommand(Superstructure, Proximal, Wrist, Elevator) {
-        // This whole {} thing is a Supplier<Command> that will return a Command that moves everything safely (hopefully)
 
-        override fun getName() = "move to ${goalState.asString()}"
-
-        fun planPath(): SendableCommandBase {
-
-            println("========================================")
-
-            val currentStateq = currentState
-
-            // returns if we can move everything at the same time or not
-            fun safeToMoveSynced(): Boolean {
-                val proximalThreshold = -68
-                val nowOutsideCrossbar = currentState.proximal.radianToDegree > proximalThreshold
-                val willBeOutsideCrossbar = goalState.proximal.radianToDegree > proximalThreshold
-                val mightHitElectronics = (goalState.elevator / SILengthConstants.kInchToMeter < 15 && goalState.proximal.radianToDegree > proximalThreshold) || (goalState.elevator / SILengthConstants.kInchToMeter < 20 && goalState.proximal.radianToDegree < proximalThreshold) // TODO check angles?
-                val proximalStartSafe = currentState.proximal.radianToDegree > -80
-                val proximalEndSafe = goalState.proximal.radianToDegree > -80
-                val startHighEnough = currentState.elevator / SILengthConstants.kInchToMeter > 18
-                val endHighEnough = goalState.elevator / SILengthConstants.kInchToMeter > 20
-                val needsExceptionForCargoGrab = currentState.proximal.radianToDegree > -62 && currentState.elevator / SILengthConstants.kInchToMeter > 25 && goalState.proximal.radianToDegree > -62
-                val needsExceptionForStartingDown = (currentState.proximal.radianToDegree > -130.0 && currentState.proximal.radianToDegree < -75.0)
-                val safeToMoveSynced = ((nowOutsideCrossbar && willBeOutsideCrossbar && (!mightHitElectronics || needsExceptionForCargoGrab)) ||
-                        (proximalStartSafe && proximalEndSafe && startHighEnough && endHighEnough)) && !needsExceptionForStartingDown
-
-                println("need exception for starting down? $needsExceptionForStartingDown")
-
-                 SmartDashboard.putString("passthru data", "nowOutsideCrossbar " + nowOutsideCrossbar + " willBeOutsideCrossbar " + willBeOutsideCrossbar + " might hit electronics? " + mightHitElectronics +
-                         " proximalStartSafe " + proximalStartSafe + " proximalEndSafe? " + proximalEndSafe + " startHighEnough " + startHighEnough +
-                         " endHighEnough " + endHighEnough)
-
-                println("Safe to move synced? $safeToMoveSynced")
-                return safeToMoveSynced
-            }
-
-            // returns which joint to move first
-            fun shouldMoveElevatorFirst(): Boolean {
-                val proximalThreshold = -18.0
-//            var currentState = currentst
-                val startAboveSafe = goalState.elevator / SILengthConstants.kInchToMeter > 25.0
-                var endAboveSafe = currentState.elevator / SILengthConstants.kInchToMeter > 25.0
-                val nowOutsideFrame = currentState.proximal.radianToDegree > proximalThreshold
-                val willBeOutsideFrame = goalState.proximal.radianToDegree > proximalThreshold
-                val shouldMoveElevatorFirst = (nowOutsideFrame && !willBeOutsideFrame && !startAboveSafe) ||
-                        (nowOutsideFrame && willBeOutsideFrame) ||
-                        ((-35 >= currentState.proximal.radianToDegree && currentState.proximal.radianToDegree >= -90) && (-50 >= goalState.proximal.radianToDegree && goalState.proximal.radianToDegree >= -100))
-
-                println("requested state: $goalState")
-
-                println((if (shouldMoveElevatorFirst) "We are moving the elevator first!" else "We are moving the arm first!"))
-
-                return shouldMoveElevatorFirst
-            }
-
-            return sequential {
-
-                // first check if we need to pass through front to back or not
-                if (!currentState.isPassedThrough and goalState.isPassedThrough) +SyncedMove.shortPassthrough
-
-                // next check if we can move everything at once
-                if (safeToMoveSynced()) {
-                    +parallel {
-                        +PrintCommand("Moving elevator and prox and wrist")
-                        +ClosedLoopElevatorMove(goalState.elevator)
-                        +ClosedLoopProximalMove(goalState.proximal)
-                        +ClosedLoopWristMove(goalState.wrist)
-                        +PrintCommand("Everything moved!")
-                    }
-                } else {
-                    // otherwise, pick the elevator or elbow/wrist to move first
-                    if (shouldMoveElevatorFirst()) {
-                        +sequential {
-                            +PrintCommand("Moving elevator...")
-                            +ClosedLoopElevatorMove(goalState.elevator)
-                            +PrintCommand("Elevator moved!")
-                            +parallel {
-                                +PrintCommand("Moving prox and wrist...")
-                                +ClosedLoopProximalMove(goalState.proximal)
-                                +ClosedLoopWristMove(goalState.wrist)
-                                +PrintCommand("Prox and wrist moved")
-                            }
-                        }
-                    } else {
-                        // move arm first
-                        +sequential {
-                            +parallel {
-                                +PrintCommand("Moving prox and wrist then elevator")
-                                +ClosedLoopProximalMove(goalState.proximal)
-                                +ClosedLoopWristMove(goalState.wrist)
-                                +PrintCommand("both moved!")
-                            }
-                            +PrintCommand("Moving elevator")
-                            +ClosedLoopElevatorMove(goalState.elevator)
-                        }
-                    }
-                }
-                +PrintCommand("[Superstructure Planner] =======> MOVE COMPLETE")
-            }
-        }
-
-        var path: SendableCommandBase? = null
-        var pathStarted = false
-
-        override fun initialize() {
-            path = planPath()
-            path!!.initialize()
-            pathStarted = true
-        }
-
-        override fun execute() {
-            path!!.execute()
-        }
-
-        override fun end(interrupted: Boolean) {
-            path?.end(interrupted)
-            path = null
-            pathStarted = false
-        }
-
-        override fun isFinished(): Boolean {
-            val path = this.path
-            return path?.isFinished ?: pathStarted // if the path is null, check that it's started, otherwise call the path's isFinished() method
-        }
-    }
+    fun everythingMoveTo(goalstate: SuperstructureState) = SuperstructurePlanner.everythingMoveTo(goalstate)
 
     fun getUnDumbWrist(dumbWrist: UnboundedRotation, relevantProx: UnboundedRotation) =
             dumbWrist.plus(relevantProx.div(2))
@@ -293,3 +168,5 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         }
     }
 }
+
+typealias SuperstructureState = Superstructure.State.Position

@@ -76,9 +76,9 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
         +WaitCommand(second.second)
     }
 
-    fun Command.withExit(exit: BooleanSource) = parallelRace {
-        +this@withExit
-        +WaitUntilCommand(exit)
-    }
+}
 
+fun Command.withExit(exit: BooleanSource) = parallelRace {
+    +this@withExit
+    +WaitUntilCommand(exit)
 }
