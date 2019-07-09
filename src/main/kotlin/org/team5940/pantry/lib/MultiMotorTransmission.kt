@@ -151,15 +151,16 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
 
     // These properties are intended to be accessed concurrently -- everything else should NOT be touched by
     // updateState() or useState() unless you know what you're doing!
-    val currentStateChannel = FalconChannel(State.kZero, Channel.CONFLATED)
-    val currentState
-        get() = currentStateChannel()
+    var currentState: State = State.kZero
+        @Synchronized get
+        @Synchronized set
 
-    override suspend fun updateState() {
+    override fun updateState() {
         val encoder = synchronized(this) { this.encoder }
-        val lastState = currentStateChannel()
+        val lastState = currentState
         val velocity = encoder.velocity
         // add the observation to the current state channel
-        currentStateChannel.send(State(encoder.position, velocity, velocity - lastState.velocity))
+        val newState = State(encoder.position, velocity, velocity - lastState.velocity)
+        synchronized(currentState) {currentState = newState}
     }
 }

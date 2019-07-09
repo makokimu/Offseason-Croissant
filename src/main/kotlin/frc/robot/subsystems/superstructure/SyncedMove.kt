@@ -14,6 +14,7 @@ import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.radian
 import org.team5940.pantry.lib.SIRotationConstants.kDegreesToRadians
 import org.team5940.pantry.lib.SIRotationConstants.kRadianToDegrees
+import org.team5940.pantry.lib.WantedState
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -93,8 +94,8 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
         println("next elbow $nextProximal")
         println("next wrist $nextWrist")
 
-        Proximal.wantedState = Proximal.WantedState.Position(nextProximal.radian)
-        Wrist.wantedState = Wrist.WantedState.Position(nextWrist)
+        Proximal.wantedState = WantedState.Position(nextProximal.radian)
+        Wrist.wantedState = WantedState.Position(nextWrist)
 
         this.lastCommandedProximal = nextProximal
         lastTime = now

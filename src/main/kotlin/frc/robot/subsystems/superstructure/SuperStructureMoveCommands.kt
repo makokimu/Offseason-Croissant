@@ -3,19 +3,20 @@ package frc.robot.subsystems.superstructure
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
+import org.team5940.pantry.lib.WantedState
 import java.lang.Math.abs
 import java.lang.Math.toDegrees
 
 class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevator) {
 
     override fun initialize() {
-        Elevator.wantedState = Elevator.WantedState.Position(target)
+        Elevator.wantedState = WantedState.Position(target)
     }
 
     override fun end(interrupted: Boolean) {
         if (interrupted) {
             // stop moving
-            Elevator.wantedState = Elevator.WantedState.Position(Elevator.currentState.position)
+            Elevator.wantedState = WantedState.Position(Elevator.currentState.position)
         }
     }
 
@@ -28,13 +29,13 @@ class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevato
 class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proximal) {
 
     override fun initialize() {
-        Proximal.wantedState = Proximal.WantedState.Position(target)
+        Proximal.wantedState = WantedState.Position(target)
     }
 
     override fun end(interrupted: Boolean) {
         if (interrupted) {
             // stop moving
-            Proximal.wantedState = Proximal.WantedState.Position(Proximal.currentState.position)
+            Proximal.wantedState = WantedState.Position(Proximal.currentState.position)
         }
     }
 
@@ -44,13 +45,13 @@ class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proxima
 class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
 
     override fun initialize() {
-        Wrist.wantedState = Wrist.WantedState.Position(target)
+        Wrist.wantedState = WantedState.Position(target)
     }
 
     override fun end(interrupted: Boolean) {
         if (interrupted) {
             // stop moving
-            Wrist.wantedState = Wrist.WantedState.Position(Wrist.currentState.position)
+            Wrist.wantedState = WantedState.Position(Wrist.currentState.position)
         }
     }
 
@@ -64,13 +65,21 @@ class JogElevator : FalconCommand(Superstructure, Elevator) {
         val downSource by lazy { (Controls.operatorFalconHID.getRawButton(11)) }
     }
 
+    private var initPosition: Double? = null
+
+    override fun initialize() {
+        initPosition = Elevator.currentState.position
+    }
+
     override fun execute() {
         val upPower = if (upSource()) 1 else -1
         val downPower = if (downSource()) -1 else 1
         val totalPower = (upPower + downPower) * 0.3 * SILengthConstants.kInchToMeter
 
-        Elevator.wantedState = Elevator.WantedState.Position(
-                Elevator.currentState.position + totalPower
+        Elevator.wantedState = WantedState.Position(
+                let {
+                    initPosition?.plus(totalPower) ?: Elevator.currentState.position // yeet it's an Elvis
+                }
         )
     }
 }

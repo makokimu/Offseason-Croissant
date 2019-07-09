@@ -14,6 +14,7 @@ import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.FalconChannel
 import org.team5940.pantry.lib.MultiMotorTransmission
+import org.team5940.pantry.lib.WantedState
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.withSign
@@ -70,12 +71,6 @@ object Proximal : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
     override fun activateEmergency() = motor.activateEmergency()
     override fun recoverFromEmergency() = motor.recoverFromEmergency()
 
-    sealed class WantedState {
-        object Nothing : WantedState()
-
-        class Position(internal val targetPosition: Double) : WantedState()
-    }
-
     fun isWithTolerance(tolerance: Double /* radian */): Boolean {
         val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
 
@@ -84,19 +79,17 @@ object Proximal : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
 
     /* EVERYTHING HERE ON DOWN IS INTENDED TO BE ACCESSED BY COROUTINES */
 
-    private val wantedStateChannel = FalconChannel<WantedState>(WantedState.Nothing, capacity = Channel.CONFLATED)
+    val currentState: MultiMotorTransmission.State // this is threadsafe maybe
+        @Synchronized get() = motor.currentState
+    var wantedState: WantedState = WantedState.Nothing
+        @Synchronized get
+        @Synchronized set
 
-    val currentState: MultiMotorTransmission.State // this is threadsafe maybe by virtue of being a call to currentStateChannel
-        get() = motor.currentStateChannel()
-    var wantedState: WantedState
-        get() = wantedStateChannel()
-        set(value) = runBlocking { wantedStateChannel.send(value) }
+    override fun updateState() = motor.updateState()
 
-    override suspend fun updateState() = motor.updateState()
-
-    override suspend fun useState() {
-        val wantedState = wantedStateChannel()
-        val currentState = motor.currentStateChannel()
+    override fun useState() {
+        val wantedState = wantedState
+        val currentState = motor.currentState
         when (wantedState) {
             is WantedState.Position -> {
                 val state = wantedState

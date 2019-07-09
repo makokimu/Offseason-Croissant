@@ -75,32 +75,24 @@ object Elevator : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
             field = newValue.boundTo(-3.0 / SILengthConstants.kInchToMeter, 3.0 / SILengthConstants.kInchToMeter)
         }
 
-    sealed class WantedState {
-        object Nothing : WantedState()
-
-        class Position(internal val targetPosition: Double) : WantedState()
-    }
-
     fun isWithTolerance(tolerance: Double /* meters */): Boolean {
-        val state = runBlocking { wantedStateChannel() } as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
+        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
 
         return abs(state.targetPosition - currentState.position) < tolerance
     }
 
     /* EVERYTHING HERE ON DOWN IS INTENDED TO BE ACCESSED BY COROUTINES */
 
-    private val wantedStateChannel = FalconChannel<WantedState>(WantedState.Nothing, capacity = Channel.CONFLATED)
-
     val currentState: MultiMotorTransmission.State // = MultiMotorTransmission.State(0.0, 0.0)
-        get() = motor.currentStateChannel()
-    var wantedState: WantedState
-        get() = wantedStateChannel()
-        set(value) = runBlocking { wantedStateChannel.send(value) }
+        @Synchronized get() = motor.currentState
+    var wantedState: WantedState = WantedState.Nothing
+        @Synchronized get
+        @Synchronized set
 
-    override suspend fun updateState() = motor.updateState()
+    override fun updateState() = motor.updateState()
 
-    override suspend fun useState() {
-        val wantedState = wantedStateChannel() // synchronized(this.wantedState) { this.wantedState }
+    override fun useState() {
+        val wantedState = synchronized(this.wantedState) { this.wantedState }
         val currentState = this.currentState // synchronized(this.currentState) { this.currentState }
         when (wantedState) {
             is WantedState.Position -> {

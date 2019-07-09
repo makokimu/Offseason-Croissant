@@ -50,6 +50,7 @@ object Robot : FishyRobot() {
         TargetTracker.update()
         Controls.update()
         Autonomous.update()
+        Network.update()
         super.robotPeriodic()
     }
 }

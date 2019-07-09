@@ -57,7 +57,7 @@ object VisionProcessing {
 
 //        println("${distance.inch}, ${angle.degree}")
 
-        return transform + Pose2d(Translation2d(distance, angle.toRotation2d()))
+        return transform + Pose2d(Translation2d(distance, angle.toRotation2d()), rotation.toRotation2d())
     }
 
 //    val kCenterToFrontCamera = Pose2d((-1.75).inch, 0.0.inch, 0.degree)

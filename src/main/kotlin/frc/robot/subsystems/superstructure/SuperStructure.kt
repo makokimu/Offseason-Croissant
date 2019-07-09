@@ -10,6 +10,7 @@ import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.FalconChannel
+import org.team5940.pantry.lib.WantedState
 import java.lang.Math.toDegrees
 
 object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
@@ -69,24 +70,24 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         }
 
     override fun setNeutral() {
-        Elevator.wantedState = Elevator.WantedState.Nothing
-        Proximal.wantedState = Proximal.WantedState.Nothing
-        Wrist.wantedState = Wrist.WantedState.Nothing
+        Elevator.wantedState = WantedState.Nothing
+        Proximal.wantedState = WantedState.Nothing
+        Wrist.wantedState = WantedState.Nothing
 
         Elevator.setNeutral()
         Proximal.setNeutral()
         Wrist.setNeutral()
     }
 
-    private val currentStateChannel = FalconChannel(SuperstructureState(), Channel.CONFLATED)
-    val currentState: SuperstructureState
-        get() = currentStateChannel()
+    var currentState: SuperstructureState = SuperstructureState()
+        @Synchronized get
+        @Synchronized set
 
     override fun periodic() {
         SmartDashboard.putString("Superstructurestate", currentState.asString())
     }
 
-    override suspend fun updateState() {
+    override fun updateState() {
         // update the states of our components
         Elevator.updateState()
         Proximal.updateState()
@@ -99,11 +100,12 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
             Wrist.currentState.position,
             wristUnDumb = false
         )
-        currentStateChannel.send(newState)
+        synchronized(currentState) {
+            currentState = newState
+        }
 }
 
-//    @Synchronized
-    override suspend fun useState() {
+    override fun useState() {
         Elevator.useState()
         Proximal.useState()
         Wrist.useState()

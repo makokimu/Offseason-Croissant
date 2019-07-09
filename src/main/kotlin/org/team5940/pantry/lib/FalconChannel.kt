@@ -4,6 +4,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.utils.Source
 
+@Deprecated("Channels bad fite me")
 class FalconChannel<T>(defaultValue: T, capacity: Int = -1) : Source<T> {
 
     val wrappedValue = Channel<T>(capacity)
