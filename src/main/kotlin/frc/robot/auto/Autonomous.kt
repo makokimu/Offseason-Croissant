@@ -7,6 +7,7 @@ import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.auto.routines.*
 import frc.robot.subsystems.drive.DriveSubsystem
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.commands.stateCommandGroup
@@ -32,10 +33,12 @@ object Autonomous {
     private var configValid = Source(true)
 
     // Stores if we are ready to send it.
+    @ObsoleteCoroutinesApi
     private val isReady =
             { Robot.lastRobotMode == FishyRobot.Mode.AUTONOMOUS && Robot.isEnabled } and configValid
 
     // Update the autonomous listener.
+    @ObsoleteCoroutinesApi
     fun update() {
         // Update localization if the startingPositionMonitor value's changed since the last call
         startingPositionMonitor.onChange { if (!Robot.isEnabled) DriveSubsystem.localization.reset(it.pose) }
@@ -86,6 +89,7 @@ object Autonomous {
     private val IT = ""
 
     private val startingPositionMonitor = startingPosition.monitor
+    @ObsoleteCoroutinesApi
     private val isReadyMonitor = isReady.monitor
     private val modeMonitor = { Robot.lastRobotMode }.monitor
 

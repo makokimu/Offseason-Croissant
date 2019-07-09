@@ -18,7 +18,6 @@ object TrajectoryWaypoints {
     val kHabitatL1Platform = Rectangle2d(Translation2d(4.feet, 7.feet), Translation2d(8.feet, 20.feet))
     val kRampHypotenuse = .4.inch
 
-
     // Cargo Ship
     val kCargoShipFL = Pose2d(220.25.inch, 172.88.inch, 0.degree)
     val kCargoShipFR = Pose2d(220.25.inch, 151.12.inch, 0.degree)
@@ -36,7 +35,6 @@ object TrajectoryWaypoints {
 
     // Depot
     val kDepotBRCorner = Pose2d(47.inch, 78.396.inch, (-25).degree)
-
 
     /** Robot Starting Locations **/
 
@@ -56,10 +54,10 @@ object TrajectoryWaypoints {
     val kCenterStart = Pose2d(kStartX, 13.5.feet)
 
     data class Waypoint(
-            val trueLocation: Pose2d,
-            val transform: Pose2d = Pose2d(),
-            val translationalOffset: Translation2d = Translation2d(),
-            val rotationalOffset: Rotation2d = 0.radian.toRotation2d()
+        val trueLocation: Pose2d,
+        val transform: Pose2d = Pose2d(),
+        val translationalOffset: Translation2d = Translation2d(),
+        val rotationalOffset: Rotation2d = 0.radian.toRotation2d()
     ) {
 
         private val trueAndTransform = trueLocation + transform

@@ -1,6 +1,7 @@
 package org.team5940.pantry.lib
 
 import edu.wpi.first.wpilibj.GenericHID
+import kotlinx.coroutines.channels.Channel
 import org.ghrobotics.lib.wrappers.hid.FalconHIDBuilder
 import org.ghrobotics.lib.wrappers.hid.FalconHIDButtonBuilder
 import org.ghrobotics.lib.wrappers.hid.HIDButton
@@ -17,10 +18,10 @@ fun Number.boundTo(min: Number, max: Number) = when {
  * function will trigger if the absolute value exceeds the @param threshold
  */
 fun <T : GenericHID> FalconHIDBuilder<T>.lessThanAxisButton(
-        hid: T,
-        axisId: Int,
-        threshold: Double = HIDButton.DEFAULT_THRESHOLD,
-        block: FalconHIDButtonBuilder.() -> Unit = {}
+    hid: T,
+    axisId: Int,
+    threshold: Double = HIDButton.DEFAULT_THRESHOLD,
+    block: FalconHIDButtonBuilder.() -> Unit = {}
 ) = button(BoundedHIDAxisSource(hid, axisId, 1.0, -1.0, 0.0), threshold, block)
 
 /**
@@ -28,21 +29,25 @@ fun <T : GenericHID> FalconHIDBuilder<T>.lessThanAxisButton(
  * function will trigger if the absolute value exceeds the @param threshold
  */
 fun <T : GenericHID> FalconHIDBuilder<T>.greaterThanAxisButton(
-        hid: T,
-        axisId: Int,
-        threshold: Double = HIDButton.DEFAULT_THRESHOLD,
-        block: FalconHIDButtonBuilder.() -> Unit = {}
+    hid: T,
+    axisId: Int,
+    threshold: Double = HIDButton.DEFAULT_THRESHOLD,
+    block: FalconHIDButtonBuilder.() -> Unit = {}
 ) = button(BoundedHIDAxisSource(hid, axisId, 1.0, 0.0, 1.0), threshold, block)
 
-
 class BoundedHIDAxisSource(
-        private val genericHID: GenericHID,
-        private val axisId: Int,
-        private val axisMultiplier: Double = 1.0,
-        private val minValue: Double, private val maxValue: Double
+    private val genericHID: GenericHID,
+    private val axisId: Int,
+    private val axisMultiplier: Double = 1.0,
+    private val minValue: Double,
+    private val maxValue: Double
 ) : HIDSource {
     override fun invoke(): Double {
 
         return (axisMultiplier * genericHID.getRawAxis(axisId)).boundTo(minValue, maxValue)
     }
 }
+
+// suspend operator fun <E> Channel<E>.invoke() = receive()
+
+suspend infix fun <E> Channel<E>.S3nd(state: E) = send(state)

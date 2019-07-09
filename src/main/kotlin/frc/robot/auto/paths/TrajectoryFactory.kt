@@ -281,13 +281,13 @@ object TrajectoryFactory {
             getConstraints(elevatorUp, trajectoryEndpoint.position)
 
     private fun generateTrajectory(
-            reversed: Boolean,
-            points: List<TrajectoryWaypoints.Waypoint>,
-            constraints: List<TimingConstraint<Pose2dWithCurvature>>,
-            maxVelocity: LinearVelocity,
-            maxAcceleration: LinearAcceleration,
-            maxVoltage: Volt,
-            optimizeCurvature: Boolean = true
+        reversed: Boolean,
+        points: List<TrajectoryWaypoints.Waypoint>,
+        constraints: List<TimingConstraint<Pose2dWithCurvature>>,
+        maxVelocity: LinearVelocity,
+        maxAcceleration: LinearAcceleration,
+        maxVoltage: Volt,
+        optimizeCurvature: Boolean = true
     ): TimedTrajectory<Pose2dWithCurvature> {
 
         val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kLowGearDifferentialDrive, maxVoltage)

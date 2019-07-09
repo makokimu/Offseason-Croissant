@@ -6,19 +6,17 @@ import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.auto.routines.withExit
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
-import org.ghrobotics.lib.commands.parallelRace
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.team5940.pantry.lib.SIRotationConstants
 import org.team5940.pantry.lib.degreeToRadian
-import java.lang.IllegalArgumentException
 import java.lang.IllegalStateException
 import kotlin.math.min
 
 object SuperstructurePlanner {
 
-    private const val kCrossbar = 21.5/SILengthConstants.kInchToMeter
+    private const val kCrossbar = 21.5 / SILengthConstants.kInchToMeter
     private val kMinimumSafeSyncedProximal = (-75).degreeToRadian
     private val kOutsideFrame = (-50).degreeToRadian
 //    val kProximalLen = 32.inch.meter
@@ -27,12 +25,12 @@ object SuperstructurePlanner {
 
         // first check passthrough -- remember, if we do pass through, our "current state" will change!
         val needsPassthrough = !currentState.isPassedThrough and goalState.isPassedThrough
-        
+
         if (needsPassthrough) {
             val worstCaseProximalAfterPassthrough =
                     worstCaseProximalTipElevation(SuperstructureState(22.5.inch, kMinimumSafeSyncedProximal.degree, 0.degree), goalState)
 
-            if(worstCaseProximalAfterPassthrough > 2.0/SILengthConstants.kInchToMeter && goalState.proximal > kMinimumSafeSyncedProximal) {
+            if (worstCaseProximalAfterPassthrough > 2.0 / SILengthConstants.kInchToMeter && goalState.proximal > kMinimumSafeSyncedProximal) {
                 // synced safe, as it's an upward(ish, technically) move that's outside the crossbar
                 println("                // synced safe, as it's an upward(ish, technically) move that's outside the crossbar")
                 +ClosedLoopElevatorMove(22.5 * SILengthConstants.kInchToMeter)
@@ -45,8 +43,8 @@ object SuperstructurePlanner {
                 } // these have to be outside the parallel group because SyncedMove reserves the proximal and wrist
                 +ClosedLoopWristMove(goalState.wrist)
                 +ClosedLoopProximalMove(goalState.proximal)
-            } else if(worstCaseProximalAfterPassthrough < 2.0/SILengthConstants.kInchToMeter
-                    && goalState.proximal > kOutsideFrame) {
+            } else if (worstCaseProximalAfterPassthrough < 2.0 / SILengthConstants.kInchToMeter &&
+                    goalState.proximal > kOutsideFrame) {
                 // arm needs to move all the way out before we start moving the elevator
                 println("                // arm needs to move all the way out before we start moving the elevator")
                 +ClosedLoopElevatorMove(22.5 * SILengthConstants.kInchToMeter)
@@ -56,9 +54,9 @@ object SuperstructurePlanner {
                     +ClosedLoopProximalMove(goalState.proximal)
                     +ClosedLoopWristMove(goalState.wrist)
                 }
-            } else if (goalState.elevator < kCrossbar
-                    && goalState.proximal < kMinimumSafeSyncedProximal
-                    && goalState.proximalTranslation().y > 2.0/SILengthConstants.kInchToMeter) {
+            } else if (goalState.elevator < kCrossbar &&
+                    goalState.proximal < kMinimumSafeSyncedProximal &&
+                    goalState.proximalTranslation().y > 2.0 / SILengthConstants.kInchToMeter) {
                 // below the crossbar and below -75 degrees
                 println("// below the crossbar and below -75 degrees")
                 +ClosedLoopElevatorMove(22.5 * SILengthConstants.kInchToMeter)
@@ -69,16 +67,16 @@ object SuperstructurePlanner {
                 }
                 +ClosedLoopElevatorMove(goalState.elevator)
             } else {
-                throw IllegalArgumentException("Move is impossible, maybe!")
+                throw IllegalStateException("Move is impossible, maybe!")
             }
         } else {
             // doesn't need passthrough, go through the checks again
             val worstCaseProximal =
                     worstCaseProximalTipElevation(currentState, goalState)
 
-            if((worstCaseProximal > 2.0/SILengthConstants.kInchToMeter
-                            || min(currentState.proximal, goalState.proximal) > kOutsideFrame) /* exception for cargo grab */
-                    && goalState.proximal > kMinimumSafeSyncedProximal) {
+            if ((worstCaseProximal > 2.0 / SILengthConstants.kInchToMeter ||
+                            min(currentState.proximal, goalState.proximal) > kOutsideFrame) && /* exception for cargo grab */
+                    goalState.proximal > kMinimumSafeSyncedProximal) {
                 // synced safe, as it's an upward(ish, technically) move that's outside the crossbar
                 println("// synced safe, as it's an upward(ish, technically) move that's outside the crossbar")
                 +parallel {
@@ -88,8 +86,9 @@ object SuperstructurePlanner {
                 }
             }
             // next arm first vs elevator first
-            else if(goalState.proximalTranslation().y < 2.0/SILengthConstants.kInchToMeter
-                    || min(currentState.proximal, goalState.proximal) < kMinimumSafeSyncedProximal) {
+            else if (goalState.proximalTranslation().y < 2.0 / SILengthConstants.kInchToMeter ||
+                    min(currentState.proximal, goalState.proximal) < kMinimumSafeSyncedProximal &&
+                    goalState.proximal > kOutsideFrame) {
                 // arm first if it's a downward move to below electronics or if we're inside the crossbar
                 println("// arm first if it's a downward move to below electronics or if we're inside the crossbar")
                 +parallel {
@@ -97,14 +96,14 @@ object SuperstructurePlanner {
                         +ClosedLoopProximalMove(goalState.proximal) }
                     +armMove
                     +sequential {
-                        +WaitUntilCommand {Superstructure.currentState.proximal > kOutsideFrame}.withExit { armMove.isFinished }
+                        +WaitUntilCommand { Superstructure.currentState.proximal > kOutsideFrame }.withExit { armMove.isFinished }
                         +ClosedLoopElevatorMove(goalState.elevator)
                     }
                 }
-            } else if(currentState.elevator > goalState.elevator
-                    && goalState.elevator < kCrossbar
-                    && currentState.proximal > kMinimumSafeSyncedProximal
-                    && goalState.proximal < kMinimumSafeSyncedProximal
+            } else if (currentState.elevator > goalState.elevator &&
+                    goalState.elevator < kCrossbar &&
+                    currentState.proximal > kMinimumSafeSyncedProximal &&
+                    goalState.proximal < kMinimumSafeSyncedProximal
                     ) {
                 // weird handler for downward moves to somewhere within the crossbar
                 println("// weird handler for downward moves to somewhere within the crossbar")
@@ -121,10 +120,9 @@ object SuperstructurePlanner {
                         +ClosedLoopProximalMove(goalState.proximal)
                     }
                 }
-            }
-            else if(worstCaseProximal < 2.0/SILengthConstants.kInchToMeter
-                    && currentState.proximal > kOutsideFrame
-                    && goalState.proximal < kOutsideFrame) {
+            } else if (worstCaseProximal < 2.0 / SILengthConstants.kInchToMeter &&
+                    currentState.proximal > kOutsideFrame &&
+                    goalState.proximal < kOutsideFrame) {
                 // elevator first (i.e. coming from cargo grab to stowed)
                 +ClosedLoopElevatorMove(goalState.elevator)
                 +parallel {
@@ -147,7 +145,6 @@ object SuperstructurePlanner {
                 // This whole {} thing is a Supplier<Command> that will return a Command that moves everything safely (hopefully)
 
                 override fun getName() = "move to ${goalState.asString()}"
-
 
                 var path: SendableCommandBase? = null
                 var pathStarted = false
@@ -174,7 +171,6 @@ object SuperstructurePlanner {
                 }
             }
 }
-
 
 //    fun everythingMoveTo(goalState: State.Position): SendableCommandBase = object : FalconCommand(Superstructure, Proximal, Wrist, Elevator) {
 //        // This whole {} thing is a Supplier<Command> that will return a Command that moves everything safely (hopefully)
@@ -215,7 +211,7 @@ object SuperstructurePlanner {
 //            // returns which joint to move first
 //            fun shouldMoveElevatorFirst(): Boolean {
 //                val proximalThreshold = -18.0
-////            var currentState = currentst
+// //            var currentState = currentst
 //                val startAboveSafe = goalState.elevator / SILengthConstants.kInchToMeter > 25.0
 //                var endAboveSafe = currentState.elevator / SILengthConstants.kInchToMeter > 25.0
 //                val nowOutsideFrame = currentState.proximal.radianToDegree > proximalThreshold

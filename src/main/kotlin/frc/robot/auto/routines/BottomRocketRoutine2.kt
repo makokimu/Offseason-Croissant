@@ -50,7 +50,6 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 true
             )
 
-
             // Reorient position on field based on Vision alignment.
             +relocalize(
                 TrajectoryWaypoints.kRocketF,
@@ -115,5 +114,4 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 }
             }
         }
-
 }

@@ -1,26 +1,26 @@
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import frc.robot.auto.Autonomous
-//import org.ghrobotics.frc2019.auto.Autonomous
-//import frc.robot.auto.paths.TrajectoryFactory
-//import frc.robot.auto.paths.TrajectoryWaypoints
-//import frc.robot.subsystems.drive.DriveSubsystem
-//import frc.robot.subsystems.intake.IntakeHatchCommand
-//import frc.robot.subsystems.superstructure.Superstructure
-//import org.ghrobotics.frc2019.subsystems.Superstructure
-//import org.ghrobotics.frc2019.subsystems.drive.DriveSubsystem
-//import org.ghrobotics.frc2019.subsystems.intake.IntakeHatchCommand
-//import org.ghrobotics.lib.commands.DelayCommand
-//import org.ghrobotics.lib.commands.FalconCommand
-//import org.ghrobotics.lib.commands.parallel
-//import org.ghrobotics.lib.commands.sequential
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.units.Time
-//import org.ghrobotics.lib.mathematics.units.feet
-//import org.ghrobotics.lib.mathematics.units.millisecond
-//import org.ghrobotics.lib.mathematics.units.second
+// import frc.robot.auto.Autonomous
+// import org.ghrobotics.frc2019.auto.Autonomous
+// import frc.robot.auto.paths.TrajectoryFactory
+// import frc.robot.auto.paths.TrajectoryWaypoints
+// import frc.robot.subsystems.drive.DriveSubsystem
+// import frc.robot.subsystems.intake.IntakeHatchCommand
+// import frc.robot.subsystems.superstructure.Superstructure
+// import org.ghrobotics.frc2019.subsystems.Superstructure
+// import org.ghrobotics.frc2019.subsystems.drive.DriveSubsystem
+// import org.ghrobotics.frc2019.subsystems.intake.IntakeHatchCommand
+// import org.ghrobotics.lib.commands.DelayCommand
+// import org.ghrobotics.lib.commands.FalconCommand
+// import org.ghrobotics.lib.commands.parallel
+// import org.ghrobotics.lib.commands.sequential
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.units.Time
+// import org.ghrobotics.lib.mathematics.units.feet
+// import org.ghrobotics.lib.mathematics.units.millisecond
+// import org.ghrobotics.lib.mathematics.units.second
 //
-//class FullRocketRoutine : AutoRoutine() {
+// class FullRocketRoutine : AutoRoutine() {
 //
 //    val path1 = TrajectoryFactory.sideStartToRocketF
 //    val path2 = TrajectoryFactory.rocketFToLoadingStation
@@ -261,4 +261,4 @@
 //
 //        }
 //
-//}
+// }

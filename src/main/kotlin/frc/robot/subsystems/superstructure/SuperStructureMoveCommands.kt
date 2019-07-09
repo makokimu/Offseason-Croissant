@@ -13,7 +13,7 @@ class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevato
     }
 
     override fun end(interrupted: Boolean) {
-        if(interrupted) {
+        if (interrupted) {
             // stop moving
             Elevator.wantedState = Elevator.WantedState.Position(Elevator.currentState.position)
         }
@@ -32,7 +32,7 @@ class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proxima
     }
 
     override fun end(interrupted: Boolean) {
-        if(interrupted) {
+        if (interrupted) {
             // stop moving
             Proximal.wantedState = Proximal.WantedState.Position(Proximal.currentState.position)
         }
@@ -48,7 +48,7 @@ class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
     }
 
     override fun end(interrupted: Boolean) {
-        if(interrupted) {
+        if (interrupted) {
             // stop moving
             Wrist.wantedState = Wrist.WantedState.Position(Wrist.currentState.position)
         }

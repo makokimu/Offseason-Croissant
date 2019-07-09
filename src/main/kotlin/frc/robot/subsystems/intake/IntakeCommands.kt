@@ -34,7 +34,7 @@ class IntakeCargoCommand(val releasing: Boolean) : FalconCommand(Intake) {
     var wasOpen: Boolean = false
 
     override fun initialize() {
-        println("${if(releasing) "releasing" else "intaking"} cargo command!")
+        println("${if (releasing) "releasing" else "intaking"} cargo command!")
         wasOpen = Intake.wantsOpen
         Intake.wantsOpen = !releasing
 

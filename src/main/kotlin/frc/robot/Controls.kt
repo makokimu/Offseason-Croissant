@@ -62,8 +62,7 @@ object Controls {
             // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
             val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
             lessThanAxisButton(operatorJoy, 0).changeOff { Superstructure.kStowed.schedule() }.change(cargoCommand)
-            greaterThanAxisButton(operatorJoy,0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
-
+            greaterThanAxisButton(operatorJoy, 0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
         }
     }
 
@@ -72,7 +71,6 @@ object Controls {
         operatorFalconHID.update()
     }
 }
-
 
 private fun FalconXboxBuilder.registerEmergencyMode() {
     button(kBack).changeOn {

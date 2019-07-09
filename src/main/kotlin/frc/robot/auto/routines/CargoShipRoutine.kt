@@ -92,5 +92,4 @@ class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() 
                 }.withTimeout(1.second)
             }
         }
-
 }

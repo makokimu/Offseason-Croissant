@@ -28,12 +28,12 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
     abstract val routine: Command
 
     override fun invoke(): Command = sequential {
-        +InstantCommand(Runnable{
+        +InstantCommand(Runnable {
             println("[AutoRoutine] Starting routine...")
             DriveSubsystem.localization.reset(Autonomous.startingPosition().pose)
         })
         +routine
-    }.raceWith(WaitUntilCommand{ Robot.emergencyActive })
+    }.raceWith(WaitUntilCommand { Robot.emergencyActive })
 
     fun followVisionAssistedTrajectory(
         originalTrajectory: TimedTrajectory<Pose2dWithCurvature>,
@@ -75,7 +75,6 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
         +this@withTimeout
         +WaitCommand(second.second)
     }
-
 }
 
 fun Command.withExit(exit: BooleanSource) = parallelRace {

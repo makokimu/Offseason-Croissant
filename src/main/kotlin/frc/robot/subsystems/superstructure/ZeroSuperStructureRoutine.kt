@@ -116,6 +116,6 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     }
 
     companion object {
-        private val kZeroHeight = 33.inch//21.5.inch, delta is 11.5in
+        private val kZeroHeight = 33.inch // 21.5.inch, delta is 11.5in
     }
 }

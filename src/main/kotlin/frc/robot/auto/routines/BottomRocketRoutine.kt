@@ -26,10 +26,8 @@ class BottomRocketRoutine : AutoRoutine() {
     // Third path goes to the near side of the rocket
     private val path3 = TrajectoryFactory.loadingStationToRocketN
 
-
     // Calculates the duration of the path
     override val duration = path1.duration + path2.duration + path3.duration
-
 
     // Auto routine
     override val routine
@@ -109,7 +107,7 @@ class BottomRocketRoutine : AutoRoutine() {
                 // Take the superstructure to a position to pick up the next hatch.
                 +sequential {
                     +IntakeHatchCommand(releasing = true).withTimeout(0.5.second)
-                    +InstantCommand(Runnable{ Intake.wantsOpen = false })
+                    +InstantCommand(Runnable { Intake.wantsOpen = false })
                     +Superstructure.kBackHatchFromLoadingStation
                 }
             }

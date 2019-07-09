@@ -1,23 +1,12 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.experimental.command.WaitCommand
 import frc.robot.auto.paths.TrajectoryFactory
-import frc.robot.auto.paths.TrajectoryWaypoints
-import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.intake.IntakeCargoCommand
-import frc.robot.subsystems.intake.IntakeCloseCommand
-import frc.robot.subsystems.intake.IntakeHatchCommand
-import frc.robot.subsystems.superstructure.Superstructure
-import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
 import org.ghrobotics.lib.mathematics.units.Time
-import org.ghrobotics.lib.mathematics.units.feet
-import org.ghrobotics.lib.mathematics.units.second
-import org.ghrobotics.lib.utils.Source
 
 class HybridRoutine(private val mode: Mode) : AutoRoutine() {
 
