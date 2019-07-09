@@ -15,14 +15,12 @@ class FalconChannel<T>(defaultValue: T, capacity: Int = -1) : Source<T> {
 
     suspend fun receive(): T {
         return if (wrappedValue.isEmpty) {
-            println("returning oldValue of $oldValue")
             // return the default value
             oldValue
         } else {
             // invoke the channel to get the next value
             val received = wrappedValue.receive()
             oldValue = received
-            println("returning new value of $received")
             received
         }
     }

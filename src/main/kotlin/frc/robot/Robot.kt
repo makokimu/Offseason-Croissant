@@ -21,6 +21,8 @@ object Robot : FishyRobot() {
 
     @ObsoleteCoroutinesApi
     override fun robotInit() {
+        Network // at the top because s3ndable choosers need to be instantiated
+
         +DriveSubsystem
         +Proximal
         +Wrist

@@ -83,7 +83,6 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
             { currentState.right.position })
 
     // init localization stuff
-    init { localization.reset(Pose2d()) }
     override fun lateInit() {
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = UnboundedRotation.kZero)
