@@ -70,14 +70,13 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
     operator fun Command.unaryPlus() {
         addCommands(this@unaryPlus)
     }
-
-    fun Command.withTimeout(second: Time) = parallelRace {
-        +this@withTimeout
-        +WaitCommand(second.second)
-    }
 }
 
-fun Command.withExit(exit: BooleanSource) = parallelRace {
-    +this@withExit
-    +WaitUntilCommand(exit)
-}
+fun Command.withExit(exit: BooleanSource): Command = this.interruptOn(exit)
+
+//fun Command.withExit(exit: BooleanSource) = parallelRace {
+//    +this@withExit
+//    +WaitUntilCommand(exit)
+//}
+
+fun Command.withTimeout(second: Time): Command = this.withTimeout(second.second)

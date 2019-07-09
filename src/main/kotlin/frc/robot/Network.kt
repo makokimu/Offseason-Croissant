@@ -1,5 +1,6 @@
 /*
- * Some implementation from Team 5190 Green Hope Robotics
+ * FRC Team 5190
+ * Green Hope Falcons
  */
 
 package frc.robot
@@ -8,8 +9,6 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import frc.robot.auto.Autonomous
-import frc.robot.subsystems.drive.DriveSubsystem
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.wrappers.networktables.enumSendableChooser
 
 object Network {
@@ -20,32 +19,32 @@ object Network {
     private val mainShuffleboardDisplay: ShuffleboardTab = Shuffleboard.getTab("5190")
 
     private val autoLayout = mainShuffleboardDisplay.getLayout("Autonomous", BuiltInLayouts.kList)
-        .withSize(2, 2)
-        .withPosition(0, 0)
+            .withSize(2, 2)
+            .withPosition(0, 0)
 
     private val localizationLayout = mainShuffleboardDisplay.getLayout("Localization", BuiltInLayouts.kList)
-        .withSize(2, 2)
-        .withPosition(2, 0)
+            .withSize(2, 2)
+            .withPosition(2, 0)
 
     private val visionLayout = mainShuffleboardDisplay.getLayout("Vision", BuiltInLayouts.kGrid)
-        .withSize(3, 3)
-        .withPosition(0, 2)
+            .withSize(3, 3)
+            .withPosition(0, 2)
 
-    private val driveSubsystemLayout = mainShuffleboardDisplay.getLayout("DriveSubsystem", BuiltInLayouts.kGrid)
-        .withSize(2, 2)
-        .withPosition(4, 0)
+    private val driveSubsystemLayout = mainShuffleboardDisplay.getLayout("Drive", BuiltInLayouts.kGrid)
+            .withSize(2, 2)
+            .withPosition(4, 0)
 
     private val elevatorSubsystemLayout = mainShuffleboardDisplay.getLayout("Elevator", BuiltInLayouts.kGrid)
-        .withSize(2, 2)
-        .withPosition(6, 0)
+            .withSize(2, 2)
+            .withPosition(6, 0)
 
     private val armSubsystemLayout = mainShuffleboardDisplay.getLayout("Arm", BuiltInLayouts.kGrid)
-        .withSize(2, 2)
-        .withPosition(8, 0)
+            .withSize(2, 2)
+            .withPosition(8, 0)
 
     private val climbSubsystemLayout = mainShuffleboardDisplay.getLayout("Climb", BuiltInLayouts.kGrid)
-        .withSize(3, 2)
-        .withPosition(10, 0)
+            .withSize(3, 2)
+            .withPosition(10, 0)
 
     private val globalXEntry = localizationLayout.add("Robot X", 0.0).entry
     private val globalYEntry = localizationLayout.add("Robot Y", 0.0).entry
@@ -86,11 +85,17 @@ object Network {
     private val frontLimitSwitch = climbSubsystemLayout.add("F Limit", false).entry
     private val backLimitSwitch = climbSubsystemLayout.add("R Limit", false).entry
 
-    val visionDriveAngle = visionLayout.add("Vision DriveSubsystem Angle", 0.0).entry
-    val visionDriveActive = visionLayout.add("Vision DriveSubsystem Active", false).entry
+    val visionDriveAngle = visionLayout.add("Vision Drive Angle", 0.0).entry
+    val visionDriveActive = visionLayout.add("Vision Drive Active", false).entry
 //    val badIntakeOffset = visionLayout.add("Intake Offset", IntakeSubsystem.badIntakeOffset.inch).entry
 
+//    private var debugEnabled = mainShuffleboardDisplay.add("Debug Active", Robot.debugActive).entry
+
     init {
+
+        startingPositionChooser.setDefaultOption(Autonomous.StartingPositions.CENTER.name, Autonomous.StartingPositions.CENTER)
+        autoModeChooser.setDefaultOption(Autonomous.Mode.DO_NOTHING.name, Autonomous.Mode.DO_NOTHING)
+
         // Put choosers on dashboard
         autoLayout.add(
                 "Auto Mode",
@@ -100,20 +105,22 @@ object Network {
                 "Starting Position",
                 startingPositionChooser
         )
+
+        //mainShuffleboardDisplay.add(VisionProcessing.cameraSource).withPosition(3, 2).withSize(3, 3)
     }
 
     @Suppress("LongMethod")
     fun update() {
-        globalXEntry.setDouble(DriveSubsystem.localization().translation.x / SILengthConstants.kFeetToMeter)
-        globalYEntry.setDouble(DriveSubsystem.localization().translation.y / SILengthConstants.kFeetToMeter)
-        globalAEntry.setDouble(DriveSubsystem.localization().rotation.degree)
-
-        leftPositionEntry.setDouble(DriveSubsystem.leftMotor.encoder.position)
-        rightPositionEntry.setDouble(DriveSubsystem.rightMotor.encoder.position)
-
-        leftAmperageEntry.setDouble(DriveSubsystem.leftMotor.outputCurrent)
-        rightAmperageEntry.setDouble(DriveSubsystem.rightMotor.outputCurrent)
-
+//        globalXEntry.setDouble(DriveSubsystem.localization().translation.x / SILengthConstants.kFeetToMeter)
+//        globalYEntry.setDouble(DriveSubsystem.localization().translation.y / SILengthConstants.kFeetToMeter)
+//        globalAEntry.setDouble(DriveSubsystem.localization().rotation.degree)
+//
+//        leftPositionEntry.setDouble(DriveSubsystem.leftMotor.getSelectedSensorPosition(0).toDouble())
+//        rightPositionEntry.setDouble(DriveSubsystem.rightMotor.getSelectedSensorPosition(0).toDouble())
+//
+//        leftAmperageEntry.setDouble(DriveSubsystem.leftMotor.outputCurrent)
+//        rightAmperageEntry.setDouble(DriveSubsystem.rightMotor.outputCurrent)
+//
 //        elevatorRawPosition.setDouble(ElevatorSubsystem.rawSensorPosition.toDouble())
 //        elevatorPosition.setDouble(ElevatorSubsystem.position / SILengthConstants.kInchToMeter)
 //        elevatorCurrent.setDouble(ElevatorSubsystem.current)
@@ -128,7 +135,7 @@ object Network {
 //        armVelocity.setDouble(ArmSubsystem.velocity.value * 180 / Math.PI)
 //
 //        isHoldingCargo.setBoolean(IntakeSubsystem.isSeeingCargo)
-// //        intakeFullyExtended.setBoolean(IntakeSubsystem.isFullyExtended)
+////        intakeFullyExtended.setBoolean(IntakeSubsystem.isFullyExtended)
 //
 //        frontClimbWinchPosition.setDouble(ClimbSubsystem.rawFrontWinchPosition.toDouble())
 //        backClimbWinchPosition.setDouble(ClimbSubsystem.rawBackWinchPosition.toDouble())
@@ -145,5 +152,15 @@ object Network {
 //        visionBackCameraConnected.setBoolean(JeVoisManager.isBackJeVoisConnected)
 //
 //        badIntakeOffset.setDouble(IntakeSubsystem.badIntakeOffset.inch)
+//
+//        Robot.debugActive = debugEnabled.getBoolean(Robot.debugActive)
+
+//        val trackedObject = TargetTracker.bestTarget
+//        if (trackedObject != null) {
+//            val visionTargetPose = trackedObject.averagePose
+//            visionTargetX.setDouble(visionTargetPose.translation.x.inch)
+//            visionTargetY.setDouble(visionTargetPose.translation.y.inch)
+//            visionTargetRotation.setDouble(visionTargetPose.rotation.degree)
+//        }
     }
 }

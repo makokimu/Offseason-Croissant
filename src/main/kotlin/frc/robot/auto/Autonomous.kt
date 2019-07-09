@@ -55,34 +55,34 @@ object Autonomous {
 
     // Autonomous Master Group
     private val JUST = stateCommandGroup(startingPosition) {
-        state(
-                Autonomous.StartingPositions.LEFT,
-                Autonomous.StartingPositions.RIGHT,
-                Autonomous.StartingPositions.LEFT_REVERSED,
-                Autonomous.StartingPositions.RIGHT_REVERSED
-        ) {
-            stateCommandGroup(autoMode) {
-                state(Autonomous.Mode.TEST_TRAJECTORIES, block = TestTrajectoriesRoutine())
-                state(Autonomous.Mode.FORWARD_CARGO_SHIP, sequential {})
-                state(Autonomous.Mode.DO_NOTHING, sequential {})
-                state(Autonomous.Mode.BOTTOM_ROCKET, BottomRocketRoutine()())
-                state(Autonomous.Mode.BOTTOM_ROCKET_2, BottomRocketRoutine2()())
-                state(Autonomous.Mode.SIDE_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.SIDE)())
-                state(Autonomous.Mode.HYBRID_LEFT, sequential {})
-                state(Autonomous.Mode.HYBRID_RIGHT, sequential {})
-            }
-        }
-        state(Autonomous.StartingPositions.CENTER) {
-            stateCommandGroup(autoMode) {
-                state(Autonomous.Mode.FORWARD_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.FRONT)())
-                state(Autonomous.Mode.TEST_TRAJECTORIES, block = TestTrajectoriesRoutine())
-                state(Autonomous.Mode.BOTTOM_ROCKET, sequential {})
-                state(Autonomous.Mode.BOTTOM_ROCKET_2, sequential {})
-                state(Autonomous.Mode.SIDE_CARGO_SHIP, sequential {})
-                state(Autonomous.Mode.HYBRID_LEFT, block = HybridRoutine(HybridRoutine.Mode.LEFT))
-                state(Autonomous.Mode.HYBRID_RIGHT, block = HybridRoutine(HybridRoutine.Mode.RIGHT))
-            }
-        }
+//        state(
+//                Autonomous.StartingPositions.LEFT,
+//                Autonomous.StartingPositions.RIGHT,
+//                Autonomous.StartingPositions.LEFT_REVERSED,
+//                Autonomous.StartingPositions.RIGHT_REVERSED
+//        ) {
+//            stateCommandGroup(autoMode) {
+//                state(Autonomous.Mode.TEST_TRAJECTORIES, block = TestTrajectoriesRoutine())
+//                state(Autonomous.Mode.FORWARD_CARGO_SHIP, sequential {})
+//                state(Autonomous.Mode.DO_NOTHING, sequential {})
+//                state(Autonomous.Mode.BOTTOM_ROCKET, BottomRocketRoutine()())
+//                state(Autonomous.Mode.BOTTOM_ROCKET_2, BottomRocketRoutine2()())
+//                state(Autonomous.Mode.SIDE_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.SIDE)())
+//                state(Autonomous.Mode.HYBRID_LEFT, sequential {})
+//                state(Autonomous.Mode.HYBRID_RIGHT, sequential {})
+//            }
+//        }
+//        state(Autonomous.StartingPositions.CENTER) {
+//            stateCommandGroup(autoMode) {
+//                state(Autonomous.Mode.FORWARD_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.FRONT)())
+//                state(Autonomous.Mode.TEST_TRAJECTORIES, block = TestTrajectoriesRoutine())
+//                state(Autonomous.Mode.BOTTOM_ROCKET, sequential {})
+//                state(Autonomous.Mode.BOTTOM_ROCKET_2, sequential {})
+//                state(Autonomous.Mode.SIDE_CARGO_SHIP, sequential {})
+//                state(Autonomous.Mode.HYBRID_LEFT, block = HybridRoutine(HybridRoutine.Mode.LEFT))
+//                state(Autonomous.Mode.HYBRID_RIGHT, block = HybridRoutine(HybridRoutine.Mode.RIGHT))
+//            }
+//        }
     }
 
     @Suppress("LocalVariableName")
