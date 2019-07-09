@@ -2,7 +2,7 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
-import edu.wpi.first.wpilibj.experimental.command.SendableSubsystemBase
+import kotlinx.coroutines.channels.Channel
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
@@ -26,7 +26,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
     }
 
     override val encoder by lazy { master.encoder }
-        @Synchronized get
+//        @Synchronized get
     override var motionProfileAcceleration
         get() = master.motionProfileAcceleration
         set(value) { master.motionProfileAcceleration = value }
@@ -140,20 +140,26 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
     override fun recoverFromEmergency() = setClosedLoopGains()
 
     data class State(
-        val position: Double, // the position in [T] units
-        val velocity: Double,
-        val acceleration: Double = 0.0
-    )
-
-    var currentState = State(0.0, 0.0, 0.0)
-        @Synchronized get
-        @Synchronized set
-
-    override fun updateState() {
-        synchronized(this) {
-            val lastState = currentState
-            val velocity = encoder.velocity
-            currentState = State(encoder.position, velocity, velocity - lastState.velocity)
+            val position: Double, // the position in [T] units
+            val velocity: Double,
+            val acceleration: Double = 0.0
+    ) {
+        companion object {
+            val kZero = State(0.0, 0.0)
         }
+    }
+
+    // These properties are intended to be accessed concurrently -- everything else should NOT be touched by
+    // updateState() or useState() unless you know what you're doing!
+    val currentStateChannel = FalconChannel(State.kZero, Channel.CONFLATED)
+    val currentState
+        get() = currentStateChannel()
+
+    override suspend fun updateState() {
+        val encoder = synchronized(this) { this.encoder }
+        val lastState = currentStateChannel()
+        val velocity = encoder.velocity
+        // add the observation to the current state channel
+        currentStateChannel.send(State(encoder.position, velocity, velocity - lastState.velocity))
     }
 }

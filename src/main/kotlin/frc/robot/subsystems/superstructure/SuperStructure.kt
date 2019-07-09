@@ -1,22 +1,15 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.wpilibj.experimental.command.InstantCommand
-import edu.wpi.first.wpilibj.experimental.command.PrintCommand
-import edu.wpi.first.wpilibj.experimental.command.SendableCommandBase
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.Robot
-import frc.robot.subsystems.intake.Intake
-import org.ghrobotics.lib.commands.FalconCommand
+import kotlinx.coroutines.channels.Channel
 import org.ghrobotics.lib.commands.FalconSubsystem
-import org.ghrobotics.lib.commands.parallel
-import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import org.team5940.pantry.lib.SIRotationConstants
-import org.team5940.pantry.lib.radianToDegree
+import org.team5940.pantry.lib.FalconChannel
 import java.lang.Math.toDegrees
 
 object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
@@ -60,9 +53,19 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     fun getDumbWrist(smartWrist: Double, relevantProx: Double) =
             smartWrist - (relevantProx / 2)
 
-    override fun activateEmergency() { listOf(Elevator, Proximal, Wrist).forEach { it.activateEmergency() } }
+    override fun activateEmergency() {
+//        listOf(Elevator, Proximal, Wrist).forEach { it.activateEmergency() }
+        Elevator.activateEmergency()
+        Proximal.activateEmergency()
+        Wrist.activateEmergency()
+    }
 
-    override fun recoverFromEmergency() { listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() } }
+    override fun recoverFromEmergency() {
+        Elevator.recoverFromEmergency()
+        Proximal.recoverFromEmergency()
+        Wrist.recoverFromEmergency()
+//        listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() }
+        }
 
     override fun setNeutral() {
         Elevator.wantedState = Elevator.WantedState.Nothing
@@ -74,42 +77,40 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         Wrist.setNeutral()
     }
 
-    var currentState: State.Position = State.Position()
-        @Synchronized private set
-        @Synchronized get
+    private val currentStateChannel = FalconChannel(SuperstructureState(), Channel.CONFLATED)
+    val currentState: SuperstructureState
+        get() = currentStateChannel()
 
     override fun periodic() {
         SmartDashboard.putString("Superstructurestate", currentState.asString())
     }
 
-    @Synchronized
-    override fun updateState() {
+    override suspend fun updateState() {
         // update the states of our components
         Elevator.updateState()
         Proximal.updateState()
         Wrist.updateState()
 
         // use these updated states to build our current state
-        // I actually don't think this needs to be syncronised, bc the getter/setter on currentState already are
-        synchronized(currentState) { currentState = State.Position(
-                Elevator.currentState.position,
-                Proximal.currentState.position,
-                Wrist.currentState.position,
-                wristUnDumb = false
-        ) }
-    }
+        val newState = State.Position(
+            Elevator.currentState.position,
+            Proximal.currentState.position,
+            Wrist.currentState.position,
+            wristUnDumb = false
+        )
+        currentStateChannel.send(newState)
+}
 
-    @Synchronized
-    override fun useState() {
+//    @Synchronized
+    override suspend fun useState() {
         Elevator.useState()
         Proximal.useState()
         Wrist.useState()
     }
 
     override fun lateInit() {
-        Elevator.encoder.resetPosition(0.0)
-        Proximal.encoder.resetPosition(0.0)
-        Wrist.encoder.resetPosition(0.0)
+        Proximal.resetPosition(0)
+        Wrist.resetPosition(0)
 
         Robot.subsystemUpdateList.plusAssign(this)
 
@@ -152,8 +153,8 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
             constructor() : this(20.inch, 0.degree, 0.degree) // semi-sane numbers?
 
-            fun proximalTranslation()
-                    = Translation2d(kProximalLen.meter, proximal.radian.toRotation2d())
+            fun proximalTranslation() =
+                    Translation2d(kProximalLen.meter, proximal.radian.toRotation2d())
 
             fun dumbState() = if (!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
             fun trueState() = if (isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))

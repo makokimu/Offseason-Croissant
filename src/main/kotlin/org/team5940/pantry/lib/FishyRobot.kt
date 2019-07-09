@@ -1,47 +1,36 @@
 package org.team5940.pantry.lib
 
-import edu.wpi.first.wpilibj.Notifier
+import kotlinx.coroutines.*
+import org.ghrobotics.lib.utils.launchFrequency
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
-import java.lang.Exception
 
 abstract class FishyRobot : FalconTimedRobot() {
-
-    private val stateUpdater = /*Notifier*/ {
-        synchronized(subsystemUpdateList) {
-            subsystemUpdateList.forEach {
-                try {
-                    it.updateState()
-                }catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        } }
-        @Synchronized get
-    private val stateUser = /*Notifier*/ {
-        synchronized(subsystemUpdateList) {
-            subsystemUpdateList.forEach {
-                try {
-                    it.useState()
-                }catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        } }
-        @Synchronized get
 
     val isEnabled
             get() = wrappedValue.isEnabled
 
-    internal val updateNotifier = Notifier {
-        stateUpdater(); stateUser()
-    }
-
     var subsystemUpdateList = arrayListOf<ConcurrentlyUpdatingComponent>()
-        @Synchronized get
-        @Synchronized set
+
+    private suspend fun periodicUpdate() {
+        val subsystems = synchronized(subsystemUpdateList) {
+            subsystemUpdateList
+        }
+        coroutineScope {
+            for (subsystem in subsystems) {
+                launch {
+                    subsystem.updateState() ; subsystem.useState()
+                }
+            }
+        }
+    }
 
     var lastRobotMode = Mode.DISABLED
         private set
+
+    override fun robotInit() {
+        updateScope.launchFrequency { periodicUpdate() }
+        super.robotInit()
+    }
 
     override fun disabledInit() {
         lastRobotMode = Mode.DISABLED
@@ -64,4 +53,8 @@ abstract class FishyRobot : FalconTimedRobot() {
         DISABLED,
     }
 
+    companion object {
+        @ObsoleteCoroutinesApi
+        protected val updateScope = CoroutineScope(newFixedThreadPoolContext(2, "SubsystemUpdate"))
+    }
 }

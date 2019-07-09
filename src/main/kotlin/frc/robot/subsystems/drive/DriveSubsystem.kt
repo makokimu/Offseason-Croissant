@@ -4,7 +4,6 @@ import asSource
 import com.kauailabs.navx.frc.AHRS
 import com.team254.lib.physics.DifferentialDrive
 import org.ghrobotics.lib.mathematics.units.Length
-import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.experimental.command.WaitUntilCommand
 import frc.robot.Constants
@@ -13,17 +12,18 @@ import frc.robot.Ports.DrivePorts.LEFT_PORTS
 import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
 import frc.robot.Ports.kPCMID
-import frc.robot.Robot
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
+import org.ghrobotics.lib.mathematics.units.UnboundedRotation
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
+import org.ghrobotics.lib.utils.monitor
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
@@ -58,34 +58,13 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
     }
 
-    private val ahrs = AHRS(SPI.Port.kMXP)
-    override val localization = TankEncoderLocalization(
-            ahrs.asSource(),
-            {
-                leftMotor.currentState.position },
-            { rightMotor.currentState.position })
+    override fun setNeutral() = run { leftMotor.setNeutral(); rightMotor.setNeutral() }
 
-    // init localization stuff
-    init { localization.reset(Pose2d()) }
-    override fun lateInit() {
+    override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
 
-        robotPosition = Pose2d(Translation2d(20.feet, 20.feet))
-
-        Notifier {
-            localization.update()
-//            println("localization updated")
-        }.startPeriodic(1.0 / 100.0)
-        Robot.subsystemUpdateList.plusAssign(this)
-
-        defaultCommand = ManualDriveCommand() // set default command
-    }
-
-    // Ramsete gang is the only true gang
-    override var trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
-
-    // the "differential drive" model, with a custom getter which changes based on the current gear
-    override val differentialDrive: DifferentialDrive
-        get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
+    override fun recoverFromEmergency() = run { leftMotor.setClosedLoopGains(); rightMotor.setClosedLoopGains() }
+    fun notWithinRegion(region: Rectangle2d) =
+            WaitUntilCommand { !region.contains(robotPosition.translation) }
 
     // Shift up and down
     private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1], kPCMID)
@@ -97,17 +76,40 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         rightMotor.setClosedLoopGains()
     }
 
-    override fun updateState() {
-//        println("updating motor states")
-        leftMotor.updateState()
-        rightMotor.updateState()
+    private val ahrs = AHRS(SPI.Port.kMXP)
+    override val localization = TankEncoderLocalization(
+            ahrs.asSource(),
+            { currentState.left.position },
+            { currentState.right.position })
+
+    // init localization stuff
+    init { localization.reset(Pose2d()) }
+    override fun lateInit() {
+        // set the robot pose to a sane position
+        robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = UnboundedRotation.kZero)
+        // set the default command
+        defaultCommand = ManualDriveCommand() // set default command
     }
 
-    override fun setNeutral() = run { leftMotor.setNeutral(); rightMotor.setNeutral() }
+    // Ramsete gang is the only true gang
+    override var trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
 
-    override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
+    // the "differential drive" model, with a custom getter which changes based on the current gear
+    override val differentialDrive: DifferentialDrive
+        get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
-    override fun recoverFromEmergency() = run { leftMotor.setClosedLoopGains(); rightMotor.setClosedLoopGains() }
-    fun notWithinRegion(region: Rectangle2d) =
-            WaitUntilCommand { !region.contains(robotPosition.translation) }
+    data class State(
+        val left: MultiMotorTransmission.State,
+        val right: MultiMotorTransmission.State
+    )
+    var currentState: State = State(
+            leftMotor.currentState, rightMotor.currentState
+    )
+
+    override suspend fun updateState() {
+        leftMotor.updateState()
+        rightMotor.updateState()
+        localization.update()
+        currentState = State(leftMotor.currentState, rightMotor.currentState)
+    }
 }

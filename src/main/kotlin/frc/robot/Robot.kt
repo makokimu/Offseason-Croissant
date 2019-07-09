@@ -14,10 +14,12 @@ import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.team5940.pantry.lib.FishyRobot
 
 object Robot : FishyRobot() {
 
+    @ObsoleteCoroutinesApi
     override fun robotInit() {
         +DriveSubsystem
         +Proximal
@@ -33,19 +35,21 @@ object Robot : FishyRobot() {
         Controls
         Autonomous
 
-        updateNotifier.startPeriodic(1.0/50.0)
-
         SmartDashboard.putData(CommandScheduler.getInstance())
+
+        subsystemUpdateList.add(DriveSubsystem)
+        subsystemUpdateList.add(Superstructure)
 
         super.robotInit()
     }
 
+    @ObsoleteCoroutinesApi
     override fun robotPeriodic() {
         TargetTracker.update()
         Controls.update()
         Autonomous.update()
+        super.robotPeriodic()
     }
-
 }
 
 fun main() {

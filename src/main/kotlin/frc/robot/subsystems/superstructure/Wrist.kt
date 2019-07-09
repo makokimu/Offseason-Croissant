@@ -2,80 +2,55 @@ package frc.robot.subsystems.superstructure
 
 import frc.robot.Constants
 import frc.robot.Ports
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.UnboundedRotation
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
+import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
+import org.team5940.pantry.lib.FalconChannel
 import org.team5940.pantry.lib.MultiMotorTransmission
 import java.lang.Math.abs
 
-object Wrist : MultiMotorTransmission<UnboundedRotation>(
-        unregisterSubsystem = false
-) {
+object Wrist : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
-    override val master: FalconSRX<UnboundedRotation> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,
+    fun resetPosition(ticks: Int) {
+        val encoder = synchronized(motor) { motor.encoder }
+        encoder.resetPosition(ticks.toDouble())
+    }
+
+    val     master = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,
             Ports.SuperStructurePorts.WristPorts.ROTATION_MODEL)
-        @Synchronized get
+    private val motor = object: MultiMotorTransmission<UnboundedRotation>(
+            unregisterSubsystem = false
+    ) {
+        override val master: FalconSRX<UnboundedRotation> = this@Wrist.master
 
-    var position: Double
-        get() {
-            return Proximal.encoder.position
-        }
-        set(newPos) {
+        init {
+            master.outputInverted = Ports.SuperStructurePorts.WristPorts.TALON_INVERTED
+            master.feedbackSensor = Ports.SuperStructurePorts.WristPorts.SENSOR
+            master.talonSRX.setSensorPhase(Ports.SuperStructurePorts.WristPorts.TALON_SENSOR_PHASE)
 
-            val pos = Proximal.master.model.toNativeUnitPosition(newPos).toInt()
-
-            println("setting the wrist to $pos ticks!")
-
-            Proximal.master.motorController.setSelectedSensorPosition(pos, Proximal.master.encoder.pidIdx, 0)
+            setClosedLoopGains()
         }
 
-    init {
-        master.outputInverted = Ports.SuperStructurePorts.WristPorts.TALON_INVERTED
-        master.feedbackSensor = Ports.SuperStructurePorts.WristPorts.SENSOR
-        master.talonSRX.setSensorPhase(Ports.SuperStructurePorts.WristPorts.TALON_SENSOR_PHASE)
+        override fun setClosedLoopGains() {
+            master.useMotionProfileForPosition = true
+            // TODO use FalconSRX properties for velocities and accelerations
+            master.talonSRX.configMotionCruiseVelocity((2000.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
+            master.talonSRX.configMotionAcceleration(3500)
+            master.talonSRX.configMotionSCurveStrength(0)
 
-        setClosedLoopGains()
-    }
-
-    override fun setClosedLoopGains() {
-        master.useMotionProfileForPosition = true
-        // TODO use FalconSRX properties for velocities and accelerations
-        master.talonSRX.configMotionCruiseVelocity((2000.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
-        master.talonSRX.configMotionAcceleration(3500)
-        master.talonSRX.configMotionSCurveStrength(0)
-
-        master.setClosedLoopGains(
-                3.5, 0.0, ff = 0.4
-        )
-    }
-
-    override fun lateInit() {
-        position = ((-90).degree.radian)
-        Wrist.encoder.resetPosition(Wrist.master.model.toNativeUnitPosition((-90).degree.radian))
-        position = ((-90).degree.radian)
-        Wrist.encoder.resetPosition(Wrist.master.model.toNativeUnitPosition((-90).degree.radian))
-        position = ((-90).degree.radian)
-        Wrist.encoder.resetPosition(Wrist.master.model.toNativeUnitPosition((-90).degree.radian))
-    }
-
-    var wantedState: WantedState = WantedState.Nothing
-        @Synchronized set
-        @Synchronized get
-
-    @Synchronized
-    override fun useState() {
-        when (wantedState) {
-            is WantedState.Position -> {
-                val state = wantedState as WantedState.Position
-                val ff = 0.0
-
-                synchronized(this) {
-                    setPosition(state.targetPosition, ff)
-                }
-            }
-            else -> setNeutral()
+            master.setClosedLoopGains(
+                    3.5, 0.0, ff = 0.4
+            )
         }
     }
+
+    override fun activateEmergency() = motor.activateEmergency()
+    override fun recoverFromEmergency() = motor.recoverFromEmergency()
 
     sealed class WantedState {
         object Nothing : WantedState()
@@ -86,5 +61,34 @@ object Wrist : MultiMotorTransmission<UnboundedRotation>(
         val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
 
         return abs(state.targetPosition - currentState.position) < tolerance
+    }
+
+    /* EVERYTHING HERE ON DOWN IS INTENDED TO BE ACCESSED BY COROUTINES */
+
+    private val wantedStateChannel = FalconChannel<WantedState>(WantedState.Nothing, capacity = Channel.CONFLATED)
+
+    val currentState: MultiMotorTransmission.State // this is threadsafe maybe by virtue of being a call to currentStateChannel
+        get() = motor.currentStateChannel()
+    var wantedState: WantedState
+        get() = wantedStateChannel()
+        set(value) = runBlocking { wantedStateChannel.send(value) }
+
+
+    override suspend fun updateState() = motor.updateState()
+
+    override suspend fun useState() {
+        val wantedState = wantedStateChannel()
+//        val currentState = synchronized(this.currentState) { this.currentState }
+        when (wantedState) {
+            is WantedState.Position -> {
+                val state = wantedState
+                val ff = 0.0
+
+                synchronized(motor) {
+                    motor.setPosition(state.targetPosition, ff)
+                }
+            }
+            else -> synchronized(motor) { setNeutral() }
+        }
     }
 }
