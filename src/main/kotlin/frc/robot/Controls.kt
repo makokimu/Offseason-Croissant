@@ -11,8 +11,6 @@ import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.wrappers.hid.*
-import org.team5940.pantry.lib.greaterThanAxisButton
-import org.team5940.pantry.lib.lessThanAxisButton
 import java.util.function.BooleanSupplier
 
 object Controls {
@@ -55,14 +53,14 @@ object Controls {
             button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
             // hatches
-            lessThanAxisButton(operatorJoy, 1).change(IntakeHatchCommand(releasing = false))
-            greaterThanAxisButton(operatorJoy, 1).change(IntakeHatchCommand(releasing = true))
+            lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
+            greaterThanAxisButton(1).change(IntakeHatchCommand(releasing = true))
 
             // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
             // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
             val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
-            lessThanAxisButton(operatorJoy, 0).changeOff { Superstructure.kStowed.schedule() }.change(cargoCommand)
-            greaterThanAxisButton(operatorJoy, 0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
+            lessThanAxisButton(0).changeOff { Superstructure.kStowed.schedule() }.change(cargoCommand)
+            greaterThanAxisButton(0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
         }
     }
 
