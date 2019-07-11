@@ -7,25 +7,23 @@ import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.withDeadband
-import org.ghrobotics.lib.wrappers.hid.getRawButton
-import org.ghrobotics.lib.wrappers.hid.getX
-import org.ghrobotics.lib.wrappers.hid.getY
-import org.ghrobotics.lib.wrappers.hid.kX
+import org.ghrobotics.lib.wrappers.hid.*
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max
+import kotlin.math.pow
 
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
     override fun execute() {
-
         val curvature = rotationSource()
         val linear = -speedSource()
+        val driveCubicDeadband = ((cubicPrecision * (linear pow 3) + (1.0 - cubicPrecision) * curvature) - (abs(curvature) / curvature) * (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband)) / (1.0 - (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband))
 
         curvatureDrive(
                 linear,
-                curvature,
-                quickTurnSource()
-        )
+                driveCubicDeadband,
+                quickTurnSource())
     }
 
     /**
@@ -96,7 +94,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     /**
      * Tank drive control
      */
-    protected fun tankDrive(
+    private fun tankDrive(
         leftPercent: Double,
         rightPercent: Double
     ) {
@@ -110,8 +108,11 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private const val kQuickStopThreshold = TankDriveSubsystem.kQuickStopThreshold
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         private const val kDeadband = 0.05
+        private const val cubicPrecision = 0.1
         val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
-        private val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband) }
-        private val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kX) }
+        private val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight) }
+        private val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kBumperRight)/*.getRawButton(kX)8*/ }
     }
 }
+
+private infix fun Number.pow(i: Number): Double = toDouble().pow(i.toDouble())
