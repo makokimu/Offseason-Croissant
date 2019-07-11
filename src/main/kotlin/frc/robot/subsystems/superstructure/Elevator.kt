@@ -4,8 +4,6 @@ import edu.wpi.first.wpilibj.DigitalInput
 import frc.robot.Constants
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.Length
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
@@ -70,9 +68,11 @@ object Elevator : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
         motor.encoder.resetPosition(0.0)
     }
 
+    val kMaxElevatorOffset = -3.0 / SILengthConstants.kInchToMeter..3.0 / SILengthConstants.kInchToMeter
+
     var elevatorOffset: Double = 0.0
         set(newValue) {
-            field = newValue.boundTo(-3.0 / SILengthConstants.kInchToMeter, 3.0 / SILengthConstants.kInchToMeter)
+            field = newValue.coerceIn(kMaxElevatorOffset)
         }
 
     fun isWithTolerance(tolerance: Double /* meters */): Boolean {

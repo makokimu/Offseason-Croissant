@@ -4,15 +4,12 @@ import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kProximalCos
 import frc.robot.Constants.SuperStructureConstants.kProximalStatic
 import frc.robot.Ports
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.UnboundedRotation
 import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import org.team5940.pantry.lib.FalconChannel
 import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
 import kotlin.math.abs
@@ -28,7 +25,7 @@ object Proximal : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
 
     val master = FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[0],
             Ports.SuperStructurePorts.ProximalPorts.ROTATION_MODEL)
-    private val motor = object: MultiMotorTransmission<UnboundedRotation>(unregisterSubsystem = false) {
+    private val motor = object : MultiMotorTransmission<UnboundedRotation>(unregisterSubsystem = false) {
         override val master: FalconSRX<UnboundedRotation> = this@Proximal.master
 
         override val followers: List<FalconSRX<*>> = listOf(
@@ -65,7 +62,6 @@ object Proximal : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
                     0.85, 6.0, ff = 0.45
             )
         }
-
     }
 
     override fun activateEmergency() = motor.activateEmergency()

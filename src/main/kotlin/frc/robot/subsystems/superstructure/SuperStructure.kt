@@ -3,13 +3,11 @@ package frc.robot.subsystems.superstructure
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.Robot
-import kotlinx.coroutines.channels.Channel
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import org.team5940.pantry.lib.FalconChannel
 import org.team5940.pantry.lib.WantedState
 import java.lang.Math.toDegrees
 

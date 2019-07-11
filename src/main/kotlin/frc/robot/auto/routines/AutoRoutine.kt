@@ -7,7 +7,6 @@ import frc.robot.auto.Autonomous
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionAssistedTrajectoryTracker
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.commands.parallelRace
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
@@ -74,9 +73,9 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
 
 fun Command.withExit(exit: BooleanSource): Command = this.interruptOn(exit)
 
-//fun Command.withExit(exit: BooleanSource) = parallelRace {
+// fun Command.withExit(exit: BooleanSource) = parallelRace {
 //    +this@withExit
 //    +WaitUntilCommand(exit)
-//}
+// }
 
 fun Command.withTimeout(second: Time): Command = this.withTimeout(second.second)

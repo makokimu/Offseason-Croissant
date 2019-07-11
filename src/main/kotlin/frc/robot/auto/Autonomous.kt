@@ -9,7 +9,6 @@ import frc.robot.auto.routines.*
 import frc.robot.subsystems.drive.DriveSubsystem
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.ghrobotics.lib.commands.S3ND
-import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.Source

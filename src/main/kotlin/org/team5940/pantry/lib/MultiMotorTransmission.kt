@@ -2,7 +2,6 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
-import kotlinx.coroutines.channels.Channel
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
@@ -140,9 +139,9 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
     override fun recoverFromEmergency() = setClosedLoopGains()
 
     data class State(
-            val position: Double, // the position in [T] units
-            val velocity: Double,
-            val acceleration: Double = 0.0
+        val position: Double, // the position in [T] units
+        val velocity: Double,
+        val acceleration: Double = 0.0
     ) {
         companion object {
             val kZero = State(0.0, 0.0)
@@ -161,6 +160,6 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
         val velocity = encoder.velocity
         // add the observation to the current state channel
         val newState = State(encoder.position, velocity, velocity - lastState.velocity)
-        synchronized(currentState) {currentState = newState}
+        synchronized(currentState) { currentState = newState }
     }
 }
