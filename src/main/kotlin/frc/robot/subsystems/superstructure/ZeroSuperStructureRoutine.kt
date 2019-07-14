@@ -44,37 +44,27 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putString("Zeroing state", mCurrentState!!.name)
         SmartDashboard.putBoolean("Elevator limit switch", limitTriggered)
 
-        SmartDashboard.putNumber("prox sensor pos", (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048).toDouble())
-        SmartDashboard.putNumber("wrist sensor pos", (Wrist.master.talonSRX.sensorCollection.pulseWidthPosition % 2048).toDouble())
-        SmartDashboard.putNumber("elevator sensor pos", (Elevator.master.talonSRX.sensorCollection.pulseWidthPosition % 2048).toDouble())
+        val positions = getPositions()
+
+        SmartDashboard.putNumber("prox sensor pos", positions[0].toDouble())
+        SmartDashboard.putNumber("wrist sensor pos", positions[1].toDouble())
 
         if (!DriverStation.getInstance().isDisabled)
             return
-        // switch to observe desired behavior
 
         if (mCurrentState == ZeroingState.IDLE) {
-            // System.out.println("in idle state");
-            // var limitTriggered = limitStatus;
             if (!limitTriggered) {
                 mCurrentState = ZeroingState.WAITING_FOR_TRIGGER
-                // System.out.println("limit switch is off, waiting for retrigger");
-                // break;
             }
         } else if (mCurrentState == ZeroingState.WAITING_FOR_TRIGGER) {
-            // System.out.println("waiting for trigger");
-            // limitTriggered = limitStatus;
             if (limitTriggered) {
-                // System.out.println("observing elevator zeroed");
-                observeElevatorZero()
+                observeElevatorZero(positions)
                 mCurrentState = ZeroingState.ZEROED
-                // break;
             }
         }
-        // else return;
     }
-    // }
 
-    private fun observeElevatorZero() {
+    private fun observeElevatorZero(positions: List<Int>) {
 
         Elevator.master.talonSRX.set(ControlMode.PercentOutput, 0.0)
         Elevator.setNeutral()
@@ -87,21 +77,38 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putBoolean("Proximal zeroed", true)
         SmartDashboard.putBoolean("Wrist zeroed", true)
 
-        val proximal = Proximal
-        val tickkkkks = (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048) // * if(Proximal.master.talonSRX.sensorCollection.pulseWidthPosition > 0) 1 else -1
+        val tickkkkks = positions[0]
         val targetProximal_COMP = 400 // 1900
-        val delta = (tickkkkks - targetProximal_COMP) * -1
-        val startingAngleTicks = proximal.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
-        proximal.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
+        val delta = (tickkkkks - targetProximal_COMP) * -1 // whyyyy?
+        val startingAngleTicks = Proximal.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
+        Proximal.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
 
-        val wrist = Wrist
-        val wristStart = wrist.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
+        val wristStart = Wrist.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
         val targetWristComp = 1050 // 1500 + 150
-        val correctionDelta = Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 2048 * if (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition > 0) 1 else -1
-        val deltaW = (correctionDelta - targetWristComp) * 1
-        wrist.master.talonSRX.selectedSensorPosition = (deltaW + wristStart).toInt()
+        val correctionDelta = positions[1]
+        val deltaW = (correctionDelta - targetWristComp)
+        Wrist.master.talonSRX.selectedSensorPosition = (deltaW + wristStart).toInt()
 
         Elevator.master.encoder.resetPosition(Elevator.master.model.toNativeUnitPosition(mZeroHeight).value)
+    }
+
+    fun getPositions(): List<Int> {
+
+        val prox = (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
+            var temp = it
+            while(it < 0) temp += 4096
+            while(it > 4096) temp -= 4096
+            temp
+        }
+        val wrist = (Wrist.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
+            var temp = it
+            while (it < 0) temp += 4096
+            while (it > 4096) temp -= 4096
+            temp
+        }
+
+        return listOf(prox, wrist)
+
     }
 
     // Make this return true when this Command no longer needs to run execute()
