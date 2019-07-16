@@ -54,7 +54,6 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
             smartWrist - (relevantProx / 2)
 
     override fun activateEmergency() {
-//        listOf(Elevator, Proximal, Wrist).forEach { it.activateEmergency() }
         Elevator.activateEmergency()
         Proximal.activateEmergency()
         Wrist.activateEmergency()
@@ -64,7 +63,6 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         Elevator.recoverFromEmergency()
         Proximal.recoverFromEmergency()
         Wrist.recoverFromEmergency()
-//        listOf(Elevator, Proximal, Wrist).forEach { it.recoverFromEmergency() }
         }
 
     override fun setNeutral() {
@@ -115,7 +113,7 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
         Robot.subsystemUpdateList.plusAssign(this)
 
-        defaultCommand = JogElevator()
+//        defaultCommand = JogElevator()
 
         val zero = ZeroSuperStructureRoutine()
         zero.schedule()
