@@ -64,7 +64,7 @@ object Constants {
     object SuperStructureConstants {
         const val kProximalStatic = 0.4 // volts
         const val kProximalCos = 0.94 // volts
-        const val kJointSpeedMultiplier = 0.6
+        const val kJointSpeedMultiplier = 0.3
         const val kProximalLen = 32.0 / SILengthConstants.kInchToMeter
     }
 
