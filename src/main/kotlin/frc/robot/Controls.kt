@@ -8,8 +8,10 @@ import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
+import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.wrappers.hid.*
 import java.util.function.BooleanSupplier
 
@@ -36,6 +38,10 @@ object Controls {
     val operatorFalconHID = operatorJoy.mapControls {
 
         state({ !isClimbing }) {
+
+            // elevator jogging
+            button(9).changeOn { Elevator.elevatorOffset += 0.3 * SILengthConstants.kInchToMeter }
+            button(11).changeOn { Elevator.elevatorOffset -= 0.3 * SILengthConstants.kInchToMeter }
 
             // cargo presets
             button(12).changeOn(Superstructure.kCargoIntake).changeOff { Superstructure.kStowed.schedule() }
