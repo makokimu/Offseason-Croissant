@@ -63,28 +63,30 @@ class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
     override fun isFinished() = Wrist.isWithTolerance(5.0.degreeToRadian)//toDegrees(abs(target - Wrist.currentState.position)) < 5.0
 }
 
-class JogElevator : FalconCommand(Superstructure, Elevator) {
-
-    companion object {
-        val upSource by lazy { (Controls.operatorFalconHID.getRawButton(9)) }
-        val downSource by lazy { (Controls.operatorFalconHID.getRawButton(11)) }
-    }
-
-    private var initPosition: Double? = null
-
-    override fun initialize() {
-        initPosition = Elevator.currentState.position
-    }
-
-    override fun execute() {
-        val upPower = if (upSource()) 1 else -1
-        val downPower = if (downSource()) -1 else 1
-        val totalPower = (upPower + downPower) * 0.3 * SILengthConstants.kInchToMeter
-
-        Elevator.wantedState = WantedState.Position(
-                let {
-                    initPosition?.plus(totalPower) ?: Elevator.currentState.position // yeet it's an Elvis
-                }
-        )
-    }
-}
+//class JogElevator : FalconCommand(Superstructure, Elevator) {
+//
+//    companion object {
+//        val upSource by lazy { (Controls.operatorFalconHID.getRawButton(9)) }
+//        val downSource by lazy { (Controls.operatorFalconHID.getRawButton(11)) }
+//    }
+//
+//    private var initPosition: Double? = null
+//
+//    override fun initialize() {
+//        initPosition = Elevator.currentState.position
+//    }
+//
+//    override fun execute() {
+//        val upPower = if (upSource()) 1 else -1
+//        val downPower = if (downSource()) -1 else 1
+//        val totalPower = (upPower + downPower) * 0.3 * SILengthConstants.kInchToMeter
+//
+//        if (totalPower.absoluteValue < 0.05) return
+//
+//        Elevator.wantedState = WantedState.Position(
+//                let {
+//                    initPosition?.plus(totalPower) ?: Elevator.currentState.position // yeet it's an Elvis
+//                }
+//        )
+//    }
+//}
