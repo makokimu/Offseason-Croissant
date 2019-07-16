@@ -57,7 +57,9 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
     }
 
-    override fun setNeutral() = run { leftMotor.setNeutral(); rightMotor.setNeutral() }
+    override fun setNeutral(){
+        leftMotor.setNeutral(); rightMotor.setNeutral()
+    }
 
     override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
 
