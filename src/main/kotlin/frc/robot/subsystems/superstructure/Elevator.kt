@@ -63,12 +63,16 @@ object Elevator : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
 
     override fun activateEmergency() = motor.activateEmergency()
     override fun recoverFromEmergency() = motor.recoverFromEmergency()
+    override fun setNeutral() {
+        wantedState = WantedState.Nothing
+        motor.setNeutral()
+    }
 
     override fun lateInit() {
         motor.encoder.resetPosition(0.0)
     }
 
-    val kMaxElevatorOffset = -3.0 / SILengthConstants.kInchToMeter..3.0 / SILengthConstants.kInchToMeter
+    private val kMaxElevatorOffset = -3.0 * SILengthConstants.kInchToMeter..3.0 * SILengthConstants.kInchToMeter
 
     var elevatorOffset: Double = 0.0
         set(newValue) {
@@ -87,7 +91,12 @@ object Elevator : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
         @Synchronized get() = motor.currentState
     var wantedState: WantedState = WantedState.Nothing
         @Synchronized get
-        @Synchronized set
+        @Synchronized set(newValue) {
+            val exception = Exception()
+            exception.printStackTrace()
+
+            field = newValue
+        }
 
     override fun updateState() = motor.updateState()
 

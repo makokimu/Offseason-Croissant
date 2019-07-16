@@ -66,6 +66,10 @@ object Proximal : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingCo
 
     override fun activateEmergency() = motor.activateEmergency()
     override fun recoverFromEmergency() = motor.recoverFromEmergency()
+    override fun setNeutral() {
+        wantedState = WantedState.Nothing
+        motor.setNeutral()
+    }
 
     fun isWithTolerance(tolerance: Double /* radian */): Boolean {
         val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
