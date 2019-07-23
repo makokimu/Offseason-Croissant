@@ -14,12 +14,10 @@ import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import org.team5940.pantry.lib.FishyRobot
 
 object Robot : FishyRobot() {
 
-    @ObsoleteCoroutinesApi
     override fun robotInit() {
         Network // at the top because s3ndable choosers need to be instantiated
 
@@ -45,7 +43,6 @@ object Robot : FishyRobot() {
         super.robotInit()
     }
 
-    @ObsoleteCoroutinesApi
     override fun robotPeriodic() {
         TargetTracker.update()
         Controls.update()
