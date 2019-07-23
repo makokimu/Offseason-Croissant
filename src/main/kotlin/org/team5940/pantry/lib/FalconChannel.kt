@@ -28,3 +28,17 @@ class FalconChannel<T>(defaultValue: T, capacity: Int = -1) : Source<T> {
 
     override fun invoke() = runBlocking { receive() }
 }
+
+fun <E> Channel<E>.receiveNonBlocking(): E? {
+    return if (this.isEmpty) null else runBlocking { receive() }
+}
+
+fun <E> Channel<E>.recieveOrLastValue(lastValue: E): E {
+    return if (this.isEmpty) lastValue else runBlocking { receive() }
+}
+
+fun <E> S3nd(element: E): E {
+    return element
+}
+
+infix fun <E> E.s3ndIntoBlocking(channel: Channel<E>) = runBlocking { channel.send(this@s3ndIntoBlocking) }

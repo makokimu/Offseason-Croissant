@@ -66,6 +66,7 @@ object Constants {
         const val kProximalCos = 0.94 // volts
         const val kJointSpeedMultiplier = 0.3
         const val kProximalLen = 32.0 / SILengthConstants.kInchToMeter
+        val kElevatorRange = 11.inch.meter..66.inch.meter
     }
 
     object IntakeConstants {

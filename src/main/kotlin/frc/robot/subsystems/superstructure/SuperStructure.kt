@@ -3,15 +3,16 @@ package frc.robot.subsystems.superstructure
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.Robot
-import org.ghrobotics.lib.commands.FalconSubsystem
+import io.github.oblarg.oblog.annotations.Log
+import kotlinx.coroutines.channels.Channel
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
-import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import org.team5940.pantry.lib.WantedState
+import org.team5940.pantry.lib.*
 import java.lang.Math.toDegrees
+import kotlin.math.roundToInt
 
-object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
+object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     init {
         // force instantiation of subsystems
@@ -37,9 +38,8 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     val kCargoHigh get() = everythingMoveTo(65.5.inch, 9.degree, 20.degree)
 
     fun everythingMoveTo(elevator: Length, proximal: UnboundedRotation, wrist: UnboundedRotation) = everythingMoveTo(State.Position(elevator, proximal, wrist))
-    fun everythingMoveTo(elevator: Double, proximal: Double, wrist: Double) = everythingMoveTo(State.Position(elevator, proximal, wrist))
 
-    fun everythingMoveTo(goalstate: SuperstructureState) = SuperstructurePlanner.everythingMoveTo(goalstate)
+    fun everythingMoveTo(goalState: SuperstructureState) = SuperstructurePlanner.everythingMoveTo(goalState)
 
     fun getUnDumbWrist(dumbWrist: UnboundedRotation, relevantProx: UnboundedRotation) =
             dumbWrist.plus(relevantProx.div(2))
@@ -56,14 +56,12 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     override fun activateEmergency() {
         Elevator.activateEmergency()
         Proximal.activateEmergency()
-        Wrist.activateEmergency()
-    }
+        Wrist.activateEmergency() }
 
     override fun recoverFromEmergency() {
         Elevator.recoverFromEmergency()
         Proximal.recoverFromEmergency()
-        Wrist.recoverFromEmergency()
-        }
+        Wrist.recoverFromEmergency() }
 
     override fun setNeutral() {
         Elevator.wantedState = WantedState.Nothing
@@ -72,18 +70,20 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
         Elevator.setNeutral()
         Proximal.setNeutral()
-        Wrist.setNeutral()
-    }
+        Wrist.setNeutral() }
 
-    var currentState: SuperstructureState = SuperstructureState()
-        @Synchronized get
-        @Synchronized set
+    private val currentStateChannel = Channel<SuperstructureState>(Channel.CONFLATED)
+    private var lastState = SuperstructureState()
 
-    override fun periodic() {
-        SmartDashboard.putString("Superstructurestate", currentState.asString())
-    }
+    val currentState: SuperstructureState
+        @Log.ToString
+        get() {
+            val newState = currentStateChannel.recieveOrLastValue(lastState)
+            lastState = newState
+            return newState
+        }
 
-    override fun updateState() {
+    override suspend fun updateState() {
         // update the states of our components
         Elevator.updateState()
         Proximal.updateState()
@@ -96,12 +96,11 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
             Wrist.currentState.position,
             wristUnDumb = false
         )
-        synchronized(currentState) {
-            currentState = newState
-        }
-}
 
-    override fun useState() {
+        currentStateChannel.send(newState)
+    }
+
+    override suspend fun useState() {
         Elevator.useState()
         Proximal.useState()
         Wrist.useState()
@@ -112,8 +111,6 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         Wrist.resetPosition(0)
 
         Robot.subsystemUpdateList.plusAssign(this)
-
-//        defaultCommand = JogElevator()
 
         val zero = ZeroSuperStructureRoutine()
         zero.schedule()
@@ -150,7 +147,7 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
             ) :
                     this(elevator, proximal, (if (wristUnDumb) getDumbWrist(wrist, proximal) else wrist), isWristUnDumb = wristUnDumb)
 
-            constructor() : this(20.inch, 0.degree, 0.degree) // semi-sane numbers?
+            constructor() : this(20.inch, (-90).degree, (-45).degree) // semi-sane numbers?
 
             fun proximalTranslation() =
                     Translation2d(kProximalLen.meter, proximal.radian.toRotation2d())
@@ -159,7 +156,7 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
             fun trueState() = if (isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
 
             fun asString(): String {
-                return "state: Elevator ${elevator / SILengthConstants.kInchToMeter} proximal ${toDegrees(proximal)} wrist ${toDegrees(wrist)}"
+                return "Elevator [${(elevator / SILengthConstants.kInchToMeter).roundToInt()}\"] proximal [${toDegrees(proximal).roundToInt()}deg] wrist [${toDegrees(wrist).roundToInt()}deg]"
             }
         }
 

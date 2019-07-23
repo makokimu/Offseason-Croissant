@@ -66,7 +66,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
     private fun observeElevatorZero(positions: List<Int>) {
 
-        Elevator.master.talonSRX.set(ControlMode.PercentOutput, 0.0)
+        Elevator.motor.master.talonSRX.set(ControlMode.PercentOutput, 0.0)
         Elevator.setNeutral()
         Proximal.setNeutral()
         Wrist.setNeutral()
@@ -80,27 +80,27 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         val tickkkkks = positions[0]
         val targetProximal_COMP = 400 // 1900
         val delta = (tickkkkks - targetProximal_COMP) * -1 // whyyyy?
-        val startingAngleTicks = Proximal.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
-        Proximal.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
+        val startingAngleTicks = Proximal.motor.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
+        Proximal.motor.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
 
-        val wristStart = Wrist.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
+        val wristStart = Wrist.motor.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
         val targetWristComp = 1050 // 1500 + 150
         val correctionDelta = positions[1]
         val deltaW = (correctionDelta - targetWristComp)
-        Wrist.master.talonSRX.selectedSensorPosition = (deltaW + wristStart).toInt()
+        Wrist.motor.master.talonSRX.selectedSensorPosition = (deltaW + wristStart).toInt()
 
-        Elevator.master.encoder.resetPosition(Elevator.master.model.toNativeUnitPosition(mZeroHeight).value)
+        Elevator.motor.master.encoder.resetPosition(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight).value)
     }
 
     fun getPositions(): List<Int> {
 
-        val prox = (Proximal.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
+        val prox = (Proximal.motor.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
             var temp = it
-            while(it < 0) temp += 4096
-            while(it > 4096) temp -= 4096
+            while (it < 0) temp += 4096
+            while (it > 4096) temp -= 4096
             temp
         }
-        val wrist = (Wrist.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
+        val wrist = (Wrist.motor.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
             var temp = it
             while (it < 0) temp += 4096
             while (it > 4096) temp -= 4096
@@ -108,7 +108,6 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         }
 
         return listOf(prox, wrist)
-
     }
 
     // Make this return true when this Command no longer needs to run execute()
