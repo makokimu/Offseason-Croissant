@@ -2,7 +2,9 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.Timer
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
@@ -15,7 +17,7 @@ import org.ghrobotics.lib.subsystems.EmergencyHandleable
  * and a master of type [M] with a model of type [T]
  */
 abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : FalconMotor<T>,
-        EmergencyHandleable, ConcurrentlyUpdatingComponent {
+        EmergencyHandleable, ConcurrentlyUpdatingJoint {
 
     abstract val master: M
 
@@ -152,22 +154,26 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
     val currentState: State
         get() {
             // check for new messages
-            val newState = currentStateChannel.recieveOrLastValue(lastKnownState)
-            lastKnownState = newState
-            return lastKnownState
+            val hasNewState = !currentStateChannel.isEmpty
+            val toReturn = if(hasNewState) runBlocking { currentStateChannel.receive() } else lastKnownState
+            if(hasNewState) lastKnownState = toReturn
+            return toReturn
         }
 
     private var lastUpdateTime = Timer.getFPGATimestamp()
-    override suspend fun updateState() {
+    override suspend fun updateState(): JointState {
         val now = Timer.getFPGATimestamp()
-        val encoder = synchronized(this) { this.encoder }
+//        val encoder = synchronized(this) { this.encoder }
+        val position = encoder.position
         val lastState = currentState
         val velocity = encoder.velocity
         // add the observation to the current state channel
-        val newState = State(encoder.position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
+        val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
 //        S3nd(newState) s3ndIntoBlocking currentStateChannel
         currentStateChannel.send(newState)
         lastUpdateTime = now
+//        SmartDashboard.putNumber("memePos", if(position != 0.0) position else -999999.9999)
+        return newState
     }
 
     /**

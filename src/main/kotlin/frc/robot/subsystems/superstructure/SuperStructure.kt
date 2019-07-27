@@ -5,6 +5,7 @@ import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.Robot
 import io.github.oblarg.oblog.annotations.Log
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
@@ -76,28 +77,30 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
     private var lastState = SuperstructureState()
 
     val currentState: SuperstructureState
-        @Log.ToString
+//        @Log.ToString
         get() {
+//            println("the channel state: ${!currentStateChannel.isEmpty}")
             val newState = currentStateChannel.recieveOrLastValue(lastState)
             lastState = newState
             return newState
         }
 
+    override fun periodic() {SmartDashboard.putString("Superstructurestate", currentState.asString())}
+
     override suspend fun updateState() {
         // update the states of our components
-        Elevator.updateState()
-        Proximal.updateState()
-        Wrist.updateState()
 
         // use these updated states to build our current state
         val newState = State.Position(
-            Elevator.currentState.position,
-            Proximal.currentState.position,
-            Wrist.currentState.position,
+            Elevator.updateState().position,
+            Proximal.updateState().position,
+            Wrist.updateState().position,
             wristUnDumb = false
         )
 
-        currentStateChannel.send(newState)
+//        println("s3nding ${newState.asString()} into the channel")
+        SmartDashboard.putString("aaaaaState", newState.asString())
+        runBlocking { currentStateChannel.send(newState) }
     }
 
     override suspend fun useState() {
@@ -109,8 +112,6 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
     override fun lateInit() {
         Proximal.resetPosition(0)
         Wrist.resetPosition(0)
-
-        Robot.subsystemUpdateList.plusAssign(this)
 
         val zero = ZeroSuperStructureRoutine()
         zero.schedule()
@@ -158,6 +159,8 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
             fun asString(): String {
                 return "Elevator [${(elevator / SILengthConstants.kInchToMeter).roundToInt()}\"] proximal [${toDegrees(proximal).roundToInt()}deg] wrist [${toDegrees(wrist).roundToInt()}deg]"
             }
+
+            override fun toString(): String  = asString()
         }
 
         abstract class CustomState : State() {

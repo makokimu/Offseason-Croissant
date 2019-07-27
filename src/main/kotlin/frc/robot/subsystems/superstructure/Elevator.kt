@@ -56,6 +56,8 @@ object Elevator : ConcurrentFalconJoint<Length, FalconSRX<Length>>() {
     private val innerStageMinLimitSwitch = DigitalInput(0)
     val limitSwitchTriggered: Boolean get() = !innerStageMinLimitSwitch.get()
 
+    init { motor.encoder.position }
+
     override fun lateInit() { motor.encoder.resetPosition(0.0) }
 
     /** The maximum distance by which the elevator setpoint can be mutate */

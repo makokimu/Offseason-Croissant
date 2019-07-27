@@ -111,9 +111,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     }
 
     // Make this return true when this Command no longer needs to run execute()
-    override fun isFinished(): Boolean {
-        return mCurrentState == ZeroingState.ZEROED || !DriverStation.getInstance().isDisabled
-    }
+    override fun isFinished(): Boolean = mCurrentState == ZeroingState.ZEROED || !DriverStation.getInstance().isDisabled
 
     // Called once after isFinished returns true
     override fun end(interrupted: Boolean) {

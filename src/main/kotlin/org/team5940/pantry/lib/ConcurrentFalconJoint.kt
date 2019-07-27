@@ -1,7 +1,7 @@
 package org.team5940.pantry.lib
 
-import io.github.oblarg.oblog.annotations.Log
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
@@ -13,7 +13,7 @@ typealias JointState = MultiMotorTransmission.State
  * both it's current state, a [JointState], and recieves
  * demands of type [WantedState].
  */
-abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : ConcurrentlyUpdatingComponent,
+abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : ConcurrentlyUpdatingJoint,
         LoggableFalconSubsystem(), EmergencyHandleable {
 
     abstract val motor: MultiMotorTransmission<T, V>
@@ -26,8 +26,11 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
 
     private val wantedStateChannel = Channel<WantedState>(Channel.CONFLATED)
 
-    @Log
-    val currentState = motor.currentState
+    val currentState: MultiMotorTransmission.State
+//        @Log
+        get() {
+            return motor.currentState
+        }
 
     /**
      * The current wantedState of the joint.
@@ -36,7 +39,7 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
      *
      * Only get this from the main thread!
      */
-    @Log
+//    @Log
     var wantedState: WantedState = WantedState.Nothing
         set(value) {
             value s3ndIntoBlocking wantedStateChannel
@@ -65,4 +68,11 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
 
         motor.s3ndState(customizedState, feedForward)
     }
+}
+
+interface ConcurrentlyUpdatingJoint {
+
+    suspend fun updateState(): JointState
+
+    suspend fun useState() {}
 }
