@@ -33,6 +33,15 @@ fun <E> Channel<E>.receiveNonBlocking(): E? {
     return if (this.isEmpty) null else runBlocking { receive() }
 }
 
+suspend fun <E> Channel<E>.clearAndS3NDIT(it: E) {
+    while(!this.isEmpty) {
+        println("Que is NOT empty, removing element")
+        receive()
+    }
+    println("after while loop this is $isEmpty")
+    if(isEmpty) { println("s3ndingit"); send(it) } else { receive() ; send(it) }
+}
+
 fun <E> Channel<E>.recieveOrLastValue(lastValue: E): E {
     return if (this.isEmpty) lastValue else runBlocking { receive() }
 }
