@@ -42,7 +42,7 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
 //    @Log
     var wantedState: WantedState = WantedState.Nothing
         set(value) {
-            value s3ndIntoBlocking wantedStateChannel
+            runBlocking { wantedStateChannel.send(value) }
             field = value
         }
 
