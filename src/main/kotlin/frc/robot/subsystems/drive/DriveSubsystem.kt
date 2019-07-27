@@ -13,6 +13,8 @@ import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
 import frc.robot.Ports.kPCMID
 import io.github.oblarg.oblog.Loggable
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -28,6 +30,7 @@ import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.MultiMotorTransmission
+import org.team5940.pantry.lib.launchAndSend
 import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
@@ -101,14 +104,20 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         val left: MultiMotorTransmission.State,
         val right: MultiMotorTransmission.State
     )
-    var currentState: State = State(
-            leftMotor.currentState, rightMotor.currentState
-    )
+
+    private val lastState = State(leftMotor.currentState, rightMotor.currentState)
+    val currentState: State
+        get() {
+            return if(currentStateChannel.isEmpty) lastState else runBlocking { currentStateChannel.receive() }
+        }
+
+    val currentStateChannel = Channel<State>(Channel.CONFLATED)
 
     override suspend fun updateState() {
         leftMotor.updateState()
         rightMotor.updateState()
-        currentState = State(leftMotor.currentState, rightMotor.currentState)
+        val newState = State(leftMotor.currentState, rightMotor.currentState)
+        currentStateChannel.launchAndSend(newState)
         localization.update()
     }
 }

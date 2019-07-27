@@ -77,19 +77,19 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putBoolean("Proximal zeroed", true)
         SmartDashboard.putBoolean("Wrist zeroed", true)
 
-        val tickkkkks = positions[0]
-        val targetProximal_COMP = 400 // 1900
-        val delta = (tickkkkks - targetProximal_COMP) * -1 // whyyyy?
-        val startingAngleTicks = Proximal.motor.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
-        Proximal.motor.master.talonSRX.selectedSensorPosition = (0.0 + startingAngleTicks - delta).toInt()
+        val proximalPWM = positions[0]
+        val proximalTargetPWM = 400
+        val proximalPWMDelta = (proximalPWM - proximalTargetPWM) * -1 // whyyyy?
+        val proxStartingPosNativeUnits = Proximal.motor.master.model.toNativeUnitPosition((-94).degree).value // .talonSRX.getTicks(RoundRotation2d.getDegree(-78))\
+        Proximal.motor.master.talonSRX.selectedSensorPosition = (0.0 + proxStartingPosNativeUnits - proximalPWMDelta).toInt()
 
-        val wristStart = Wrist.motor.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
-        val targetWristComp = 1050 // 1500 + 150
-        val correctionDelta = positions[1]
-        val deltaW = (correctionDelta - targetWristComp)
-        Wrist.motor.master.talonSRX.selectedSensorPosition = (deltaW + wristStart).toInt()
+        val wristPWM = positions[1]
+        val targetWristComp = 3200
+        val wristPWMDelta = (wristPWM - targetWristComp)
+        val wristStartPosNativeUnits = Wrist.motor.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
+        Wrist.motor.master.talonSRX.selectedSensorPosition = (wristPWMDelta + wristStartPosNativeUnits).toInt()
 
-        Elevator.motor.master.encoder.resetPosition(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight).value)
+        Elevator.motor.encoder.resetPosition(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight).value)
     }
 
     fun getPositions(): List<Int> {

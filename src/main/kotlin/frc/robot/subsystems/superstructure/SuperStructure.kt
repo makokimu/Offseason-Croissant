@@ -5,6 +5,7 @@ import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.Robot
 import io.github.oblarg.oblog.annotations.Log
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
@@ -98,10 +99,9 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
             wristUnDumb = false
         )
 
-//        println("s3nding ${newState.asString()} into the channel")
         SmartDashboard.putString("aaaaaState", newState.asString())
 
-        currentStateChannel.clearAndS3NDIT(newState)
+        currentStateChannel.launchAndSend(newState)
     }
 
 

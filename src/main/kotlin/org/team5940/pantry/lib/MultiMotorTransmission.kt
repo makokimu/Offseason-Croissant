@@ -170,7 +170,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
         // add the observation to the current state channel
         val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
 //        S3nd(newState) s3ndIntoBlocking currentStateChannel
-        currentStateChannel.clearAndS3NDIT(newState)
+        currentStateChannel.launchAndSend(newState)
         lastUpdateTime = now
 //        SmartDashboard.putNumber("memePos", if(position != 0.0) position else -999999.9999)
         return newState

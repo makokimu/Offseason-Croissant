@@ -13,34 +13,13 @@ abstract class FishyRobot : FalconTimedRobot() {
     val isEnabled
             get() = wrappedValue.isEnabled
 
-    var subsystemUpdateList = arrayListOf<ConcurrentlyUpdatingComponent>()
-
     private suspend fun periodicUpdate() {
 
         SmartDashboard.putNumber("lastTry", Timer.getFPGATimestamp())
 
-        val subsystems = synchronized(subsystemUpdateList) {
-            subsystemUpdateList
-        }
-
         DriveSubsystem.updateState()
         Superstructure.updateState()
 
-//        val ele = Elevator.updateState().position
-//        val prox = Proximal.updateState().position
-//        val wrist = Wrist.updateState().position
-//        val state = SuperstructureState(ele, prox, wrist)
-//        SmartDashboard.putString("aaaaaState", state.asString())
-//        Superstructure.currentStateChannel.send(state)
-
-
-//        Superstructure.meme(state)
-
-//        subsystems.forEach {
-//            SmartDashboard.putNumber("lastTry2", Timer.getFPGATimestamp())
-//            println("prank updating ${it.javaClass.simpleName}")
-////            it.updateState(); it.useState(); SmartDashboard.putNumber("lastupdatetime", Timer.getFPGATimestamp())
-//        }
     }
 
     lateinit var job: Job
@@ -52,7 +31,6 @@ abstract class FishyRobot : FalconTimedRobot() {
 
         job = updateScope.launch {
             loopFrequency(50 /* hertz */) {
-                println("trying...")
                 periodicUpdate()
             }
         }
@@ -88,6 +66,6 @@ abstract class FishyRobot : FalconTimedRobot() {
     }
 
     companion object {
-        protected val updateScope = CoroutineScope(newFixedThreadPoolContext(1, "SubsystemUpdate"))
+        val updateScope = CoroutineScope(newFixedThreadPoolContext(1, "SubsystemUpdate"))
     }
 }

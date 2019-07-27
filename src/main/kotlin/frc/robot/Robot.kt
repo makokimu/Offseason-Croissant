@@ -37,9 +37,6 @@ object Robot : FishyRobot() {
 
         SmartDashboard.putData(CommandScheduler.getInstance())
 
-        subsystemUpdateList.add(DriveSubsystem)
-        subsystemUpdateList.add(Superstructure)
-
         super.robotInit()
     }
 

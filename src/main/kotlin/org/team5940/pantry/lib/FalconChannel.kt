@@ -1,8 +1,10 @@
 package org.team5940.pantry.lib
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.lib.utils.map
 
 @Deprecated("Channels bad fite me")
 class FalconChannel<T>(defaultValue: T, capacity: Int = -1) : Source<T> {
@@ -34,12 +36,8 @@ fun <E> Channel<E>.receiveNonBlocking(): E? {
 }
 
 suspend fun <E> Channel<E>.clearAndS3NDIT(it: E) {
-    while(!this.isEmpty) {
-        println("Que is NOT empty, removing element")
-        receive()
-    }
-    println("after while loop this is $isEmpty")
-    if(isEmpty) { println("s3ndingit"); send(it) } else { receive() ; send(it) }
+    while(!this.isEmpty) { receive() }
+    if(isEmpty) send(it) else { receive() ; send(it) }
 }
 
 fun <E> Channel<E>.recieveOrLastValue(lastValue: E): E {
@@ -48,6 +46,20 @@ fun <E> Channel<E>.recieveOrLastValue(lastValue: E): E {
 
 fun <E> S3nd(element: E): E {
     return element
+}
+
+suspend fun <E> Channel<E>.clear() {
+    while(!this.isEmpty) {
+        receive()
+    }
+}
+
+/**
+ * Launch a coroutine which will clear the channel and s3nd the [value], hopefully
+ */
+fun <E> Channel<E>.launchAndSend(value: E) = FishyRobot.updateScope.launch {
+    clear() // clear the channel, hopefully
+    send(value) // S3NDIT
 }
 
 infix fun <E> E.s3ndIntoBlocking(channel: Channel<E>) = runBlocking { channel.send(this@s3ndIntoBlocking) }
