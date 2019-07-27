@@ -26,7 +26,7 @@ deploy {
         // Send the JAR to the RoboRIO
         artifact("frcJava", FRCJavaArtifact::class.java, closureOf<FRCJavaArtifact> {
             targets.add(roborioTargetName)
-            debug = frc.getDebugOrDefault(true)
+            debug = frc.getDebugOrDefault(false)
         })
     }
 }

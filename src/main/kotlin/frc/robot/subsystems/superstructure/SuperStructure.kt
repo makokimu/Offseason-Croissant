@@ -73,15 +73,15 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         Proximal.setNeutral()
         Wrist.setNeutral() }
 
-    private val currentStateChannel = Channel<SuperstructureState>(Channel.CONFLATED)
+    val currentStateChannel = Channel<SuperstructureState>(Channel.CONFLATED)
     private var lastState = SuperstructureState()
 
     val currentState: SuperstructureState
 //        @Log.ToString
         get() {
 //            println("the channel state: ${!currentStateChannel.isEmpty}")
-            val newState = currentStateChannel.recieveOrLastValue(lastState)
-            lastState = newState
+            val newState = if(!currentStateChannel.isEmpty) runBlocking { currentStateChannel.receive() } else lastState
+            if(lastState != newState) lastState = newState
             return newState
         }
 
@@ -100,8 +100,17 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
 
 //        println("s3nding ${newState.asString()} into the channel")
         SmartDashboard.putString("aaaaaState", newState.asString())
-        runBlocking { currentStateChannel.send(newState) }
+
+        while(!currentStateChannel.isEmpty) {
+            currentStateChannel.receive()
+        }
+        println("is it currently empty? ${currentStateChannel.isEmpty}")
+        if(currentStateChannel.isEmpty) {
+            println("s3nding state...")
+            currentStateChannel.send(newState)
+        }
     }
+
 
     override suspend fun useState() {
         Elevator.useState()

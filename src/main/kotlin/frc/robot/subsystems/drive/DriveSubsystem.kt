@@ -108,7 +108,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override suspend fun updateState() {
         leftMotor.updateState()
         rightMotor.updateState()
-        localization.update()
         currentState = State(leftMotor.currentState, rightMotor.currentState)
+        localization.update()
     }
 }

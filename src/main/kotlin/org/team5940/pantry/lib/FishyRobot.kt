@@ -1,12 +1,10 @@
 package org.team5940.pantry.lib
 
-import edu.wpi.first.wpilibj.DriverStation
-import edu.wpi.first.wpilibj.Notifier
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import io.github.oblarg.oblog.Logger
+import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.superstructure.*
 import kotlinx.coroutines.*
-import org.ghrobotics.lib.utils.launchFrequency
 import org.ghrobotics.lib.utils.loopFrequency
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 
@@ -25,18 +23,30 @@ abstract class FishyRobot : FalconTimedRobot() {
             subsystemUpdateList
         }
 
-        subsystems.forEach {
-            SmartDashboard.putNumber("lastTry2", Timer.getFPGATimestamp())
-            it.updateState(); it.useState(); SmartDashboard.putNumber("lastupdatetime", Timer.getFPGATimestamp())
-        }
+        DriveSubsystem.updateState()
+        Superstructure.updateState()
+
+//        val ele = Elevator.updateState().position
+//        val prox = Proximal.updateState().position
+//        val wrist = Wrist.updateState().position
+//        val state = SuperstructureState(ele, prox, wrist)
+//        SmartDashboard.putString("aaaaaState", state.asString())
+//        Superstructure.currentStateChannel.send(state)
+
+
+//        Superstructure.meme(state)
+
+//        subsystems.forEach {
+//            SmartDashboard.putNumber("lastTry2", Timer.getFPGATimestamp())
+//            println("prank updating ${it.javaClass.simpleName}")
+////            it.updateState(); it.useState(); SmartDashboard.putNumber("lastupdatetime", Timer.getFPGATimestamp())
+//        }
     }
 
     lateinit var job: Job
 
     var lastRobotMode = Mode.DISABLED
         private set
-
-//    lateinit var notifier: Notifier
 
     override fun robotInit() {
 
@@ -78,6 +88,6 @@ abstract class FishyRobot : FalconTimedRobot() {
     }
 
     companion object {
-        protected val updateScopee = CoroutineScope(newFixedThreadPoolContext(1, "SubsystemUpdate"))
+        protected val updateScope = CoroutineScope(newFixedThreadPoolContext(1, "SubsystemUpdate"))
     }
 }
