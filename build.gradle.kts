@@ -47,7 +47,7 @@ dependencies {
     // FalconLibrary
 //    compile("com.github.mcm001:falconlibrary:c5019e366c")
 //    compile("com.github.mcm001:FalconLibrary:0.0.1")
-    compile("com.github.5190GreenHopeRobotics:FalconLibrary:8c33535a46")
+    compile("com.github.5190GreenHopeRobotics:FalconLibrary:520df561ad")
 
     compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0") // gson
@@ -59,8 +59,6 @@ dependencies {
     wpi.deps.vendor.java().forEach { compile(it) }
     wpi.deps.vendor.jni(NativePlatforms.roborio).forEach { nativeZip(it) }
     wpi.deps.vendor.jni(NativePlatforms.desktop).forEach { nativeDesktopZip(it) }
-
-    // compile("openrio.powerup", "MatchData", "2018.01.07")
 
     // Gson
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0")
