@@ -9,6 +9,7 @@ import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Proximal
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.*
 import frc.robot.vision.JeVoisManager
 import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
@@ -36,6 +37,7 @@ object Robot : FishyRobot() {
         Autonomous
 
         SmartDashboard.putData(CommandScheduler.getInstance())
+        Superstructure.zero.schedule()
 
         super.robotInit()
     }
