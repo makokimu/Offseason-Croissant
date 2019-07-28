@@ -6,14 +6,17 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 
 import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.inch
+import org.team5940.pantry.lib.FishyRobot
+import java.lang.Math.random
 
 class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(Superstructure,
         Elevator, Proximal, Wrist) {
 
-    private var mCurrentState: ZeroingState? = null
+    private var mCurrentState: ZeroingState = ZeroingState.IDLE
 
     override fun runsWhenDisabled() = true
 
@@ -24,24 +27,21 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     // Called just before this Command runs the first time
     override fun initialize() {
         mCurrentState = ZeroingState.IDLE
-
         SmartDashboard.putBoolean("Elevator zeroed", false)
-
-        SmartDashboard.putBoolean("Proximal zeroed", false)
-
-        SmartDashboard.putBoolean("Wrist zeroed", false)
-
         SmartDashboard.putData(this)
+//        println("zeroing INIT")
     }
 
     // Called repeatedly when this Command is scheduled to run
     override fun execute() {
+//        println("zeroing EXECUTE")
+//        SmartDashboard.putNumber("random", random())
 
         val limitTriggered = Elevator.limitSwitchTriggered
 
 //        println("limitTriggered $limitTriggered")
 
-        SmartDashboard.putString("Zeroing state", mCurrentState!!.name)
+        SmartDashboard.putString("Zeroing state", mCurrentState.name)
         SmartDashboard.putBoolean("Elevator limit switch", limitTriggered)
 
         val positions = getPositions()
@@ -49,8 +49,8 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putNumber("prox sensor pos", positions[0].toDouble())
         SmartDashboard.putNumber("wrist sensor pos", positions[1].toDouble())
 
-        if (!DriverStation.getInstance().isDisabled)
-            return
+//        if (!DriverStation.getInstance().isDisabled)
+//            return
 
         if (mCurrentState == ZeroingState.IDLE) {
             if (!limitTriggered) {
@@ -111,12 +111,17 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     }
 
     // Make this return true when this Command no longer needs to run execute()
-    override fun isFinished(): Boolean = mCurrentState == ZeroingState.ZEROED || !DriverStation.getInstance().isDisabled
+    override fun isFinished(): Boolean {
+        if(mCurrentState == ZeroingState.ZEROED) println("We're zeroed so we're done")
+//        if(Robot.lastRobotMode != FishyRobot.Mode.DISABLED) println("ds NOT disabled, returning")
+        return mCurrentState == ZeroingState.ZEROED// || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
+    }
 
     // Called once after isFinished returns true
     override fun end(interrupted: Boolean) {
+        println("ENDING ${javaClass.simpleName}")
 //        Elevator.elevatorZeroed = !interrupted
-        SmartDashboard.putString("Zeroing state", mCurrentState!!.name)
+        SmartDashboard.putString("Zeroing state", mCurrentState.name)
     }
 
     companion object {
