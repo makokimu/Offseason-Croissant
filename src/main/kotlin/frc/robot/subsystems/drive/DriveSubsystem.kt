@@ -29,6 +29,7 @@ import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
+import org.team5940.pantry.lib.JointState
 import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.launchAndSend
 import kotlin.properties.Delegates
@@ -82,14 +83,13 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(
             ahrs.asSource(),
-            { currentState.left.position },
-            { currentState.right.position })
+            { leftMotor.encoder.position },
+            { rightMotor.encoder.position })
 
     // init localization stuff
     override fun lateInit() {
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = UnboundedRotation.kZero)
-        // set the default command
         defaultCommand = ManualDriveCommand() // set default command
     }
 
@@ -100,24 +100,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override val differentialDrive: DifferentialDrive
         get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
-    data class State(
-        val left: MultiMotorTransmission.State,
-        val right: MultiMotorTransmission.State
-    )
-
-    private val lastState = State(leftMotor.currentState, rightMotor.currentState)
-    val currentState: State
-        get() {
-            return if(currentStateChannel.isEmpty) lastState else runBlocking { currentStateChannel.receive() }
-        }
-
-    val currentStateChannel = Channel<State>(Channel.CONFLATED)
-
     override suspend fun updateState() {
-        leftMotor.updateState()
-        rightMotor.updateState()
-        val newState = State(leftMotor.currentState, rightMotor.currentState)
-        currentStateChannel.launchAndSend(newState)
         localization.update()
     }
 }
