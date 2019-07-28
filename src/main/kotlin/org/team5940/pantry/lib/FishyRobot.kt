@@ -22,7 +22,6 @@ abstract class FishyRobot : FalconTimedRobot() {
         DriveSubsystem.useState()
         Superstructure.updateState()
         Superstructure.useState()
-
     }
 
     lateinit var job: Job
@@ -63,7 +62,7 @@ abstract class FishyRobot : FalconTimedRobot() {
 
     override fun robotPeriodic() {
 //        runBlocking { periodicUpdate() }
-        if(!job.isActive || job.isCancelled || job.isCompleted) println("reeee job isn't running")
+        if (!job.isActive || job.isCancelled || job.isCompleted) println("reeee job isn't running")
         super.robotPeriodic()
     }
 

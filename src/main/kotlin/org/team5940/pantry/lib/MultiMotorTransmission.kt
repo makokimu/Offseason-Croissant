@@ -2,7 +2,6 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.units.SIUnit
@@ -139,7 +138,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
 
     data class State(
         val position: Double, // the position in [T] units
-        val velocity: Double,
+        val velocity: Double = 0.0,
         val acceleration: Double = 0.0
     ) {
         companion object {
@@ -155,24 +154,24 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
         get() {
             // check for new messages
             val hasNewState = !currentStateChannel.isEmpty
-            val toReturn = if(hasNewState) runBlocking { currentStateChannel.receive() } else lastKnownState
-            if(hasNewState) lastKnownState = toReturn
+            val toReturn = if (hasNewState) runBlocking { currentStateChannel.receive() } else lastKnownState
+            if (lastKnownState != toReturn) lastKnownState = toReturn
             return toReturn
         }
 
     private var lastUpdateTime = Timer.getFPGATimestamp()
     override suspend fun updateState(): JointState {
         val now = Timer.getFPGATimestamp()
-//        val encoder = synchronized(this) { this.encoder }
         val position = encoder.position
         val lastState = currentState
         val velocity = encoder.velocity
+
         // add the observation to the current state channel
         val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
-//        S3nd(newState) s3ndIntoBlocking currentStateChannel
+
         currentStateChannel.launchAndSend(newState)
         lastUpdateTime = now
-//        SmartDashboard.putNumber("memePos", if(position != 0.0) position else -999999.9999)
+
         return newState
     }
 
@@ -188,6 +187,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
             is WantedState.Nothing -> setNeutral()
             is WantedState.Position -> setPosition(wantedState.targetPosition, arbitraryFeedForward)
             is WantedState.Velocity -> setVelocity(wantedState.targetVelocity, arbitraryFeedForward)
+            is WantedState.Voltage -> setVoltage(wantedState.output, arbitraryFeedForward)
             is WantedState.CustomState -> wantedState.useState(wantedState)
         }
     }

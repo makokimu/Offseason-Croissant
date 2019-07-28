@@ -1,7 +1,8 @@
+@file:Suppress("EXPERIMENTAL_API_USAGE")
+
 package org.team5940.pantry.lib
 
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
@@ -24,9 +25,9 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
         wantedState = WantedState.Nothing
         motor.setNeutral() }
 
-    private val wantedStateChannel = Channel<WantedState>(Channel.CONFLATED)
+    internal val wantedStateChannel = Channel<WantedState>(Channel.CONFLATED)
 
-    val currentState: MultiMotorTransmission.State
+    open val currentState: MultiMotorTransmission.State
 //        @Log
         get() {
             return motor.currentState
@@ -40,16 +41,18 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
      * Only get this from the main thread!
      */
 //    @Log
-    var wantedState: WantedState = WantedState.Nothing
-        set(value) {
-            runBlocking { wantedStateChannel.send(value) }
-            field = value
-        }
+    open var wantedState: WantedState = WantedState.Nothing
+//        set(value) {
+//            wantedStateChannel.launchAndSend(value)
+//            field = value
+//        }
+        @Synchronized get
+        @Synchronized set
 
     /**
      * [lastWantedState] is accessed by coroutines and as such shouldn't be touched by the main thread
      */
-    private var lastWantedState = wantedState
+    internal var lastWantedState = wantedState
 
     /**
      * Calculate the arbitrary feed forward given the [currentState] in Volts
@@ -59,9 +62,17 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
     open fun customizeWantedState(wantedState: WantedState) = wantedState
 
     override suspend fun updateState() = motor.updateState()
-    override suspend fun useState() {
-        val newState = wantedStateChannel.recieveOrLastValue(lastWantedState)
-        lastWantedState = newState
+    override fun useState() {
+//        val newState = if(wantedStateChannel.isEmpty) lastWantedState else wantedStateChannel.receive()
+//        if(lastWantedState != newState) lastWantedState = newState
+
+//        val channel = wantedStateChannel
+//        val newState = channel.poll() ?: lastWantedState
+//        if(lastWantedState != newState) lastWantedState = newState
+
+        val newState = wantedState
+
+//        println("new wanted state is $newState")
 
         val customizedState = customizeWantedState(newState)
         val feedForward = calculateFeedForward(currentState)
@@ -74,5 +85,5 @@ interface ConcurrentlyUpdatingJoint {
 
     suspend fun updateState(): JointState
 
-    suspend fun useState() {}
+    fun useState() {}
 }

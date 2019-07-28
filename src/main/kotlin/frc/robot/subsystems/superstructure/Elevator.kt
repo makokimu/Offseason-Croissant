@@ -75,6 +75,8 @@ object Elevator : ConcurrentFalconJoint<Length, FalconSRX<Length>>() {
                 else -> wantedState
             }
 
+    override val currentState get() = MultiMotorTransmission.State(Superstructure.currentState.elevator)
+
     fun isWithTolerance(tolerance: Double /* meters */): Boolean {
         val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
 
@@ -83,5 +85,5 @@ object Elevator : ConcurrentFalconJoint<Length, FalconSRX<Length>>() {
 
     /** Calculate the arbitrary feed forward given a [currentState] */
     override fun calculateFeedForward(currentState: MultiMotorTransmission.State) =
-            if (currentState.position > 22.0 * SILengthConstants.kInchToMeter) 1.2 else -0.72 // volts
+            if (currentState.position > 33.0 * SILengthConstants.kInchToMeter) 1.2 else -0.72 // volts
 }

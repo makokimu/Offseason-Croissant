@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.Timer
 // import edu.wpi.first.wpilibj.command.Subsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import io.github.oblarg.oblog.Loggable
-import io.github.oblarg.oblog.annotations.Log
 // import frc.robot.Network
 // import frc.robot.subsystems.DriveTrain
 // import org.ghrobotics.frc2019.?Constants
@@ -18,7 +17,7 @@ import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
 
-object TargetTracker: Loggable {
+object TargetTracker : Loggable {
 
      private val targets = mutableSetOf<TrackedTarget>()
 

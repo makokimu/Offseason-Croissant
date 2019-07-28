@@ -27,6 +27,16 @@ deploy {
         artifact("frcJava", FRCJavaArtifact::class.java, closureOf<FRCJavaArtifact> {
             targets.add(roborioTargetName)
             debug = frc.getDebugOrDefault(false)
+            jvmArgs = listOf(
+                    "-Xmx20M",
+                    "-XX:+UseG1GC",
+                    "-Dcom.sun.management.jmxremote=true",
+                    "-Dcom.sun.management.jmxremote.port=1099",
+                    "-Dcom.sun.management.jmxremote.local.only=false",
+                    "-Dcom.sun.management.jmxremote.ssl=false",
+                    "-Dcom.sun.management.jmxremote.authenticate=false",
+                    "-Djava.rmi.server.hostname=10.59.40.2"
+            )
         })
     }
 }

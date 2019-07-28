@@ -14,8 +14,8 @@ import kotlin.math.*
 
 @Suppress("FunctionName")
 fun Translation2d(
-        distance: Double = 0.0,
-        rotation: Rotation2d = Rotation2d()
+    distance: Double = 0.0,
+    rotation: Rotation2d = Rotation2d()
 ) = Translation2d(distance * rotation.cos, distance * rotation.sin)
 
 object LimeLightManager : SendableSubsystemBase() {
@@ -58,7 +58,7 @@ object LimeLightManager : SendableSubsystemBase() {
         val width = 14.6 * SILengthConstants.kInchToMeter
         val targetSizePx = table.getEntry("tlong").getDouble(0.0) // getTargetXPixels();
         val hypotinuse = width * focalLen / targetSizePx
-        val deltaElevation = (45-29) * SILengthConstants.kInchToMeter
+        val deltaElevation = (45 - 29) * SILengthConstants.kInchToMeter
         // since a^2 + b^2 = c^2, we find a^2 = c^2 - b^2
         return sqrt(
                 hypotinuse.pow(2) - deltaElevation.pow(2)

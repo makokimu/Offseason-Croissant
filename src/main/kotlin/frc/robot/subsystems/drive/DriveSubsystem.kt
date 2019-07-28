@@ -13,8 +13,6 @@ import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
 import frc.robot.Ports.kPCMID
 import io.github.oblarg.oblog.Loggable
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -29,9 +27,7 @@ import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
-import org.team5940.pantry.lib.JointState
 import org.team5940.pantry.lib.MultiMotorTransmission
-import org.team5940.pantry.lib.launchAndSend
 import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
@@ -62,6 +58,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
     override fun setNeutral() {
         leftMotor.setNeutral(); rightMotor.setNeutral()
+        super.setNeutral()
     }
 
     override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
@@ -91,6 +88,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = UnboundedRotation.kZero)
         defaultCommand = ManualDriveCommand() // set default command
+        super.lateInit()
     }
 
     // Ramsete gang is the only true gang
@@ -101,6 +99,6 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
     override suspend fun updateState() {
-        localization.update()
+//        localization.update()
     }
 }

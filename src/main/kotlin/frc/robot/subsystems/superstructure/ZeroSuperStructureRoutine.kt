@@ -4,14 +4,10 @@ import org.ghrobotics.lib.mathematics.units.Length
 
 import com.ctre.phoenix.motorcontrol.ControlMode
 
-import edu.wpi.first.wpilibj.DriverStation
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.degree
 import org.ghrobotics.lib.mathematics.units.inch
-import org.team5940.pantry.lib.FishyRobot
-import java.lang.Math.random
 
 class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(Superstructure,
         Elevator, Proximal, Wrist) {
@@ -112,9 +108,9 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
     // Make this return true when this Command no longer needs to run execute()
     override fun isFinished(): Boolean {
-        if(mCurrentState == ZeroingState.ZEROED) println("We're zeroed so we're done")
+        if (mCurrentState == ZeroingState.ZEROED) println("We're zeroed so we're done")
 //        if(Robot.lastRobotMode != FishyRobot.Mode.DISABLED) println("ds NOT disabled, returning")
-        return mCurrentState == ZeroingState.ZEROED// || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
+        return mCurrentState == ZeroingState.ZEROED // || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
     }
 
     // Called once after isFinished returns true

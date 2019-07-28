@@ -9,6 +9,7 @@ import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.*
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.withSign
 
@@ -60,10 +61,20 @@ object Proximal : ConcurrentFalconJoint<UnboundedRotation, FalconSRX<UnboundedRo
         }
     }
 
-    fun isWithTolerance(tolerance: Double /* radian */): Boolean {
-        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
+    override val currentState get() = MultiMotorTransmission.State(Superstructure.currentState.proximal)
 
-        return abs(state.targetPosition - currentState.position) < tolerance
+//    override var wantedState: WantedState = WantedState.Nothing
+//        @Synchronized get
+//        @Synchronized set
+
+    fun isWithTolerance(tolerance: Double /* radian */): Boolean {
+        val state = wantedState as? WantedState.Position
+
+        @Suppress("FoldInitializerAndIfToElvis")
+        if (state == null) return false
+
+        val error = abs(state.targetPosition - currentState.position)
+        return error < tolerance.absoluteValue
     }
 
     override fun calculateFeedForward(currentState: JointState) =
