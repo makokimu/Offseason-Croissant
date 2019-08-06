@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.*
 import kotlinx.coroutines.*
+import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.utils.loopFrequency
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 
@@ -24,18 +25,24 @@ abstract class FishyRobot : FalconTimedRobot() {
         Superstructure.useState()
     }
 
-    lateinit var job: Job
+    val job = arrayListOf<Job>()
 
     var lastRobotMode = Mode.DISABLED
         private set
 
     override fun robotInit() {
 
-        job = updateScope.launch {
+        job.add(updateScope.launch {
             loopFrequency(75 /* hertz */) {
                 periodicUpdate()
             }
-        }
+        })
+
+        job.add(updateScope.launch {
+            loopFrequency(4) {
+                SmartDashboard.putString("Joint states", Superstructure.currentState.asString())
+            }
+        })
 
         CommandScheduler.getInstance().onCommandInitialize { command -> println("[CommandScheduler] Command ${command.name} initialized!") }
 //        CommandScheduler.getInstance().onCommandExecute { command -> println("[CommandScheduler] Command ${command.name} execute!") }
@@ -61,8 +68,8 @@ abstract class FishyRobot : FalconTimedRobot() {
     }
 
     override fun robotPeriodic() {
+        updatableSubsystems.forEach { it.update() }
 //        runBlocking { periodicUpdate() }
-        if (!job.isActive || job.isCancelled || job.isCompleted) println("reeee job isn't running")
         super.robotPeriodic()
     }
 
@@ -72,7 +79,15 @@ abstract class FishyRobot : FalconTimedRobot() {
         DISABLED,
     }
 
+    private val updatableSubsystems = arrayListOf<Updatable>()
+
+    operator fun Updatable.unaryPlus() {
+        updatableSubsystems.add(this)
+    }
+
     companion object {
         val updateScope = CoroutineScope(newFixedThreadPoolContext(1, "SubsystemUpdate"))
     }
 }
+
+interface Updatable { fun update() }

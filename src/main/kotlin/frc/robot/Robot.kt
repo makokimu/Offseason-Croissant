@@ -15,6 +15,7 @@ import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
+import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.team5940.pantry.lib.FishyRobot
 
 object Robot : FishyRobot() {
@@ -29,13 +30,14 @@ object Robot : FishyRobot() {
         +Superstructure
         +Intake
 
-        TargetTracker
+        +TargetTracker
         JeVoisManager
         LimeLightManager
         VisionProcessing
-        Controls
-        Autonomous
+        +Controls
+        +Autonomous
 
+        SmartDashboard.putData(ClosedLoopElevatorMove(23.0 * SILengthConstants.kInchToMeter))
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 
@@ -43,10 +45,6 @@ object Robot : FishyRobot() {
     }
 
     override fun robotPeriodic() {
-        TargetTracker.update()
-        Controls.update()
-        Autonomous.update()
-        Network.update()
         super.robotPeriodic()
     }
 }

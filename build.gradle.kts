@@ -5,8 +5,9 @@ import edu.wpi.first.toolchain.NativePlatforms
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("edu.wpi.first.GradleRIO") version "2019.4.1"
-    id("org.jetbrains.kotlin.jvm") version "1.3.11"
+    id("edu.wpi.first.GradleRIO") version "2019.4" +
+            ".1"
+    id("org.jetbrains.kotlin.jvm") version "1.3.41"
     id("idea")
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
 }
@@ -52,11 +53,9 @@ repositories {
 dependencies {
     // Kotlin Standard Library and Coroutines
     compile(kotlin("stdlib"))
-    compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.1.0")
+    compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.0-RC")
 
     // FalconLibrary
-//    compile("com.github.mcm001:falconlibrary:c5019e366c")
-//    compile("com.github.mcm001:FalconLibrary:0.0.1")
     compile("com.github.5190GreenHopeRobotics:FalconLibrary:520df561ad")
 
     compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
@@ -69,11 +68,6 @@ dependencies {
     wpi.deps.vendor.java().forEach { compile(it) }
     wpi.deps.vendor.jni(NativePlatforms.roborio).forEach { nativeZip(it) }
     wpi.deps.vendor.jni(NativePlatforms.desktop).forEach { nativeDesktopZip(it) }
-
-    // Gson
-    compile("com.github.salomonbrys.kotson", "kotson", "2.5.0")
-
-//    compile("com.github.mcm001:pantrycommon:2d570ea774")
 
     compile("com.github.Oblarg:Oblog:2.8.1")
 

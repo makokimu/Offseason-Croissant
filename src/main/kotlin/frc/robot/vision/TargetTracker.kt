@@ -16,8 +16,9 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
+import org.team5940.pantry.lib.Updatable
 
-object TargetTracker : Loggable {
+object TargetTracker : Loggable, Updatable {
 
      private val targets = mutableSetOf<TrackedTarget>()
 

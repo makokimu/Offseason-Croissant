@@ -15,11 +15,12 @@ import org.ghrobotics.lib.utils.and
 import org.ghrobotics.lib.utils.monitor
 import org.ghrobotics.lib.utils.onChangeToTrue
 import org.team5940.pantry.lib.FishyRobot
+import org.team5940.pantry.lib.Updatable
 
 /**
  * Manages the autonomous mode of the game.
  */
-object Autonomous {
+object Autonomous : Updatable {
 
     // Auto mode to run
     private val autoMode = { Network.autoModeChooser.selected }

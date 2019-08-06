@@ -71,18 +71,9 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         Proximal.setNeutral()
         Wrist.setNeutral() }
 
-    private val currentStateChannel = Channel<SuperstructureState>(Channel.CONFLATED)
-    private var lastState = SuperstructureState()
+    private val currentStateChannel = FalconConflatedChannel(SuperstructureState())
 
-    val currentState: SuperstructureState
-//        @Log.ToString
-        get() {
-            val newState = if (!currentStateChannel.isEmpty) runBlocking { currentStateChannel.receive() } else lastState
-            if (lastState != newState) lastState = newState
-            return newState
-        }
-
-    // override fun periodic() {SmartDashboard.putString("Superstructurestate", currentState.asString∏())}
+    val currentState get() = currentStateChannel()
 
     override suspend fun updateState() {
         // update the states of our components
@@ -95,9 +86,7 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
             wristUnDumb = false
         )
 
-        SmartDashboard.putString("Superstructurestate", newState.asString())
-
-        currentStateChannel.launchAndSend(newState)
+        currentStateChannel.offer(newState)
     }
 
     override fun useState() {

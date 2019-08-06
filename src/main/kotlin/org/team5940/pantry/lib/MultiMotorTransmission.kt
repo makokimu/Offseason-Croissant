@@ -2,8 +2,6 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.Timer
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
@@ -148,16 +146,9 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
 
     // These properties are intended to be accessed concurrently -- everything else should NOT be touched by
     // updateState() or useState() unless you know what you're doing!
-    private val currentStateChannel = Channel<State>(Channel.CONFLATED)
+    private val currentStateChannel = FalconConflatedChannel(State.kZero)
     private var lastKnownState = State.kZero
-    val currentState: State
-        get() {
-            // check for new messages
-            val hasNewState = !currentStateChannel.isEmpty
-            val toReturn = if (hasNewState) runBlocking { currentStateChannel.receive() } else lastKnownState
-            if (lastKnownState != toReturn) lastKnownState = toReturn
-            return toReturn
-        }
+    val currentState get() = currentStateChannel()
 
     private var lastUpdateTime = Timer.getFPGATimestamp()
     override suspend fun updateState(): JointState {
@@ -169,7 +160,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
         // add the observation to the current state channel
         val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
 
-        currentStateChannel.launchAndSend(newState)
+        currentStateChannel.offer(newState)
         lastUpdateTime = now
 
         return newState

@@ -13,9 +13,10 @@ import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.wrappers.hid.*
+import org.team5940.pantry.lib.Updatable
 import java.util.function.BooleanSupplier
 
-object Controls {
+object Controls : Updatable {
 
     var isClimbing = false
         private set
