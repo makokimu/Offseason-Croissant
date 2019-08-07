@@ -1,14 +1,9 @@
 package frc.robot.subsystems.superstructure
 
-import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.mathematics.units.SILengthConstants.kInchToMeter
 import org.team5940.pantry.lib.WantedState
 import org.team5940.pantry.lib.degreeToRadian
-import java.lang.Math.abs
-import java.lang.Math.toDegrees
-import kotlin.math.absoluteValue
 
 class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevator) {
 
@@ -25,7 +20,7 @@ class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevato
 
     override fun isFinished() = Elevator.isWithTolerance(1.0 * kInchToMeter)
 
-    //: Boolean {
+    // : Boolean {
 //        val error = abs(target - Elevator.currentState.position) / SILengthConstants.kInchToMeter
 //        return error < 1.0
 //    }
@@ -60,10 +55,10 @@ class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
         }
     }
 
-    override fun isFinished() = Wrist.isWithTolerance(5.0.degreeToRadian)//toDegrees(abs(target - Wrist.currentState.position)) < 5.0
+    override fun isFinished() = Wrist.isWithTolerance(5.0.degreeToRadian) // toDegrees(abs(target - Wrist.currentState.position)) < 5.0
 }
 
-//class JogElevator : FalconCommand(Superstructure, Elevator) {
+// class JogElevator : FalconCommand(Superstructure, Elevator) {
 //
 //    companion object {
 //        val upSource by lazy { (Controls.operatorFalconHID.getRawButton(9)) }
@@ -89,4 +84,4 @@ class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
 //                }
 //        )
 //    }
-//}
+// }

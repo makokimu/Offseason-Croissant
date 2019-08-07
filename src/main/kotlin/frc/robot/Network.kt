@@ -10,11 +10,14 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab
 import frc.robot.auto.Autonomous
 import frc.robot.subsystems.superstructure.Elevator
+import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructureState
 import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.ghrobotics.lib.wrappers.networktables.enumSendableChooser
+import org.team5940.pantry.lib.Updatable
 import org.team5940.pantry.lib.WantedState
 
-object Network {
+object Network : Updatable {
 
     val startingPositionChooser = enumSendableChooser<Autonomous.StartingPositions>()
     val autoModeChooser = enumSendableChooser<Autonomous.Mode>()
@@ -38,61 +41,16 @@ object Network {
 //            .withPosition(4, 0)
 
     private val elevatorSubsystemLayout = mainShuffleboardDisplay.getLayout("Elevator", BuiltInLayouts.kGrid)
-            .withSize(2, 2)
+            .withSize(3, 4)
             .withPosition(6, 0)
 
-//    private val armSubsystemLayout = mainShuffleboardDisplay.getLayout("Arm", BuiltInLayouts.kGrid)
-//            .withSize(2, 2)
-//            .withPosition(8, 0)
-
-//    private val climbSubsystemLayout = mainShuffleboardDisplay.getLayout("Climb", BuiltInLayouts.kGrid)
-//            .withSize(3, 2)
-//            .withPosition(10, 0)
-
-//    private val globalXEntry = localizationLayout.add("Robot X", 0.0).entry
-//    private val globalYEntry = localizationLayout.add("Robot Y", 0.0).entry
-//    private val globalAEntry = localizationLayout.add("Robot Angle", 0.0).entry
-
-//    private val leftPositionEntry = driveSubsystemLayout.add("Left Encoder", 0.0).entry
-//    private val rightPositionEntry = driveSubsystemLayout.add("Right Encoder", 0.0).entry
-//    private val leftAmperageEntry = driveSubsystemLayout.add("Left Current", 0.0).entry
-//    private val rightAmperageEntry = driveSubsystemLayout.add("Right Current", 0.0).entry
-
-//    private val visionFrontCameraConnected = visionLayout.add("Front Camera Connected", false).entry
-//    private val visionBackCameraConnected = visionLayout.add("Back Camera Connected", false).entry
-//    private val visionTargetX = visionLayout.add("Vision Target X", 0.0).entry
-//    val visionLastUpdate = visionLayout.add("Vision Last Update", 0.0).entry
-//    private val visionTargetY = visionLayout.add("Vision Target Y", 0.0).entry
-//    private val visionTargetRotation = visionLayout.add("Vision Target Rotation", 0.0).entry
-
+    private val jointPosition = elevatorSubsystemLayout.add("total state", SuperstructureState().asString()).entry
     private val elevatorPosition = elevatorSubsystemLayout.add("Position (in)", 0.0).entry
     private val elevatorSetpoint = elevatorSubsystemLayout.add("Setpoint (in)", 0.0).entry
     private val elevatorVelocity = elevatorSubsystemLayout.add("Velocity (ips)", 0.0).entry
 
-//    private val elevatorCurrent = elevatorSubsystemLayout.add("Current", 0.0).entry
-//    private val elevatorVoltage = elevatorSubsystemLayout.add("Voltage", 0.0).entry
-
-//    private val armRawPosition = armSubsystemLayout.add("Raw Position", 0.0).entry
-//    private val armPosition = armSubsystemLayout.add("Position (deg)", 0.0).entry
-//    private val armCurrent = armSubsystemLayout.add("Current", 0.0).entry
-//    private val armVoltage = armSubsystemLayout.add("Voltage", 0.0).entry
-//    private val armVelocity = armSubsystemLayout.add("Velocity (dps)", 0.0).entry
-//    private val isHoldingCargo = armSubsystemLayout.add("Intake Holding Cargo", false).entry
-//    private val intakeFullyExtended = armSubsystemLayout.add("Intake Fully Extended", false).entry
-//
-//    private val frontClimbWinchPosition = climbSubsystemLayout.add("Front Winch Position (in)", 0.0).entry
-//    private val backClimbWinchPosition = climbSubsystemLayout.add("Back Winch Position (in)", 0.0).entry
-//    private val climbLidarRaw = climbSubsystemLayout.add("Lidar Raw", 0.0).entry
-//    private val frontClimbWinchCurrent = climbSubsystemLayout.add("Front Winch Current", 0.0).entry
-//    private val backClimbWinchCurrent = climbSubsystemLayout.add("Back Winch Current", 0.0).entry
-//    private val frontLimitSwitch = climbSubsystemLayout.add("F Limit", false).entry
-//    private val backLimitSwitch = climbSubsystemLayout.add("R Limit", false).entry
-
     val visionDriveAngle = visionLayout.add("Vision Drive Angle", 0.0).entry
     val visionDriveActive = visionLayout.add("Vision Drive Active", false).entry
-//    val badIntakeOffset = visionLayout.add("Intake Offset", IntakeSubsystem.badIntakeOffset.inch).entry
-
-//    private var debugEnabled = mainShuffleboardDisplay.add("Debug Active", Robot.debugActive).entry
 
     init {
 
@@ -110,14 +68,13 @@ object Network {
         )
     }
 
-    @Suppress("LongMethod")
     fun update() {
-
         elevatorPosition.setDouble(Elevator.currentState.position / SILengthConstants.kInchToMeter)
         elevatorVelocity.setDouble(Elevator.currentState.velocity / SILengthConstants.kInchToMeter)
         elevatorSetpoint.setDouble(let {
             val wantedState = Elevator.wantedState as? WantedState.Position ?: return@let 0.0
             wantedState.targetPosition / SILengthConstants.kInchToMeter
         })
+        jointPosition.setString(Superstructure.currentState.toString())
     }
 }

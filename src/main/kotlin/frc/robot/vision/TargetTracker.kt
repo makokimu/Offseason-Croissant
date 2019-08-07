@@ -3,6 +3,7 @@ package frc.robot.vision
 import edu.wpi.first.wpilibj.Timer
 // import edu.wpi.first.wpilibj.command.Subsystem
 import frc.robot.subsystems.drive.DriveSubsystem
+import io.github.oblarg.oblog.Loggable
 // import frc.robot.Network
 // import frc.robot.subsystems.DriveTrain
 // import org.ghrobotics.frc2019.?Constants
@@ -15,10 +16,11 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
+import org.team5940.pantry.lib.Updatable
 
-object TargetTracker {
+object TargetTracker : Loggable, Updatable {
 
-    private val targets = mutableSetOf<TrackedTarget>()
+     private val targets = mutableSetOf<TrackedTarget>()
 
     fun update() {
         synchronized(targets) {

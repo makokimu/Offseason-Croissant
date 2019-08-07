@@ -7,11 +7,16 @@ import edu.wpi.first.wpilibj.experimental.command.SendableSubsystemBase
 import frc.robot.Constants
 import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.units.Length
-import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.*
 import kotlin.math.*
+
+@Suppress("FunctionName")
+fun Translation2d(
+    distance: Double = 0.0,
+    rotation: Rotation2d = Rotation2d()
+) = Translation2d(distance * rotation.cos, distance * rotation.sin)
 
 object LimeLightManager : SendableSubsystemBase() {
 
@@ -48,10 +53,15 @@ object LimeLightManager : SendableSubsystemBase() {
     private val pipelineLatency
         get() = (table.getEntry("tl").getDouble(0.0) + 11) / 1000.0
 
-    private fun getDistanceToTarget(): Length {
+    private fun getDistanceToTarget(): Double {
         val focalLen = 707.0 * (57.0 / 53.0) // = (isHighRes) ? x_focal_length_high : x_focal_length_low;
-        val width = 14.6.inch
+        val width = 14.6 * SILengthConstants.kInchToMeter
         val targetSizePx = table.getEntry("tlong").getDouble(0.0) // getTargetXPixels();
-        return width.times(focalLen).div(targetSizePx)
+        val hypotinuse = width * focalLen / targetSizePx
+        val deltaElevation = (45 - 29) * SILengthConstants.kInchToMeter
+        // since a^2 + b^2 = c^2, we find a^2 = c^2 - b^2
+        return sqrt(
+                hypotinuse.pow(2) - deltaElevation.pow(2)
+        )
     }
 }

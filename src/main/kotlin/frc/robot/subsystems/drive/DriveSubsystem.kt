@@ -12,6 +12,7 @@ import frc.robot.Ports.DrivePorts.LEFT_PORTS
 import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
 import frc.robot.Ports.kPCMID
+import io.github.oblarg.oblog.Loggable
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -29,11 +30,9 @@ import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.MultiMotorTransmission
 import kotlin.properties.Delegates
 
-object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
+object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
 
-    override val leftMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(
-
-            unregisterSubsystem = true) {
+    override val leftMotor: MultiMotorTransmission<Length, FalconSRX<Length>> = object : MultiMotorTransmission<Length, FalconSRX<Length>>() {
 
         override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(LEFT_PORTS[1], DefaultNativeUnitModel))
@@ -47,7 +46,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
     }
 
-    override val rightMotor: MultiMotorTransmission<Length> = object : MultiMotorTransmission<Length>(unregisterSubsystem = true) {
+    override val rightMotor: MultiMotorTransmission<Length, FalconSRX<Length>> = object : MultiMotorTransmission<Length, FalconSRX<Length>>() {
 
         override val master = FalconSRX(RIGHT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
@@ -57,8 +56,9 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
     }
 
-    override fun setNeutral(){
+    override fun setNeutral() {
         leftMotor.setNeutral(); rightMotor.setNeutral()
+        super.setNeutral()
     }
 
     override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
@@ -81,15 +81,15 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(
             ahrs.asSource(),
-            { currentState.left.position },
-            { currentState.right.position })
+            { leftMotor.encoder.position },
+            { rightMotor.encoder.position })
 
     // init localization stuff
     override fun lateInit() {
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = UnboundedRotation.kZero)
-        // set the default command
         defaultCommand = ManualDriveCommand() // set default command
+        super.lateInit()
     }
 
     // Ramsete gang is the only true gang
@@ -99,18 +99,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override val differentialDrive: DifferentialDrive
         get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
-    data class State(
-        val left: MultiMotorTransmission.State,
-        val right: MultiMotorTransmission.State
-    )
-    var currentState: State = State(
-            leftMotor.currentState, rightMotor.currentState
-    )
-
-    override fun updateState() {
-        leftMotor.updateState()
-        rightMotor.updateState()
-        localization.update()
-        currentState = State(leftMotor.currentState, rightMotor.currentState)
+    override suspend fun updateState() {
+//        localization.update()
     }
 }

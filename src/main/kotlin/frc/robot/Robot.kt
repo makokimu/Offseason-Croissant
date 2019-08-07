@@ -9,17 +9,17 @@ import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Proximal
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.*
 import frc.robot.vision.JeVoisManager
 import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import org.ghrobotics.lib.mathematics.units.SILengthConstants
 import org.team5940.pantry.lib.FishyRobot
 
 object Robot : FishyRobot() {
 
-    @ObsoleteCoroutinesApi
     override fun robotInit() {
         Network // at the top because s3ndable choosers need to be instantiated
 
@@ -30,27 +30,21 @@ object Robot : FishyRobot() {
         +Superstructure
         +Intake
 
-        TargetTracker
+        +TargetTracker
         JeVoisManager
         LimeLightManager
         VisionProcessing
-        Controls
-        Autonomous
+        +Controls
+        +Autonomous
 
+        SmartDashboard.putData(ClosedLoopElevatorMove(23.0 * SILengthConstants.kInchToMeter))
         SmartDashboard.putData(CommandScheduler.getInstance())
-
-        subsystemUpdateList.add(DriveSubsystem)
-        subsystemUpdateList.add(Superstructure)
+        Superstructure.zero.schedule()
 
         super.robotInit()
     }
 
-    @ObsoleteCoroutinesApi
     override fun robotPeriodic() {
-        TargetTracker.update()
-        Controls.update()
-        Autonomous.update()
-        Network.update()
         super.robotPeriodic()
     }
 }

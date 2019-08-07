@@ -1,8 +1,7 @@
 package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
-import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
-import org.ghrobotics.lib.commands.FalconSubsystem
+import edu.wpi.first.wpilibj.Timer
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
@@ -10,19 +9,16 @@ import org.ghrobotics.lib.motors.rev.FalconMAX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 
 /**
- * A MultiMotorTransmission which extends Subsystem. By default,
- * this subsystem will be unregistered
+ * A MultiMotorTransmission contains multiple motors.
+ * It is paramatrized with a SIUnit of type [T] (ex. Length),
+ * and a master of type [M] with a model of type [T]
  */
-abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolean = false) : FalconMotor<T>, FalconSubsystem(),
-        EmergencyHandleable, ConcurrentlyUpdatingComponent {
+abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : FalconMotor<T>,
+        EmergencyHandleable, ConcurrentlyUpdatingJoint {
 
-    abstract val master: FalconMotor<T>
+    abstract val master: M
 
     protected open val followers: List<FalconMotor<*>>? = null
-
-    init {
-        if (unregisterSubsystem) CommandScheduler.getInstance().unregisterSubsystem(this)
-    }
 
     override val encoder by lazy { master.encoder }
 //        @Synchronized get
@@ -140,7 +136,7 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
 
     data class State(
         val position: Double, // the position in [T] units
-        val velocity: Double,
+        val velocity: Double = 0.0,
         val acceleration: Double = 0.0
     ) {
         companion object {
@@ -150,16 +146,40 @@ abstract class MultiMotorTransmission<T : SIUnit<T>>(unregisterSubsystem: Boolea
 
     // These properties are intended to be accessed concurrently -- everything else should NOT be touched by
     // updateState() or useState() unless you know what you're doing!
-    var currentState: State = State.kZero
-        @Synchronized get
-        @Synchronized set
+    private val currentStateChannel = FalconConflatedChannel(State.kZero)
+    private var lastKnownState = State.kZero
+    val currentState get() = currentStateChannel()
 
-    override fun updateState() {
-        val encoder = synchronized(this) { this.encoder }
+    private var lastUpdateTime = Timer.getFPGATimestamp()
+    override suspend fun updateState(): JointState {
+        val now = Timer.getFPGATimestamp()
+        val position = encoder.position
         val lastState = currentState
         val velocity = encoder.velocity
+
         // add the observation to the current state channel
-        val newState = State(encoder.position, velocity, velocity - lastState.velocity)
-        synchronized(currentState) { currentState = newState }
+        val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
+
+        currentStateChannel.offer(newState)
+        lastUpdateTime = now
+
+        return newState
+    }
+
+    /**
+     * S3nd the wanted demand to the motor RIGHT NOW
+     * @param wantedState the wanted state
+     * @param arbitraryFeedForward the arbitraryFeedForward in Volts
+     */
+    fun s3ndState(wantedState: WantedState?, arbitraryFeedForward: Double) {
+        if (wantedState == null) return
+
+        when (wantedState) {
+            is WantedState.Nothing -> setNeutral()
+            is WantedState.Position -> setPosition(wantedState.targetPosition, arbitraryFeedForward)
+            is WantedState.Velocity -> setVelocity(wantedState.targetVelocity, arbitraryFeedForward)
+            is WantedState.Voltage -> setVoltage(wantedState.output, arbitraryFeedForward)
+            is WantedState.CustomState -> wantedState.useState(wantedState)
+        }
     }
 }
