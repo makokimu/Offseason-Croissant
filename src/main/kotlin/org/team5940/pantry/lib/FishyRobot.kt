@@ -86,6 +86,7 @@ abstract class FishyRobot : FalconTimedRobot() {
     }
 
     companion object {
+        @Suppress("EXPERIMENTAL_API_USAGE")
         val updateScope = CoroutineScope(newFixedThreadPoolContext(1, "SubsystemUpdate"))
     }
 }

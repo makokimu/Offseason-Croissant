@@ -71,7 +71,7 @@ object Controls : Updatable {
         }
     }
 
-    fun update() {
+    override fun update() {
         driverFalconXbox.update()
         operatorFalconHID.update()
     }

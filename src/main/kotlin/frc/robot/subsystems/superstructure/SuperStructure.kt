@@ -71,9 +71,10 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         Proximal.setNeutral()
         Wrist.setNeutral() }
 
-    private val currentStateChannel = FalconConflatedChannel(SuperstructureState())
-
-    val currentState get() = currentStateChannel()
+    private val currentStateMutex = Object()
+    var currentState = SuperstructureState()
+        get() = synchronized(currentStateMutex) { field }
+        set(newValue) = synchronized(currentStateMutex) { field = newValue }
 
     override suspend fun updateState() {
         // update the states of our components
@@ -86,7 +87,7 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
             wristUnDumb = false
         )
 
-        currentStateChannel.offer(newState)
+        currentState = newState
     }
 
     override fun useState() {

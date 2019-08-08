@@ -3,9 +3,17 @@
 package org.team5940.pantry.lib
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.sync.Mutex
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
+import kotlin.math.abs
+
+interface ConcurrentlyUpdatingJoint {
+    fun updateState(): JointState
+    fun useState() {}
+}
+
 
 typealias JointState = MultiMotorTransmission.State
 
@@ -27,12 +35,9 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
 
     internal val wantedStateChannel = Channel<WantedState>(Channel.CONFLATED)
 
-    open val currentState: MultiMotorTransmission.State
-//        @Log
-        get() {
-            return motor.currentState
-        }
+    open val currentState: MultiMotorTransmission.State = motor.currentState
 
+    internal val wantedStateMutex = Object()
     /**
      * The current wantedState of the joint.
      * Setting this will both set the backing field and s3nd the new demand into the [wantedStateChannel]
@@ -40,19 +45,15 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
      *
      * Only get this from the main thread!
      */
-//    @Log
     open var wantedState: WantedState = WantedState.Nothing
-//        set(value) {
-//            wantedStateChannel.launchAndSend(value)
-//            field = value
-//        }
-        @Synchronized get
-        @Synchronized set
+        get() = synchronized(wantedStateMutex) { field }
+        set(newValue) = synchronized(wantedStateMutex) { field = newValue }
 
-    /**
-     * [lastWantedState] is accessed by coroutines and as such shouldn't be touched by the main thread
-     */
-    internal var lastWantedState = wantedState
+    fun isWithTolerance(tolerance: Double /* radian */): Boolean {
+        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
+
+        return abs(state.targetPosition - currentState.position) < tolerance
+    }
 
     /**
      * Calculate the arbitrary feed forward given the [currentState] in Volts
@@ -61,16 +62,11 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
 
     open fun customizeWantedState(wantedState: WantedState) = wantedState
 
-    override suspend fun updateState() = motor.updateState()
+    override fun updateState() = motor.updateState()
     override fun useState() {
-//        val newState = if(wantedStateChannel.isEmpty) lastWantedState else wantedStateChannel.receive()
-//        if(lastWantedState != newState) lastWantedState = newState
 
-//        val channel = wantedStateChannel
-//        val newState = channel.poll() ?: lastWantedState
-//        if(lastWantedState != newState) lastWantedState = newState
-
-        val newState = wantedState
+        val newState = this.wantedState
+        val currentState = this.currentState
 
 //        println("new wanted state is $newState")
 
@@ -79,11 +75,4 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
 
         motor.s3ndState(customizedState, feedForward)
     }
-}
-
-interface ConcurrentlyUpdatingJoint {
-
-    suspend fun updateState(): JointState
-
-    fun useState() {}
 }

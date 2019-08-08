@@ -68,7 +68,7 @@ object Network : Updatable {
         )
     }
 
-    fun update() {
+    override fun update() {
         elevatorPosition.setDouble(Elevator.currentState.position / SILengthConstants.kInchToMeter)
         elevatorVelocity.setDouble(Elevator.currentState.velocity / SILengthConstants.kInchToMeter)
         elevatorSetpoint.setDouble(let {

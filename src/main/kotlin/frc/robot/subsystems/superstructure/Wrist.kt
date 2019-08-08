@@ -40,12 +40,4 @@ object Wrist : ConcurrentFalconJoint<UnboundedRotation, FalconSRX<UnboundedRotat
             )
         }
     }
-
-    override val currentState get() = MultiMotorTransmission.State(Superstructure.currentState.wrist)
-
-    fun isWithTolerance(tolerance: Double /* radian */): Boolean {
-        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
-
-        return abs(state.targetPosition - currentState.position) < tolerance
-    }
 }

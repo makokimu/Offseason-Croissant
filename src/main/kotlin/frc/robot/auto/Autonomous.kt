@@ -38,7 +38,7 @@ object Autonomous : Updatable {
             { Robot.lastRobotMode == FishyRobot.Mode.AUTONOMOUS && Robot.isEnabled } and configValid
 
     // Update the autonomous listener.
-    fun update() {
+    override fun update() {
         // Update localization if the startingPositionMonitor value's changed since the last call
         startingPositionMonitor.onChange { if (!Robot.isEnabled) DriveSubsystem.localization.reset(it.pose) }
 

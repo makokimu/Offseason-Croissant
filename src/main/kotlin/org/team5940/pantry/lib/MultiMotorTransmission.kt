@@ -144,14 +144,14 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
         }
     }
 
-    // These properties are intended to be accessed concurrently -- everything else should NOT be touched by
-    // updateState() or useState() unless you know what you're doing!
-    private val currentStateChannel = FalconConflatedChannel(State.kZero)
-    private var lastKnownState = State.kZero
-    val currentState get() = currentStateChannel()
+    internal val currentStateMutex = Object()
+    var currentState = State.kZero
+        get() = synchronized(currentStateMutex) { field }
+        set(newValue) = synchronized(currentStateMutex) { field = newValue }
 
     private var lastUpdateTime = Timer.getFPGATimestamp()
-    override suspend fun updateState(): JointState {
+
+    override fun updateState(): JointState {
         val now = Timer.getFPGATimestamp()
         val position = encoder.position
         val lastState = currentState
@@ -160,7 +160,6 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
         // add the observation to the current state channel
         val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
 
-        currentStateChannel.offer(newState)
         lastUpdateTime = now
 
         return newState

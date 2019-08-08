@@ -22,7 +22,7 @@ object TargetTracker : Loggable, Updatable {
 
      private val targets = mutableSetOf<TrackedTarget>()
 
-    fun update() {
+    override fun update() {
         synchronized(targets) {
             val currentTime = Timer.getFPGATimestamp()
 
