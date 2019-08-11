@@ -52,7 +52,10 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
 
         override fun setClosedLoopGains() {
-            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
+            // LQR gains
+            if(lowGear) setClosedLoopGains(0.2, 0.0) else setClosedLoopGains(1.2, 10.0)
+            // Old gains
+//            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
     }
 
