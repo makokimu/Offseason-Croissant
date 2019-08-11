@@ -56,7 +56,7 @@ dependencies {
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.0-RC")
 
     // FalconLibrary
-    compile("com.github.5190GreenHopeRobotics:FalconLibrary:520df561ad")
+    compile("com.github.5190GreenHopeRobotics:FalconLibrary:6677e9305d")
 
     compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0") // gson

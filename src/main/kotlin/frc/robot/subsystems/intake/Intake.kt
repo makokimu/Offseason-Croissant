@@ -7,8 +7,10 @@ import frc.robot.Ports.IntakePorts.HATCH_PORT
 import frc.robot.Ports.IntakePorts.PISTON_PORTS
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.amp
+import org.ghrobotics.lib.mathematics.units.milli
 import org.ghrobotics.lib.mathematics.units.millisecond
-import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
@@ -29,17 +31,17 @@ object Intake : FalconSubsystem() {
     }
 
     init {
-        hatchMotor.configCurrentLimit(true, FalconSRX.CurrentLimitConfig(35.amp, 400.millisecond, 20.amp))
-        cargoMotor.configCurrentLimit(true, FalconSRX.CurrentLimitConfig(35.amp, 400.millisecond, 20.amp))
+        hatchMotor.configCurrentLimit(true, FalconSRX.CurrentLimitConfig(35.amp, 400.milli.second, 20.amp))
+        cargoMotor.configCurrentLimit(true, FalconSRX.CurrentLimitConfig(35.amp, 400.milli.second, 20.amp))
         cargoMotor.talonSRX.configPeakOutputForward(0.8)
         cargoMotor.talonSRX.configPeakOutputReverse(-0.8)
     }
 
-    var hatchMotorOutput: Double
+    var hatchMotorOutput
         get() = hatchMotor.voltageOutput / 12.0
-        set(value) = hatchMotor.setDutyCycle(value)
+        set(value) = hatchMotor.setVoltage(value)
 
-    var cargoMotorOutput: Double
+    var cargoMotorOutput
         get() = cargoMotor.voltageOutput / 12.0
-        set(value) = cargoMotor.setDutyCycle(value)
+        set(value) = cargoMotor.setVoltage(value)
 }

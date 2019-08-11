@@ -10,8 +10,8 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
-import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
-import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
+import org.ghrobotics.lib.mathematics.units.derived.acceleration
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
 
@@ -33,8 +33,8 @@ fun jsonToTrajectory(trajectory: String): TimedTrajectory<Pose2dWithCurvature> {
         val state = sample["state"]
         val pose = state["pose"]
         val translation = pose["translation"]
-        val x = translation["x"].asDouble
-        val y = translation["y"].asDouble
+        val x = translation["x"].asDouble.meter
+        val y = translation["y"].asDouble.meter
         val rotation = pose["rotation"]["value"].asDouble
         val curvature = state["curvature"].asDouble
         val dkds = state["dkds"].asDouble

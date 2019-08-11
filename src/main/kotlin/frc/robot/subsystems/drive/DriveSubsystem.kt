@@ -3,7 +3,6 @@ package frc.robot.subsystems.drive
 import asSource
 import com.kauailabs.navx.frc.AHRS
 import com.team254.lib.physics.DifferentialDrive
-import org.ghrobotics.lib.mathematics.units.Length
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj.experimental.command.WaitUntilCommand
 import frc.robot.Constants
@@ -18,9 +17,10 @@ import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.units.UnboundedRotation
+import org.ghrobotics.lib.mathematics.units.Meter
+import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.feet
-import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
@@ -32,7 +32,7 @@ import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
 
-    override val leftMotor: MultiMotorTransmission<Length, FalconSRX<Length>> = object : MultiMotorTransmission<Length, FalconSRX<Length>>() {
+    override val leftMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
         override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(LEFT_PORTS[1], DefaultNativeUnitModel))
@@ -46,7 +46,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
     }
 
-    override val rightMotor: MultiMotorTransmission<Length, FalconSRX<Length>> = object : MultiMotorTransmission<Length, FalconSRX<Length>>() {
+    override val rightMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
         override val master = FalconSRX(RIGHT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
@@ -90,7 +90,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     // init localization stuff
     override fun lateInit() {
         // set the robot pose to a sane position
-        robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = UnboundedRotation.kZero)
+        robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = 0.degree)
         defaultCommand = ManualDriveCommand() // set default command
         super.lateInit()
     }

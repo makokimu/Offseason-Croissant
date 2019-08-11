@@ -6,7 +6,8 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
-import org.ghrobotics.lib.mathematics.units.Time
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.Second
 
 class HybridRoutine(private val mode: Mode) : AutoRoutine() {
 
@@ -30,7 +31,7 @@ class HybridRoutine(private val mode: Mode) : AutoRoutine() {
         )
     }
 
-    override val duration: Time
+    override val duration: SIUnit<Second>
         get() = mode.path1.duration + mode.path2.duration + mode.path3.duration
 
     override val routine

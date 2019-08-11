@@ -12,8 +12,10 @@ import frc.robot.subsystems.drive.DriveSubsystem
 // import org.ghrobotics.frc2019.subsystems.elevator.ElevatorSubsystem
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.units.degree
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
 import kotlin.math.absoluteValue
 
@@ -39,8 +41,8 @@ object VisionProcessing {
                 }
                 .filter { // make sure that the vision target Pose2d is outside the robot
                     // We cannot be the vision target :)
-                    it.translation.x.absoluteValue > (kRobotLength / 2.0 - 5.inch).meter ||
-                            it.translation.y.absoluteValue > (kRobotWidth / 2.0).meter
+                    it.translation.x.absoluteValue > (kRobotLength / 2.0 - 5.inch) ||
+                            it.translation.y.absoluteValue > (kRobotWidth / 2.0)
                 }
                 .map { robotPose + it } // sum the robotpose and the targetpose to get a global pose
                 .toList() // make it into a List

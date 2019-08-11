@@ -4,8 +4,10 @@ import com.team254.lib.physics.DifferentialDrive
 import com.team254.lib.physics.DCMotorTransmission
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitLengthModel
-import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.volt
+import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
+import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 
 object Constants {
 
@@ -62,11 +64,11 @@ object Constants {
     }
 
     object SuperStructureConstants {
-        const val kProximalStatic = 0.4 // volts
-        const val kProximalCos = 0.94 // volts
+        val kProximalStatic = 0.4.volt // volts
+        val kProximalCos = 0.94.volt // volts
         const val kJointSpeedMultiplier = 0.3
-        const val kProximalLen = 32.0 / SILengthConstants.kInchToMeter
-        val kElevatorRange = 11.inch.meter..66.inch.meter
+        val kProximalLen = 32.0.inch
+        val kElevatorRange = 11.inch..66.inch
     }
 
     object IntakeConstants {
@@ -107,7 +109,7 @@ object Constants {
 
     val kForwardIntakeToCenter = Pose2d(-(kRobotLength / 2.0) - kIntakeProtrusionFrontExtended, kBadIntakeOffset, 0.degree) // -34
     val kCenterToForwardIntake = Pose2d((kRobotLength / 2.0) + kIntakeProtrusionFrontExtended, -kBadIntakeOffset, 0.degree) // 34
-    val kBackwardIntakeToCenter = Pose2d(kCenterToForwardIntake.translation.x.meter - kCenterToElevator, -kBadIntakeOffset, 0.degree) // 29.5
+    val kBackwardIntakeToCenter = Pose2d(kCenterToForwardIntake.translation.x - kCenterToElevator, -kBadIntakeOffset, 0.degree) // 29.5
 
     val kCenterToFrontCamera = Pose2d(kRobotLength / 2 - 13.inch, 0.0.inch, 0.degree)
     val kCenterToBackCamera = Pose2d(kRobotLength / 2 - 16.inch, 0.0.inch, 180.degree)

@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive
 
 import frc.robot.Constants
 import frc.robot.Network
+import frc.robot.subsystems.superstructure.Length
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.debug.LiveDashboard
@@ -12,8 +13,10 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.Trajectory
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derivedunits.acceleration
-import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
+import org.ghrobotics.lib.mathematics.units.derived.acceleration
+import org.ghrobotics.lib.mathematics.units.derived.radian
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.utils.Source
 
 /**
@@ -22,7 +25,7 @@ import org.ghrobotics.lib.utils.Source
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class VisionAssistedTrajectoryTracker(
-    val trajectorySource: Source<Trajectory<Time, TimedEntry<Pose2dWithCurvature>>>,
+    val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
     val radiusFromEnd: Length,
     val useAbsoluteVision: Boolean = false
 ) : FalconCommand(DriveSubsystem) {
@@ -32,7 +35,7 @@ class VisionAssistedTrajectoryTracker(
     private var prevError = 0.0
 
     @Suppress("LateinitUsage")
-    private lateinit var trajectory: Trajectory<Time, TimedEntry<Pose2dWithCurvature>>
+    private lateinit var trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>
 
     override fun isFinished() = trajectoryFinished
 
@@ -78,7 +81,7 @@ class VisionAssistedTrajectoryTracker(
             println("VISION")
             visionActive = true
             val transform = lastKnownTargetPose inFrameOfReferenceOf robotPositionWithIntakeOffset
-            val angle = Rotation2d(transform.translation.x, transform.translation.y, true)
+            val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
@@ -105,8 +108,8 @@ class VisionAssistedTrajectoryTracker(
             val referencePose = referencePoint.state.state.pose
 
             // Update Current Path Location on Live Dashboard
-            LiveDashboard.pathX = referencePose.translation.x / SILengthConstants.kFeetToMeter
-            LiveDashboard.pathY = referencePose.translation.y / SILengthConstants.kFeetToMeter
+            LiveDashboard.pathX = referencePose.translation.x.feet
+            LiveDashboard.pathY = referencePose.translation.y.feet
             LiveDashboard.pathHeading = referencePose.rotation.radian
         }
 

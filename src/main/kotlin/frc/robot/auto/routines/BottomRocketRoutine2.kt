@@ -10,9 +10,7 @@ import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-import org.ghrobotics.lib.mathematics.units.Time
-import org.ghrobotics.lib.mathematics.units.feet
-import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.utils.withEquals
 
 class BottomRocketRoutine2 : AutoRoutine() {
@@ -26,7 +24,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
     // Third path goes to the near side of the rocket
     private val path4 = TrajectoryFactory.loadingStationToRocketN
 
-    override val duration: Time
+    override val duration: SIUnit<Second>
         get() = path3.duration + path4.duration + path1.duration + path2.duration
 
     override val routine

@@ -4,8 +4,11 @@ import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kProximalCos
 import frc.robot.Constants.SuperStructureConstants.kProximalStatic
 import frc.robot.Ports
-import org.ghrobotics.lib.mathematics.units.UnboundedRotation
-import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.SIKey
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.*
 import kotlin.math.abs
@@ -13,16 +16,16 @@ import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.withSign
 
-object Proximal : ConcurrentFalconJoint<UnboundedRotation, FalconSRX<UnboundedRotation>>() {
+object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
     fun resetPosition(ticks: Int) {
         val encoder = synchronized(motor) { motor.encoder }
-        encoder.resetPosition(ticks.toDouble())
+        encoder.resetPositionRaw(ticks.nativeUnits)
     }
 
-    override val motor = object : MultiMotorTransmission<UnboundedRotation, FalconSRX<UnboundedRotation>>() {
+    override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
 
-        override val master: FalconSRX<UnboundedRotation> = FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[0],
+        override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[0],
                 Ports.SuperStructurePorts.ProximalPorts.ROTATION_MODEL)
 
         override val followers: List<FalconSRX<*>> = listOf(
@@ -61,10 +64,11 @@ object Proximal : ConcurrentFalconJoint<UnboundedRotation, FalconSRX<UnboundedRo
         }
     }
 
-//    override var wantedState: WantedState = WantedState.Nothing
-//        @Synchronized get
-//        @Synchronized set
+    override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Radian>)
+            = kProximalStatic.withSign(currentState.velocity.value) + (kProximalCos * cos(currentState.position).value)
 
-    override fun calculateFeedForward(currentState: JointState) =
-            kProximalStatic.withSign(currentState.velocity) + cos(currentState.position) * kProximalCos
 }
+
+fun <K: SIKey> SIUnit<K>.withSign(sign: Number) = SIUnit<K>(this.value.withSign(sign.toDouble()))
+
+fun <K: SIKey> cos(x: SIUnit<K>) = SIUnit<K>(cos(x.value))

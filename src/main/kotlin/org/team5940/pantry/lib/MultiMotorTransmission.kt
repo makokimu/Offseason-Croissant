@@ -2,7 +2,8 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.Timer
-import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.rev.FalconMAX
@@ -13,8 +14,8 @@ import org.ghrobotics.lib.subsystems.EmergencyHandleable
  * It is paramatrized with a SIUnit of type [T] (ex. Length),
  * and a master of type [M] with a model of type [T]
  */
-abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : FalconMotor<T>,
-        EmergencyHandleable, ConcurrentlyUpdatingJoint {
+abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMotor<T>,
+        EmergencyHandleable, ConcurrentlyUpdatingJoint<T> {
 
     abstract val master: M
 
@@ -25,10 +26,9 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
     override var motionProfileAcceleration
         get() = master.motionProfileAcceleration
         set(value) { master.motionProfileAcceleration = value }
-
-    override var motionProfileCruiseVelocity
-        get() = master.motionProfileAcceleration
-        set(value) { master.motionProfileAcceleration = value }
+    override var motionProfileCruiseVelocity: SIUnit<Velocity<T>>
+        get() = master.motionProfileCruiseVelocity
+        set(value) { master.motionProfileCruiseVelocity = value }
     override var outputInverted
         get() = master.outputInverted
         set(value) {
@@ -63,20 +63,20 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
         return result
     }
 
-    override fun setDutyCycle(dutyCycle: Double, arbitraryFeedForward: Double) =
+    override fun setDutyCycle(dutyCycle: Double, arbitraryFeedForward: SIUnit<Volt>) =
             master.setDutyCycle(dutyCycle, arbitraryFeedForward)
 
     override fun setNeutral() {
         master.setNeutral()
     }
 
-    override fun setPosition(position: Double, arbitraryFeedForward: Double) =
-        master.setPosition(position, arbitraryFeedForward)
+    override fun setPosition(position: SIUnit<T>, arbitraryFeedForward: SIUnit<Volt>) =
+            master.setPosition(position, arbitraryFeedForward)
 
-    override fun setVelocity(velocity: Double, arbitraryFeedForward: Double) =
-        master.setVelocity(velocity, arbitraryFeedForward)
+    override fun setVelocity(velocity: SIUnit<Velocity<T>>, arbitraryFeedForward: SIUnit<Volt>) =
+            master.setVelocity(velocity, arbitraryFeedForward)
 
-    override fun setVoltage(voltage: Double, arbitraryFeedForward: Double) =
+    override fun setVoltage(voltage: SIUnit<Volt>, arbitraryFeedForward: SIUnit<Volt>) =
         master.setVoltage(voltage, arbitraryFeedForward)
 
     fun zeroClosedLoopGains() {
@@ -134,31 +134,28 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
     override fun activateEmergency() = zeroClosedLoopGains()
     override fun recoverFromEmergency() = setClosedLoopGains()
 
-    data class State(
-        val position: Double, // the position in [T] units
-        val velocity: Double = 0.0,
-        val acceleration: Double = 0.0
-    ) {
-        companion object {
-            val kZero = State(0.0, 0.0)
-        }
-    }
+    data class State<T: SIKey>(
+            val position: SIUnit<T>, // the position in [T] units
+            val velocity: SIUnit<Velocity<T>> = SIUnit<T>(0.0).velocity,
+            val acceleration: SIUnit<Acceleration<T>> = SIUnit<T>(0.0).acceleration
+    )
 
     internal val currentStateMutex = Object()
-    var currentState = State.kZero
+    var currentState = State(SIUnit<T>(0.0))
         get() = synchronized(currentStateMutex) { field }
         set(newValue) = synchronized(currentStateMutex) { field = newValue }
 
     private var lastUpdateTime = Timer.getFPGATimestamp()
 
-    override fun updateState(): JointState {
+    override fun updateState(): State<T> {
         val now = Timer.getFPGATimestamp()
         val position = encoder.position
         val lastState = currentState
         val velocity = encoder.velocity
+        val acceleration = (velocity - lastState.velocity)/(now - lastUpdateTime)/1.second
 
         // add the observation to the current state channel
-        val newState = State(position, velocity, (velocity - lastState.velocity) / (now - lastUpdateTime))
+        val newState = State(position, velocity, acceleration)
 
         lastUpdateTime = now
 
@@ -170,15 +167,17 @@ abstract class MultiMotorTransmission<T : SIUnit<T>, M : FalconMotor<T>> : Falco
      * @param wantedState the wanted state
      * @param arbitraryFeedForward the arbitraryFeedForward in Volts
      */
-    fun s3ndState(wantedState: WantedState?, arbitraryFeedForward: Double) {
+    fun s3ndState(wantedState: WantedState?, arbitraryFeedForward: SIUnit<Volt>) {
         if (wantedState == null) return
 
         when (wantedState) {
             is WantedState.Nothing -> setNeutral()
-            is WantedState.Position -> setPosition(wantedState.targetPosition, arbitraryFeedForward)
-            is WantedState.Velocity -> setVelocity(wantedState.targetVelocity, arbitraryFeedForward)
+            is WantedState.Position<*> -> setPosition(SIUnit(wantedState.targetPosition.value), arbitraryFeedForward)
+            is WantedState.Velocity<*> -> setVelocity(SIUnit(wantedState.targetVelocity.value), arbitraryFeedForward)
             is WantedState.Voltage -> setVoltage(wantedState.output, arbitraryFeedForward)
             is WantedState.CustomState -> wantedState.useState(wantedState)
         }
     }
 }
+
+private operator fun <T: SIKey> SIUnit<Velocity<T>>.div(second: SIUnit<Second>) = SIUnit<Frac<Velocity<T>, Second>>(this.value / second.value)

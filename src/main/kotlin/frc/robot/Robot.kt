@@ -15,7 +15,8 @@ import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
+import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.kInchToMeter
 import org.team5940.pantry.lib.FishyRobot
 
 object Robot : FishyRobot() {
@@ -37,7 +38,7 @@ object Robot : FishyRobot() {
         +Controls
         +Autonomous
 
-        SmartDashboard.putData(ClosedLoopElevatorMove(23.0 * SILengthConstants.kInchToMeter))
+        SmartDashboard.putData(ClosedLoopElevatorMove(23.0.inch))
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 

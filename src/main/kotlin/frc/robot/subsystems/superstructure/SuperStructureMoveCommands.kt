@@ -1,11 +1,15 @@
 package frc.robot.subsystems.superstructure
 
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.mathematics.units.SILengthConstants.kInchToMeter
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.kInchToMeter
 import org.team5940.pantry.lib.WantedState
 import org.team5940.pantry.lib.degreeToRadian
 
-class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevator) {
+class ClosedLoopElevatorMove(private val target: Length) : FalconCommand(Elevator) {
 
     override fun initialize() {
         Elevator.wantedState = WantedState.Position(target)
@@ -18,7 +22,7 @@ class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevato
         }
     }
 
-    override fun isFinished() = Elevator.isWithTolerance(1.0 * kInchToMeter)
+    override fun isFinished() = Elevator.isWithTolerance(1.inch)
 
     // : Boolean {
 //        val error = abs(target - Elevator.currentState.position) / SILengthConstants.kInchToMeter
@@ -26,7 +30,7 @@ class ClosedLoopElevatorMove(private val target: Double) : FalconCommand(Elevato
 //    }
 }
 
-class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proximal) {
+class ClosedLoopProximalMove(private val target: SIUnit<Radian>) : FalconCommand(Proximal) {
 
     override fun initialize() {
         Proximal.wantedState = WantedState.Position(target)
@@ -39,10 +43,10 @@ class ClosedLoopProximalMove(private val target: Double) : FalconCommand(Proxima
         }
     }
 
-    override fun isFinished() = Proximal.isWithTolerance(3.0.degreeToRadian) // toDegrees(abs(target - Proximal.currentState.position)) < 5.0
+    override fun isFinished() = Proximal.isWithTolerance(3.0.degree) // toDegrees(abs(target - Proximal.currentState.position)) < 5.0
 }
 
-class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
+class ClosedLoopWristMove(private val target: SIUnit<Radian>) : FalconCommand(Wrist) {
 
     override fun initialize() {
         Wrist.wantedState = WantedState.Position(target)
@@ -55,7 +59,7 @@ class ClosedLoopWristMove(private val target: Double) : FalconCommand(Wrist) {
         }
     }
 
-    override fun isFinished() = Wrist.isWithTolerance(5.0.degreeToRadian) // toDegrees(abs(target - Wrist.currentState.position)) < 5.0
+    override fun isFinished() = Wrist.isWithTolerance(5.0.degree) // toDegrees(abs(target - Wrist.currentState.position)) < 5.0
 }
 
 // class JogElevator : FalconCommand(Superstructure, Elevator) {

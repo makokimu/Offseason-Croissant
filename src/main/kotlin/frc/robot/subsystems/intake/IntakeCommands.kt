@@ -5,6 +5,7 @@ package frc.robot.subsystems.intake
 import edu.wpi.first.wpilibj.experimental.command.InstantCommand
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import kotlin.math.abs
 
 val closeIntake = InstantCommand(Runnable { Intake.wantsOpen = false })
@@ -16,16 +17,16 @@ class IntakeHatchCommand(val releasing: Boolean) : FalconCommand(Intake) {
 
     override fun initialize() {
         println("intaking hatch command")
-        Intake.hatchMotorOutput = 1 * releasing
-        Intake.cargoMotorOutput = 0.0
+        Intake.hatchMotorOutput = 12.volt * (if(releasing) 1 else -1)
+        Intake.cargoMotorOutput = 0.volt
         Intake.wantsOpen = false
         wasOpen = Intake.wantsOpen
     }
 
     override fun end(interrupted: Boolean) {
         Intake.wantsOpen = wasOpen
-        Intake.hatchMotorOutput = 0.0
-        Intake.cargoMotorOutput = 0.0
+        Intake.hatchMotorOutput = 0.volt
+        Intake.cargoMotorOutput = 0.volt
     }
 }
 
@@ -38,16 +39,16 @@ class IntakeCargoCommand(val releasing: Boolean) : FalconCommand(Intake) {
         wasOpen = Intake.wantsOpen
         Intake.wantsOpen = !releasing
 
-        Intake.hatchMotorOutput = 1.0 * !releasing
-        Intake.cargoMotorOutput = 1.0 * releasing
+        Intake.hatchMotorOutput = 12.volt * (if(!releasing) 1 else -1)
+        Intake.cargoMotorOutput = 12.volt * (if(releasing) 1 else -1)
 
         super.initialize()
     }
 
     override fun end(interrupted: Boolean) {
         Intake.wantsOpen = wasOpen
-        Intake.cargoMotorOutput = 0.0
-        Intake.hatchMotorOutput = 0.0
+        Intake.cargoMotorOutput = 0.volt
+        Intake.hatchMotorOutput = 0.volt
         super.end(interrupted)
     }
 }
@@ -59,17 +60,17 @@ class IntakeTeleopCommand : FalconCommand(Intake) {
         val hatchSpeed = -hatchSource()
 
         if (abs(cargoSpeed) > 0.2) {
-            Intake.hatchMotorOutput = -1.0 * cargoSpeed
-            Intake.cargoMotorOutput = cargoSpeed
+            Intake.hatchMotorOutput = (-12).volt * cargoSpeed
+            Intake.cargoMotorOutput = 12.volt * cargoSpeed
         } else {
-            Intake.hatchMotorOutput = hatchSpeed
-            Intake.cargoMotorOutput = 0.0
+            Intake.hatchMotorOutput = 12.volt * hatchSpeed
+            Intake.cargoMotorOutput = 0.volt
         }
     }
 
     override fun end(interrupted: Boolean) {
-        Intake.hatchMotorOutput = 0.0
-        Intake.cargoMotorOutput = 0.0
+        Intake.hatchMotorOutput = 0.volt
+        Intake.cargoMotorOutput = 0.volt
     }
 
     companion object {
@@ -83,5 +84,3 @@ class IntakeCloseCommand : FalconCommand(Intake) {
         Intake.wantsOpen = false
     }
 }
-
-private operator fun Number.times(shouldReverse: Boolean) = if (shouldReverse) toDouble() * -1 else toDouble()

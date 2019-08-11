@@ -2,22 +2,23 @@ package frc.robot.subsystems.superstructure
 
 import frc.robot.Constants
 import frc.robot.Ports
-import org.ghrobotics.lib.mathematics.units.UnboundedRotation
+import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
 import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
 import java.lang.Math.abs
 
-object Wrist : ConcurrentFalconJoint<UnboundedRotation, FalconSRX<UnboundedRotation>>() {
+object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
     fun resetPosition(ticks: Int) {
         val encoder = synchronized(motor) { motor.encoder }
-        encoder.resetPosition(ticks.toDouble())
+        encoder.resetPositionRaw(ticks.toDouble().nativeUnits)
     }
 
-    override val motor = object : MultiMotorTransmission<UnboundedRotation, FalconSRX<UnboundedRotation>>() {
-        override val master: FalconSRX<UnboundedRotation> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,
+    override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
+        override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,
                 Ports.SuperStructurePorts.WristPorts.ROTATION_MODEL)
 
         init {

@@ -5,18 +5,17 @@ import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kElevatorRange
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
-import org.ghrobotics.lib.mathematics.units.Length
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
-import org.ghrobotics.lib.mathematics.units.nativeunits.DefaultNativeUnitModel
+import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.volt
+import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.*
-import java.lang.Math.abs
 
-object Elevator : ConcurrentFalconJoint<Length, FalconSRX<Length>>() {
+object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
-    override val motor = object : MultiMotorTransmission<Length, FalconSRX<Length>>() {
+    override val motor  = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
-        override val master: FalconSRX<Length> = FalconSRX(ElevatorPorts.TALON_PORTS[0],
+        override val master: FalconSRX<Meter> = FalconSRX(ElevatorPorts.TALON_PORTS[0],
                 ElevatorPorts.LENGTH_MODEL)
 
         override val followers: List<FalconSRX<*>> = listOf(
@@ -58,12 +57,12 @@ object Elevator : ConcurrentFalconJoint<Length, FalconSRX<Length>>() {
 
     init { motor.encoder.position }
 
-    override fun lateInit() { motor.encoder.resetPosition(0.0) }
+    override fun lateInit() { motor.encoder.resetPosition(30.0.inch) }
 
     /** The maximum distance by which the elevator setpoint can be mutate */
-    private val kMaxElevatorOffset = -3.0 * SILengthConstants.kInchToMeter..3.0 * SILengthConstants.kInchToMeter
+    private val kMaxElevatorOffset = -3.0.inch..3.0.inch
 
-    var elevatorOffset: Double = 0.0
+    var elevatorOffset: SIUnit<Meter> = 0.0.meter
         set(newValue) {
             field = newValue.coerceIn(kMaxElevatorOffset)
         }
@@ -71,13 +70,13 @@ object Elevator : ConcurrentFalconJoint<Length, FalconSRX<Length>>() {
     override fun customizeWantedState(wantedState: WantedState): WantedState =
             when (wantedState) {
                 /** add the [wantedState] and [elevatorOffset] to get an offset total and then bound to the [kElevatorRange] */
-                is WantedState.Position -> { (wantedState + elevatorOffset).coerceIn(kElevatorRange) }
+                is WantedState.Position<*> -> { ((wantedState as WantedState.Position<Meter>) + elevatorOffset).coerceIn(kElevatorRange) }
                 else -> wantedState
             }
 
-    override val currentState get() = MultiMotorTransmission.State(Superstructure.currentState.elevator)
+    override val currentState get() = motor.currentState
 
     /** Calculate the arbitrary feed forward given a [currentState] */
-    override fun calculateFeedForward(currentState: MultiMotorTransmission.State) =
-            if (currentState.position > 33.0 * SILengthConstants.kInchToMeter) 1.2 else -0.72 // volts
+    override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Meter>) =
+            if (currentState.position > 33.0.inch) 1.2.volt else (-0.72).volt // volts
 }

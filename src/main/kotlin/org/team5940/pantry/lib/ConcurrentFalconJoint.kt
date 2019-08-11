@@ -4,25 +4,27 @@ package org.team5940.pantry.lib
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.sync.Mutex
+import org.ghrobotics.lib.mathematics.units.SIKey
 import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import kotlin.math.abs
 
-interface ConcurrentlyUpdatingJoint {
-    fun updateState(): JointState
+interface ConcurrentlyUpdatingJoint<T : SIKey> {
+    fun updateState(): MultiMotorTransmission.State<T>
     fun useState() {}
 }
 
 
-typealias JointState = MultiMotorTransmission.State
+//typealias JointState<T:SIKey> = MultiMotorTransmission.State<T>
 
 /**
  * A joint which concurrently updates and sends demands using Channels for
  * both it's current state, a [JointState], and recieves
  * demands of type [WantedState].
  */
-abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : ConcurrentlyUpdatingJoint,
+abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : ConcurrentlyUpdatingJoint<T>,
         LoggableFalconSubsystem(), EmergencyHandleable {
 
     abstract val motor: MultiMotorTransmission<T, V>
@@ -33,9 +35,7 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
         wantedState = WantedState.Nothing
         motor.setNeutral() }
 
-    internal val wantedStateChannel = Channel<WantedState>(Channel.CONFLATED)
-
-    open val currentState: MultiMotorTransmission.State = motor.currentState
+    open val currentState: MultiMotorTransmission.State<T> = motor.currentState
 
     internal val wantedStateMutex = Object()
     /**
@@ -49,16 +49,16 @@ abstract class ConcurrentFalconJoint<T : SIUnit<T>, V : FalconMotor<T>> : Concur
         get() = synchronized(wantedStateMutex) { field }
         set(newValue) = synchronized(wantedStateMutex) { field = newValue }
 
-    fun isWithTolerance(tolerance: Double /* radian */): Boolean {
-        val state = wantedState as? WantedState.Position ?: return false // smart cast state, return false if it's not Position
+    fun isWithTolerance(tolerance: SIUnit<T> /* radian */): Boolean {
+        val state = wantedState as? WantedState.Position<*> ?: return false // smart cast state, return false if it's not Position
 
-        return abs(state.targetPosition - currentState.position) < tolerance
+        return abs(state.targetPosition.value - currentState.position.value) < tolerance.value
     }
 
     /**
      * Calculate the arbitrary feed forward given the [currentState] in Volts
      */
-    open fun calculateFeedForward(currentState: JointState) = 0.0
+    open fun calculateFeedForward(currentState: MultiMotorTransmission.State<T>) = 0.0.volt
 
     open fun customizeWantedState(wantedState: WantedState) = wantedState
 

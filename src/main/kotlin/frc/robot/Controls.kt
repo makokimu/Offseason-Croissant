@@ -11,7 +11,7 @@ import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
+import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.*
 import org.team5940.pantry.lib.Updatable
 import java.util.function.BooleanSupplier
@@ -41,8 +41,8 @@ object Controls : Updatable {
         state({ !isClimbing }) {
 
             // elevator jogging
-            button(9).changeOn { Elevator.elevatorOffset += 0.3 * SILengthConstants.kInchToMeter }
-            button(11).changeOn { Elevator.elevatorOffset -= 0.3 * SILengthConstants.kInchToMeter }
+            button(9).changeOn { Elevator.elevatorOffset += 0.3.inch }
+            button(11).changeOn { Elevator.elevatorOffset -= 0.3.inch }
 
             // cargo presets
             button(12).changeOn(Superstructure.kCargoIntake).changeOff { Superstructure.kStowed.schedule() }

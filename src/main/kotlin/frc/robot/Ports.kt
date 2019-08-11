@@ -3,9 +3,9 @@ package frc.robot
 import com.ctre.phoenix.motorcontrol.FeedbackDevice
 import com.ctre.phoenix.motorcontrol.InvertType
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitLengthModel
-import org.ghrobotics.lib.mathematics.units.nativeunits.NativeUnitRotationModel
-import org.ghrobotics.lib.mathematics.units.nativeunits.nativeUnits
+import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
+import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitRotationModel
+import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 
 object Ports {
 

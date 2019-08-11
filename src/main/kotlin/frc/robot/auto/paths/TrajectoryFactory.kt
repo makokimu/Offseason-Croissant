@@ -8,8 +8,9 @@ import org.ghrobotics.lib.mathematics.twodim.trajectory.DefaultTrajectoryGenerat
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.*
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
-import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.derivedunits.*
+import org.ghrobotics.lib.mathematics.units.Meter
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.inch
 
@@ -195,7 +196,7 @@ object TrajectoryFactory {
     val rocketFPrepareToRocketF = generateTrajectory(
             false,
             listOf(
-                    Pose2d(24.074.feet, 3.753.feet, -143.degree).asWaypoint(),
+                    Pose2d(24.074.feet, 3.753.feet, (-143).degree).asWaypoint(),
                     rocketFAdjusted.position.transformBy(Pose2d(Translation2d(-4.inch, 0.inch))).asWaypoint()
             ),
             getConstraints(false, Pose2d()), 3.feet.velocity, kMaxAcceleration, kMaxVoltage
@@ -284,13 +285,13 @@ object TrajectoryFactory {
             getConstraints(elevatorUp, trajectoryEndpoint.position)
 
     private fun generateTrajectory(
-        reversed: Boolean,
-        points: List<TrajectoryWaypoints.Waypoint>,
-        constraints: List<TimingConstraint<Pose2dWithCurvature>>,
-        maxVelocity: LinearVelocity,
-        maxAcceleration: LinearAcceleration,
-        maxVoltage: Volt,
-        optimizeCurvature: Boolean = true
+            reversed: Boolean,
+            points: List<TrajectoryWaypoints.Waypoint>,
+            constraints: List<TimingConstraint<Pose2dWithCurvature>>,
+            maxVelocity: SIUnit<Velocity<Meter>>,
+            maxAcceleration: SIUnit<Acceleration<Meter>>,
+            maxVoltage: SIUnit<Volt>,
+            optimizeCurvature: Boolean = true
     ): TimedTrajectory<Pose2dWithCurvature> {
 
         val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kLowGearDifferentialDrive, maxVoltage)

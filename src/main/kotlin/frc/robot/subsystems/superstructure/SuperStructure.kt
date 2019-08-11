@@ -6,10 +6,16 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.radian
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.*
 import java.lang.Math.toDegrees
 import kotlin.math.roundToInt
+
+typealias Length = SIUnit<Meter>
 
 object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
@@ -36,17 +42,17 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
     val kCargoMid get() = everythingMoveTo(45.5.inch, 6.degree, 16.degree)
     val kCargoHigh get() = everythingMoveTo(65.5.inch, 9.degree, 20.degree)
 
-    fun everythingMoveTo(elevator: Length, proximal: UnboundedRotation, wrist: UnboundedRotation) = everythingMoveTo(State.Position(elevator, proximal, wrist))
+    fun everythingMoveTo(elevator: Length, proximal: SIUnit<Radian>, wrist: SIUnit<Radian>) = everythingMoveTo(State.Position(elevator, proximal, wrist))
 
     fun everythingMoveTo(goalState: SuperstructureState) = SuperstructurePlanner.everythingMoveTo(goalState)
 
-    fun getUnDumbWrist(dumbWrist: UnboundedRotation, relevantProx: UnboundedRotation) =
+    fun getUnDumbWrist(dumbWrist: SIUnit<Radian>, relevantProx: SIUnit<Radian>) =
             dumbWrist.plus(relevantProx.div(2))
 
     fun getUnDumbWrist(dumbWrist: Double, relevantProx: Double) =
             dumbWrist.plus(relevantProx.div(2))
 
-    fun getDumbWrist(smartWrist: UnboundedRotation, relevantProx: UnboundedRotation) =
+    fun getDumbWrist(smartWrist: SIUnit<Radian>, relevantProx: SIUnit<Radian>) =
             smartWrist.minus(relevantProx.div(2))
 
     fun getDumbWrist(smartWrist: Double, relevantProx: Double) =
@@ -83,8 +89,8 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         val newState = State.Position(
             Elevator.updateState().position,
             Proximal.updateState().position,
-            Wrist.updateState().position,
-            wristUnDumb = false
+            Wrist.updateState().position//,
+//            wristUnDumb = false
         )
 
         currentState = newState
@@ -110,41 +116,23 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         object Nothing : State()
 
         data class Position(
-            val elevator: Double,
-            val proximal: Double,
-            val wrist: Double,
-            val isPassedThrough: Boolean = proximal < Math.toRadians(-135.0),
-            val isWristUnDumb: Boolean = false
+                val elevator: Length,
+                val proximal: SIUnit<Radian>,
+                val wrist: SIUnit<Radian>,
+                val isPassedThrough: Boolean = proximal < (-135).degree,
+                val isWristUnDumb: Boolean = false
         ) : State() {
-
-            @Suppress("unused")
-            constructor(
-                elevator: Length,
-                proximal: UnboundedRotation,
-                wrist: UnboundedRotation,
-                isWristUnDumb: Boolean = false
-            ) :
-                    this(elevator.value, proximal.value, (if (isWristUnDumb) getDumbWrist(wrist, proximal) else wrist).value)
-
-            @Suppress("unused")
-            internal constructor(
-                elevator: Double,
-                proximal: Double,
-                wrist: Double,
-                wristUnDumb: Boolean = false
-            ) :
-                    this(elevator, proximal, (if (wristUnDumb) getDumbWrist(wrist, proximal) else wrist), isWristUnDumb = wristUnDumb)
 
             constructor() : this(20.inch, (-90).degree, (-45).degree) // semi-sane numbers?
 
             fun proximalTranslation() =
-                    Translation2d(kProximalLen.meter, proximal.radian.toRotation2d())
+                    Translation2d(kProximalLen, proximal.toRotation2d())
 
             fun dumbState() = if (!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
             fun trueState() = if (isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
 
             fun asString(): String {
-                return "Elevator [${(elevator / SILengthConstants.kInchToMeter).roundToInt()}\"] proximal [${toDegrees(proximal).roundToInt()}deg] wrist [${toDegrees(wrist).roundToInt()}deg]"
+                return "Elevator [${(elevator.inch).roundToInt()}\"] proximal [${proximal.degree.roundToInt()}deg] wrist [${toDegrees(wrist.degree).roundToInt()}deg]"
             }
 
             override fun toString(): String = asString()

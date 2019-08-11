@@ -3,7 +3,8 @@ package frc.robot.subsystems.drive
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.mathematics.units.derivedunits.velocity
+import org.ghrobotics.lib.mathematics.units.derived.velocity
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.withDeadband
@@ -98,8 +99,8 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         leftPercent: Double,
         rightPercent: Double
     ) {
-        DriveSubsystem.leftMotor.setDutyCycle(leftPercent, 0.0)
-        DriveSubsystem.rightMotor.setDutyCycle(rightPercent, 0.0)
+        DriveSubsystem.leftMotor.setDutyCycle(leftPercent)
+        DriveSubsystem.rightMotor.setDutyCycle(rightPercent)
     }
 
     companion object {

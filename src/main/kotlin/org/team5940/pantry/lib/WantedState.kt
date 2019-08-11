@@ -1,24 +1,30 @@
 package org.team5940.pantry.lib
 
+import org.ghrobotics.lib.mathematics.units.Meter
+import org.ghrobotics.lib.mathematics.units.SIKey
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.Volt
+import org.ghrobotics.lib.mathematics.units.derived.volt
+
 sealed class WantedState {
     object Nothing : WantedState() {
         override fun toString(): String = "Nothing"
     }
 
-    class Position(val targetPosition: Double) : WantedState() {
-        operator fun plus(delta: Double) = Position(targetPosition + delta)
+    class Position<T: SIKey>(val targetPosition: SIUnit<T>) : WantedState() {
+        operator fun plus(delta: SIUnit<T>) = Position(targetPosition + delta)
 
-        fun coerceIn(range: ClosedFloatingPointRange<Double>) = Position(
+        fun coerceIn(range: ClosedRange<SIUnit<T>>) = Position(
                 targetPosition.coerceIn(range)
         )
         override fun toString(): String = "Position $targetPosition"
     }
 
-    class Velocity(val targetVelocity: Double) : WantedState() {
+    class Velocity<K: SIKey>(val targetVelocity: SIUnit<org.ghrobotics.lib.mathematics.units.derived.Velocity<K>>) : WantedState() {
         override fun toString(): String = "Velocity $targetVelocity"
     }
 
-    class Voltage(val output: Double) : WantedState() {
+    class Voltage(val output: SIUnit<Volt>) : WantedState() {
         override fun toString() = "Voltage $output"
     }
 
@@ -27,3 +33,5 @@ sealed class WantedState {
         override fun toString(): String = "CustomState"
     }
 }
+
+typealias LinearJointState = WantedState

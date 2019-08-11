@@ -10,7 +10,8 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParseException
 import edu.wpi.first.wpilibj.Timer
-import org.ghrobotics.lib.mathematics.units.Time
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.Second
 import org.ghrobotics.lib.mathematics.units.second
 import kotlin.concurrent.fixedRateTimer
 
@@ -157,7 +158,7 @@ object JeVoisManager {
             }
         }
 
-        fun update(currentTime: Time) {
+        fun update(currentTime: SIUnit<Second>) {
             isAlive = !wasUnplugged && currentTime - lastMessageReceived <= TargetTracker.kVisionCameraTimeout
         }
 

@@ -6,6 +6,8 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.radian
 
 object TrajectoryWaypoints {
 
@@ -57,7 +59,7 @@ object TrajectoryWaypoints {
         val trueLocation: Pose2d,
         val transform: Pose2d = Pose2d(),
         val translationalOffset: Translation2d = Translation2d(),
-        val rotationalOffset: Rotation2d = 0.radian.toRotation2d()
+        val rotationalOffset: Rotation2d = Rotation2d(0.0)
     ) {
 
         private val trueAndTransform = trueLocation + transform

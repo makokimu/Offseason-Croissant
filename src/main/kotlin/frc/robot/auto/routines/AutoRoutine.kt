@@ -6,6 +6,7 @@ import frc.robot.Robot
 import frc.robot.auto.Autonomous
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionAssistedTrajectoryTracker
+import frc.robot.subsystems.superstructure.Length
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -13,9 +14,9 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
-import org.ghrobotics.lib.mathematics.units.Length
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
-import org.ghrobotics.lib.mathematics.units.Time
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.Second
+import org.ghrobotics.lib.mathematics.units.kFeetToMeter
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.Source
@@ -23,7 +24,7 @@ import org.ghrobotics.lib.utils.map
 
 abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
 
-    abstract val duration: Time
+    abstract val duration: SIUnit<Second>
     abstract val routine: Command
 
     override fun invoke(): Command = sequential {
@@ -55,12 +56,12 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
         DriveSubsystem.localization.reset(newPosition)
     })
 
-    protected fun executeFor(time: Time, command: FalconCommand) = sequential {
+    protected fun executeFor(time: SIUnit<Second>, command: FalconCommand) = sequential {
         +command
         +WaitCommand(100.0)
     }.withTimeout(time)
 
-    private fun Pose2d.asString() = "Pose X:${translation.x / SILengthConstants.kFeetToMeter}\' Y:${translation.y / SILengthConstants.kFeetToMeter}' Theta:${rotation.degree}deg"
+    private fun Pose2d.asString() = "Pose X:${translation.x / kFeetToMeter}\' Y:${translation.y / kFeetToMeter}' Theta:${rotation.degree}deg"
 
     fun notWithinRegion(region: Rectangle2d) = object : SendableCommandBase() {
         override fun isFinished() = !region.contains(DriveSubsystem.robotPosition.translation)
@@ -78,4 +79,4 @@ fun Command.withExit(exit: BooleanSource): Command = this.interruptOn(exit)
 //    +WaitUntilCommand(exit)
 // }
 
-fun Command.withTimeout(second: Time): Command = this.withTimeout(second.second)
+fun Command.withTimeout(second: SIUnit<Second>): Command = this.withTimeout(second.second)

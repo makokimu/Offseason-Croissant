@@ -12,10 +12,15 @@ import frc.robot.auto.Autonomous
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.SuperstructureState
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
+import org.ghrobotics.lib.mathematics.units.derived.inchesPerSecond
+import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.kInchToMeter
 import org.ghrobotics.lib.wrappers.networktables.enumSendableChooser
 import org.team5940.pantry.lib.Updatable
 import org.team5940.pantry.lib.WantedState
+import org.ghrobotics.lib.mathematics.units.operations.div
+import org.ghrobotics.lib.mathematics.units.operations.times
+import org.ghrobotics.lib.mathematics.units.second
 
 object Network : Updatable {
 
@@ -69,11 +74,11 @@ object Network : Updatable {
     }
 
     override fun update() {
-        elevatorPosition.setDouble(Elevator.currentState.position / SILengthConstants.kInchToMeter)
-        elevatorVelocity.setDouble(Elevator.currentState.velocity / SILengthConstants.kInchToMeter)
+        elevatorPosition.setDouble(Elevator.currentState.position.inch)
+        elevatorVelocity.setDouble(Elevator.currentState.velocity.inchesPerSecond)
         elevatorSetpoint.setDouble(let {
-            val wantedState = Elevator.wantedState as? WantedState.Position ?: return@let 0.0
-            wantedState.targetPosition / SILengthConstants.kInchToMeter
+            val wantedState = Elevator.wantedState as? WantedState.Position<*> ?: return@let 0.0
+            wantedState.targetPosition.value / kInchToMeter
         })
         jointPosition.setString(Superstructure.currentState.toString())
     }

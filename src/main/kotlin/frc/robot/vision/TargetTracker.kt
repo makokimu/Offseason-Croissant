@@ -71,7 +71,7 @@ object TargetTracker : Loggable, Updatable {
                 .filter {
                     if (!it.isReal) return@filter false
                     val x = it.averagedPose2dRelativeToBot.translation.x
-                    if (isFrontTarget) x >= 0.0 else x <= 0.0
+                    if (isFrontTarget) x.meter >= 0.0 else x <= 0.meter
                 }.minBy { it.averagedPose2dRelativeToBot.translation.norm }
     }
 
@@ -80,7 +80,7 @@ object TargetTracker : Loggable, Updatable {
                 .associateWith { it.averagedPose2d inFrameOfReferenceOf referencePose }
                 .filter {
                     val x = it.value.translation.x
-                    it.key.isReal && if (isFrontTarget) x > 0.0 else x < 0.0
+                    it.key.isReal && if (isFrontTarget) x.meter > 0.0 else x.meter < 0.0
                 }
                 .minBy { it.value.translation.norm }?.key
     }
@@ -145,8 +145,8 @@ object TargetTracker : Loggable, Updatable {
             stability = (samples.size / (kVisionCameraFPS * kTargetTrackingMaxLifetime.value))
                     .coerceAtMost(1.0)
             // Update Averaged Pose
-            var accumulatedX = 0.0
-            var accumulatedY = 0.0
+            var accumulatedX = 0.meter
+            var accumulatedY = 0.meter
             var accumulatedAngle = 0.0
             for (sample in samples) {
                 accumulatedX += sample.targetPose.translation.x
@@ -154,8 +154,8 @@ object TargetTracker : Loggable, Updatable {
                 accumulatedAngle += sample.targetPose.rotation.value
             }
             averagedPose2d = Pose2d(
-                    (accumulatedX / samples.size).meter,
-                    (accumulatedY / samples.size).meter,
+                    (accumulatedX / samples.size),
+                    (accumulatedY / samples.size),
                     Rotation2d(accumulatedAngle / samples.size)
             )
             averagedPose2dRelativeToBot = averagedPose2d inFrameOfReferenceOf currentRobotPose

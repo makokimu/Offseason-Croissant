@@ -5,9 +5,7 @@ import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-import org.ghrobotics.lib.mathematics.units.Time
-import org.ghrobotics.lib.mathematics.units.feet
-import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.utils.withEquals
 
 class TestTrajectoriesRoutine : AutoRoutine() {
@@ -16,7 +14,7 @@ class TestTrajectoriesRoutine : AutoRoutine() {
     private val path3 = TrajectoryFactory.loadingStationToRocketF
     private val path4 = TrajectoryFactory.rocketFToDepot
 
-    override val duration: Time
+    override val duration: SIUnit<Second>
         get() = path1.duration + path2.duration + path3.duration + path4.duration
 
     override val routine

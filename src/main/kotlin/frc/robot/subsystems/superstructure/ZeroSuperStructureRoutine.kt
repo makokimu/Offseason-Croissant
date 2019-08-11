@@ -1,12 +1,10 @@
 package frc.robot.subsystems.superstructure
 
-import org.ghrobotics.lib.mathematics.units.Length
-
 import com.ctre.phoenix.motorcontrol.ControlMode
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.mathematics.units.degree
+import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
 
 class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(Superstructure,
@@ -85,7 +83,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         val wristStartPosNativeUnits = Wrist.motor.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
         Wrist.motor.master.talonSRX.selectedSensorPosition = (wristPWMDelta + wristStartPosNativeUnits).toInt()
 
-        Elevator.motor.encoder.resetPosition(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight).value)
+        Elevator.motor.encoder.resetPositionRaw(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight))
     }
 
     fun getPositions(): List<Int> {

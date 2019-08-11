@@ -7,8 +7,10 @@ import frc.robot.Network
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
-import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.radian
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.radian
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import org.ghrobotics.lib.mathematics.units.meter
 import kotlin.math.absoluteValue
 
 class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
@@ -47,7 +49,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
         } else {
 //            ElevatorSubsystem.wantedVisionMode = false
             val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
-            val angle = Rotation2d(transform.translation.x, transform.translation.y, true)
+            val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
