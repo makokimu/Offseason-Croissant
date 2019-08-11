@@ -8,33 +8,31 @@ import frc.robot.subsystems.superstructure.Superstructure.getDumbWrist
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.units.SILengthConstants
-import org.ghrobotics.lib.mathematics.units.UnboundedRotation
-import org.ghrobotics.lib.mathematics.units.degree
-import org.ghrobotics.lib.mathematics.units.radian
-import org.team5940.pantry.lib.SIRotationConstants.kDegreesToRadians
+import org.ghrobotics.lib.mathematics.min
+import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.*
 import org.team5940.pantry.lib.SIRotationConstants.kRadianToDegrees
 import org.team5940.pantry.lib.WantedState
 import kotlin.math.abs
 import kotlin.math.min
 
-class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double, private val isFrontToBack: Boolean) : FalconCommand(
+class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVelocity>, wristMaxVel: SIUnit<AngularVelocity>, private val isFrontToBack: Boolean) : FalconCommand(
         Superstructure, Proximal, Wrist
 ) {
 
-    private val goal: Double = goalAngle + if (isFrontToBack) -30 else 0
-    private val goalRotation2d = (goal).radian
+    private val goal = goalAngle + if (isFrontToBack) (-30).degree else 0.degree
+//    private val goalRotation2d = (goal)
     private val goalWristRotation2d = (goalAngle).radian
-    private var lastCommandedProximal: UnboundedRotation? = null
-    private val proximalVelocity = abs(min(abs(proximalMaxVel), abs(wristMaxVel))) * 0.8 * (if (isFrontToBack) -1 else 1).toDouble()
+    private var lastCommandedProximal: SIUnit<Radian>? = null
+    private val proximalVelocity = min(proximalMaxVel.absoluteValue, wristMaxVel.absoluteValue).absoluteValue * 0.8 * (if (isFrontToBack) -1 else 1).toDouble()
     private var lastTime = 0.0
     private var moveIteratorFinished = false
     private var lastObservedState = Superstructure.State.Position()
 
-    constructor(goalAngle: Double, isFrontToBack: Boolean) : this(goalAngle, kProximalMaxVel, kWristMaxVel, isFrontToBack)
+    constructor(goalAngle: SIUnit<Radian>, isFrontToBack: Boolean) : this(goalAngle, kProximalMaxVel, kWristMaxVel, isFrontToBack)
 
     override fun initialize() {
-        lastCommandedProximal = Superstructure.currentState.proximal.radian
+        lastCommandedProximal = Superstructure.currentState.proximal
         lastTime = Timer.getFPGATimestamp()
         moveIteratorFinished = false
 
@@ -49,14 +47,18 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
             return
 
         val now = Timer.getFPGATimestamp()
-        val dt = now - lastTime
+        val dt = (now - lastTime).second
         val currentState = Superstructure.currentState
         this.lastObservedState = currentState
 
         var nextProximal = lastCommandedProximal
 
-        if (Math.abs(Superstructure.getUnDumbWrist(lastObservedState.wrist, lastObservedState.proximal) * kRadianToDegrees - lastCommandedProximal!!.degree) < 50) {
-            nextProximal = this.lastCommandedProximal!!.plus((proximalVelocity * dt).radian)
+        @Suppress("unused")
+        operator fun SIUnit<Velocity<Radian>>.times(time: SIUnit<Second>) = SIUnit<Radian>(this.value * time.second)
+
+        if (abs(Superstructure.getUnDumbWrist(lastObservedState.wrist, lastObservedState.proximal).degree - lastCommandedProximal!!.degree) < 50) {
+            val delta = proximalVelocity * dt
+            nextProximal = this.lastCommandedProximal!! + (delta)
         }
 
         if (nextProximal!!.degree < -205) {
@@ -72,19 +74,19 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
         println("next proximal: " + nextProximal.degree)
 
         if (isFrontToBack) {
-            if (nextProximal.radian < goal)
-                nextProximal = goalRotation2d
+            if (nextProximal < goal)
+                nextProximal = goal
         } else {
-            if (nextProximal.radian > goal)
-                nextProximal = goalRotation2d
+            if (nextProximal > goal)
+                nextProximal = goal
         }
 
         if (isFrontToBack) {
-            if (nextProximal.radian < goal) {
+            if (nextProximal < goal) {
                 this.moveIteratorFinished = true
                 println("SETTING MOVE ITERATOR TO TRUE 3")
             }
-        } else if (nextProximal.radian > goal) {
+        } else if (nextProximal > goal) {
             this.moveIteratorFinished = true
             println("SETTING MOVE ITERATOR TO TRUE 4")
         }
@@ -94,7 +96,7 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
         println("next elbow $nextProximal")
         println("next wrist $nextWrist")
 
-        Proximal.wantedState = WantedState.Position(nextProximal.radian)
+        Proximal.wantedState = WantedState.Position(nextProximal)
         Wrist.wantedState = WantedState.Position(nextWrist)
 
         this.lastCommandedProximal = nextProximal
@@ -110,8 +112,8 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
     }
 
     override fun isFinished(): Boolean {
-        val toReturn = (Wrist.isWithTolerance(5.0 * kDegreesToRadians) &&
-                Proximal.isWithTolerance(5.0)) ||
+        val toReturn = (Wrist.isWithTolerance(5.0.degree) &&
+                Proximal.isWithTolerance(5.0.degree)) ||
                 moveIteratorFinished
 
         println("pass thru done? $toReturn")
@@ -121,20 +123,20 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
     }
 
     companion object {
-        private const val kProximalMaxVel = 190.0 / 360.0 * 2.0 * Math.PI / 0.85
-        private const val kWristMaxVel = kProximalMaxVel // 190d / 360d * 2 * Math.PI;
+        private val kProximalMaxVel = (190.0 / 360.0 * 2.0 * Math.PI / 0.85).degree.velocity
+        private val kWristMaxVel = kProximalMaxVel // 190d / 360d * 2 * Math.PI;
 
         val frontToBack
             get() = sequential {
                 +PrintCommand("passiing thru front to back")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
-                +SyncedMove(-160 * kDegreesToRadians, true)
+                +ClosedLoopElevatorMove(22.5.inch)
+                +SyncedMove(-160.degree, true)
                 +parallel {
-                    +ClosedLoopProximalMove(-193.0 * kDegreesToRadians)
-                    +ClosedLoopWristMove(-112.0 * kDegreesToRadians)
+                    +ClosedLoopProximalMove(-193.0.degree)
+                    +ClosedLoopWristMove(-112.0.degree)
                 }
-                +ClosedLoopElevatorMove(5.5 * SILengthConstants.kInchToMeter)
+                +ClosedLoopElevatorMove(5.5.inch)
             }
 
         val backToFront
@@ -144,15 +146,15 @@ class SyncedMove(goalAngle: Double, proximalMaxVel: Double, wristMaxVel: Double,
                 +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
                 +SyncedMove(0.0 * kDegreesToRadians, false)
                 +parallel {
-                    +ClosedLoopProximalMove(0.0 * kDegreesToRadians)
-                    +ClosedLoopWristMove(0.0 * kDegreesToRadians)
-                    +ClosedLoopElevatorMove(15.0 * SILengthConstants.kInchToMeter)
+                    +ClosedLoopProximalMove(0.0.degree)
+                    +ClosedLoopWristMove(0.0.degree)
+                    +ClosedLoopElevatorMove(15.0.inch)
                 }
             }
 
         val shortPassthrough
             get() = sequential {
-                +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
-                +SyncedMove(0.0 * kDegreesToRadians, false) }
+                +ClosedLoopElevatorMove(22.5.inch)
+                +SyncedMove(0.0.degree, false) }
     }
 }
