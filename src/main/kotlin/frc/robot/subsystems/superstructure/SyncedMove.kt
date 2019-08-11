@@ -143,8 +143,8 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
             get() = sequential {
                 +PrintCommand("passiing thru back to front")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(22.5*SILengthConstants.kInchToMeter)
-                +SyncedMove(0.0 * kDegreesToRadians, false)
+                +ClosedLoopElevatorMove(22.5.inch)
+                +SyncedMove(0.0.degree, false)
                 +parallel {
                     +ClosedLoopProximalMove(0.0.degree)
                     +ClosedLoopWristMove(0.0.degree)

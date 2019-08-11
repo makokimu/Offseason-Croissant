@@ -31,12 +31,12 @@ object SuperstructurePlanner {
 
         if (needsPassthrough) {
             val worstCaseProximalAfterPassthrough =
-                    worstCaseProximalTipElevation(SuperstructureState(22.5.inch, kMinimumSafeSyncedProximal, 0.degree), goalState)
+                    worstCaseProximalTipElevation(SuperstructureState(kCrossbar, kMinimumSafeSyncedProximal, 0.degree), goalState)
 
             if (worstCaseProximalAfterPassthrough > 2.inch && goalState.proximal > kMinimumSafeSyncedProximal) {
                 // synced safe, as it's an upward(ish, technically) move that's outside the crossbar
                 println("                // synced safe, as it's an upward(ish, technically) move that's outside the crossbar")
-                +ClosedLoopElevatorMove(22.5.inch)
+                +ClosedLoopElevatorMove(kCrossbar)
                 +parallel {
                     +SyncedMove(0.0.degree, false)
                     +sequential {
@@ -50,7 +50,7 @@ object SuperstructurePlanner {
                     goalState.proximal > kOutsideFrame) {
                 // arm needs to move all the way out before we start moving the elevator
                 println("                // arm needs to move all the way out before we start moving the elevator")
-                +ClosedLoopElevatorMove(22.5.inch)
+                +ClosedLoopElevatorMove(kCrossbar)
                 +SyncedMove(0.0.degree, false)
                 +parallel {
                     +ClosedLoopElevatorMove(goalState.elevator)
@@ -62,7 +62,7 @@ object SuperstructurePlanner {
                     goalState.proximalTranslation().y > 2.inch) {
                 // below the crossbar and below -75 degrees
                 println("// below the crossbar and below -75 degrees")
-                +ClosedLoopElevatorMove(22.5.inch)
+                +ClosedLoopElevatorMove(kCrossbar)
                 +SyncedMove(0.0.degree, false)
                 +parallel {
                     +ClosedLoopProximalMove(goalState.proximal)
