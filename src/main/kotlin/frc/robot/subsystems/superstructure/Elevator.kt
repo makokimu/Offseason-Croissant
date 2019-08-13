@@ -43,11 +43,11 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             master.useMotionProfileForPosition = true
             // TODO use FalconSRX properties for velocities and accelerations
             master.talonSRX.configMotionCruiseVelocity((4000.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
-            master.talonSRX.configMotionAcceleration(8000)
+            master.talonSRX.configMotionAcceleration(10000)
             master.talonSRX.configMotionSCurveStrength(0)
 
             master.setClosedLoopGains(
-                    0.45, 4.0, ff = 0.3
+                    0.45 * 1.2, 4.0, ff = 0.3
             )
         }
     }
