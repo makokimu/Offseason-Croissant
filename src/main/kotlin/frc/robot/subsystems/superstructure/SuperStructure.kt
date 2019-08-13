@@ -2,13 +2,10 @@ package frc.robot.subsystems.superstructure
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.*
@@ -89,7 +86,7 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         val newState = State.Position(
             Elevator.updateState().position,
             Proximal.updateState().position,
-            Wrist.updateState().position//,
+            Wrist.updateState().position // ,
 //            wristUnDumb = false
         )
 
@@ -116,11 +113,11 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         object Nothing : State()
 
         data class Position(
-                val elevator: Length,
-                val proximal: SIUnit<Radian>,
-                val wrist: SIUnit<Radian>,
-                val isPassedThrough: Boolean = proximal < (-135).degree,
-                val isWristUnDumb: Boolean = false
+            val elevator: Length,
+            val proximal: SIUnit<Radian>,
+            val wrist: SIUnit<Radian>,
+            val isPassedThrough: Boolean = proximal < (-135).degree,
+            val isWristUnDumb: Boolean = false
         ) : State() {
 
             constructor() : this(20.inch, (-90).degree, (-45).degree) // semi-sane numbers?

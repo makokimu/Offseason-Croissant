@@ -5,9 +5,7 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.mathematics.units.kInchToMeter
 import org.team5940.pantry.lib.WantedState
-import org.team5940.pantry.lib.degreeToRadian
 
 class ClosedLoopElevatorMove(private val target: Length) : FalconCommand(Elevator) {
 

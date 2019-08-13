@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.*
 import kotlinx.coroutines.*
-import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.utils.loopFrequency
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 

@@ -13,7 +13,7 @@ import org.team5940.pantry.lib.*
 
 object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
-    override val motor  = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
+    override val motor = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
         override val master: FalconSRX<Meter> = FalconSRX(ElevatorPorts.TALON_PORTS[0],
                 ElevatorPorts.LENGTH_MODEL)

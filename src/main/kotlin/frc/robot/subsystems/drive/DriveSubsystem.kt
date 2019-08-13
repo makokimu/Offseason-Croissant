@@ -53,7 +53,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         override fun setClosedLoopGains() {
             // LQR gains
-            if(lowGear) setClosedLoopGains(0.2, 0.0) else setClosedLoopGains(1.2, 10.0)
+            if (lowGear) setClosedLoopGains(0.2, 0.0) else setClosedLoopGains(1.2, 10.0)
             // Old gains
 //            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
@@ -74,7 +74,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1], kPCMID)
     var lowGear: Boolean by Delegates.observable(false) { _, _, wantsLow ->
 
-        shifter.state = if(wantsLow) FalconSolenoid.State.Forward else FalconSolenoid.State.Reverse
+        shifter.state = if (wantsLow) FalconSolenoid.State.Forward else FalconSolenoid.State.Reverse
 
         // update PID gains
         leftMotor.setClosedLoopGains()

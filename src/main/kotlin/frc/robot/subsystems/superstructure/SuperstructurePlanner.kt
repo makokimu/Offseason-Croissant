@@ -12,8 +12,6 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
-import org.team5940.pantry.lib.SIRotationConstants
-import org.team5940.pantry.lib.degreeToRadian
 import java.lang.IllegalStateException
 import kotlin.math.min
 

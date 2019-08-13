@@ -14,11 +14,11 @@ import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import kotlin.math.*
 
-//@Suppress("FunctionName")
-//fun Translation2d(
+// @Suppress("FunctionName")
+// fun Translation2d(
 //    distance: Double = 0.0,
 //    rotation: Rotation2d = Rotation2d()
-//) = Translation2d(distance * rotation.cos, distance * rotation.sin)
+// ) = Translation2d(distance * rotation.cos, distance * rotation.sin)
 
 object LimeLightManager : SendableSubsystemBase() {
 

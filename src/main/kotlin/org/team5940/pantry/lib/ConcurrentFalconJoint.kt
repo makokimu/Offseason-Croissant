@@ -2,8 +2,6 @@
 
 package org.team5940.pantry.lib
 
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.sync.Mutex
 import org.ghrobotics.lib.mathematics.units.SIKey
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.volt
@@ -16,8 +14,7 @@ interface ConcurrentlyUpdatingJoint<T : SIKey> {
     fun useState() {}
 }
 
-
-//typealias JointState<T:SIKey> = MultiMotorTransmission.State<T>
+// typealias JointState<T:SIKey> = MultiMotorTransmission.State<T>
 
 /**
  * A joint which concurrently updates and sends demands using Channels for

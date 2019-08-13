@@ -20,7 +20,6 @@ import org.team5940.pantry.lib.Updatable
 import org.team5940.pantry.lib.WantedState
 import org.ghrobotics.lib.mathematics.units.operations.div
 import org.ghrobotics.lib.mathematics.units.operations.times
-import org.ghrobotics.lib.mathematics.units.second
 
 object Network : Updatable {
 

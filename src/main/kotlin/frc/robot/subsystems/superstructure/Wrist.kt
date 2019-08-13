@@ -7,8 +7,6 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
 import org.team5940.pantry.lib.MultiMotorTransmission
-import org.team5940.pantry.lib.WantedState
-import java.lang.Math.abs
 
 object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 

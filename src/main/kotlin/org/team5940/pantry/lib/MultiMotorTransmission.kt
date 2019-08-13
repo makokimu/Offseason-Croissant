@@ -134,10 +134,10 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
     override fun activateEmergency() = zeroClosedLoopGains()
     override fun recoverFromEmergency() = setClosedLoopGains()
 
-    data class State<T: SIKey>(
-            val position: SIUnit<T>, // the position in [T] units
-            val velocity: SIUnit<Velocity<T>> = SIUnit<T>(0.0).velocity,
-            val acceleration: SIUnit<Acceleration<T>> = SIUnit<T>(0.0).acceleration
+    data class State<T : SIKey>(
+        val position: SIUnit<T>, // the position in [T] units
+        val velocity: SIUnit<Velocity<T>> = SIUnit<T>(0.0).velocity,
+        val acceleration: SIUnit<Acceleration<T>> = SIUnit<T>(0.0).acceleration
     )
 
     internal val currentStateMutex = Object()
@@ -152,7 +152,7 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
         val position = encoder.position
         val lastState = currentState
         val velocity = encoder.velocity
-        val acceleration = (velocity - lastState.velocity)/(now - lastUpdateTime)/1.second
+        val acceleration = (velocity - lastState.velocity) / (now - lastUpdateTime) / 1.second
 
         // add the observation to the current state channel
         val newState = State(position, velocity, acceleration)
@@ -180,4 +180,4 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
     }
 }
 
-private operator fun <T: SIKey> SIUnit<Velocity<T>>.div(second: SIUnit<Second>) = SIUnit<Frac<Velocity<T>, Second>>(this.value / second.value)
+private operator fun <T : SIKey> SIUnit<Velocity<T>>.div(second: SIUnit<Second>) = SIUnit<Frac<Velocity<T>, Second>>(this.value / second.value)

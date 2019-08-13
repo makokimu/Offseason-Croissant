@@ -16,7 +16,6 @@ import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.mathematics.units.kInchToMeter
 import org.team5940.pantry.lib.FishyRobot
 
 object Robot : FishyRobot() {

@@ -11,8 +11,6 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.*
-import kotlin.math.abs
-import kotlin.math.absoluteValue
 import kotlin.math.cos
 import kotlin.math.withSign
 
@@ -64,11 +62,10 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         }
     }
 
-    override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Radian>)
-            = kProximalStatic.withSign(currentState.velocity.value) + (kProximalCos * cos(currentState.position).value)
-
+    override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Radian>) =
+            kProximalStatic.withSign(currentState.velocity.value) + (kProximalCos * cos(currentState.position).value)
 }
 
-fun <K: SIKey> SIUnit<K>.withSign(sign: Number) = SIUnit<K>(this.value.withSign(sign.toDouble()))
+fun <K : SIKey> SIUnit<K>.withSign(sign: Number) = SIUnit<K>(this.value.withSign(sign.toDouble()))
 
-fun <K: SIKey> cos(x: SIUnit<K>) = SIUnit<K>(cos(x.value))
+fun <K : SIKey> cos(x: SIUnit<K>) = SIUnit<K>(cos(x.value))
