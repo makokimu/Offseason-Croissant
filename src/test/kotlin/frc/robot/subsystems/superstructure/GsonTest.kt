@@ -23,9 +23,9 @@ class GsonTest {
 
         val jsonedTrajectory = trajectory.toJson()
 
-        val unJsoned = jsonToTrajectory(jsonedTrajectory)
+//        val unJsoned = jsonToTrajectory(jsonedTrajectory)
 
-        println(unJsoned)
+//        println(unJsoned)
     }
 
 }

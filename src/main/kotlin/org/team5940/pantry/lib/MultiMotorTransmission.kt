@@ -159,6 +159,8 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
 
         lastUpdateTime = now
 
+        currentState = newState
+
         return newState
     }
 

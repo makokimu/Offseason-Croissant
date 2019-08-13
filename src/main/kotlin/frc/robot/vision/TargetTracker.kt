@@ -1,5 +1,7 @@
 package frc.robot.vision
 
+import com.github.salomonbrys.kotson.jsonObject
+import com.google.gson.Gson
 import edu.wpi.first.wpilibj.Timer
 // import edu.wpi.first.wpilibj.command.Subsystem
 import frc.robot.subsystems.drive.DriveSubsystem
@@ -16,11 +18,29 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.wrappers.networktables.get
 import org.team5940.pantry.lib.Updatable
 
 object TargetTracker : Loggable, Updatable {
 
      private val targets = mutableSetOf<TrackedTarget>()
+
+    val kGson = Gson()
+    private val visionTargetEntry = LiveDashboard.liveDashboardTable["visionTargets"]
+
+    private var visionTargets: List<Pose2d> = listOf()
+        set(value) {
+            visionTargetEntry.setStringArray(
+                    value.map {
+                        jsonObject(
+                                "x" to it.translation.x.meter,
+                                "y" to it.translation.y.meter,
+                                "angle" to it.rotation.degree
+                        ).toString()
+                    }.toTypedArray()
+            )
+            field = value
+        }
 
     override fun update() {
         synchronized(targets) {
@@ -34,7 +54,7 @@ object TargetTracker : Loggable, Updatable {
                 !it.isAlive
             }
             // Publish to dashboard
-            LiveDashboard.visionTargets = targets.asSequence()
+            visionTargets = targets.asSequence()
                     .filter { it.isReal }
                     .map { it.averagedPose2d }
                     .toList()

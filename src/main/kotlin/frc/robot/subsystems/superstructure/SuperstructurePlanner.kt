@@ -19,7 +19,7 @@ object SuperstructurePlanner {
 
     private val kCrossbar = 33.inch
     private val kMinimumSafeSyncedProximal = (-75).degree
-    private val kOutsideFrame = (-50).degree
+    private val kOutsideFrame = (-35).degree
 //    val kProximalLen = 32.inch.meter
 
     private fun planPath(currentState: SuperstructureState, goalState: SuperstructureState) = sequential {
@@ -75,8 +75,10 @@ object SuperstructurePlanner {
             val worstCaseProximal =
                     worstCaseProximalTipElevation(currentState, goalState)
 
-            if ((worstCaseProximal > 2.inch ||
-                            min(currentState.proximal, goalState.proximal) > kOutsideFrame) && /* exception for cargo grab */
+            val minProxAngle = min(currentState.proximal, goalState.proximal)
+
+            if ((worstCaseProximal > -3.inch ||
+                            minProxAngle > kOutsideFrame) && /* exception for cargo grab */
                     goalState.proximal > kMinimumSafeSyncedProximal) {
                 // synced safe, as it's an upward(ish, technically) move that's outside the crossbar
                 println("// synced safe, as it's an upward(ish, technically) move that's outside the crossbar")
@@ -86,20 +88,21 @@ object SuperstructurePlanner {
                     +ClosedLoopProximalMove(goalState.proximal)
                 }
             }
+
             // next arm first vs elevator first
-            else if (goalState.proximalTranslation().y < 2.inch ||
-                    min(currentState.proximal, goalState.proximal) < kMinimumSafeSyncedProximal &&
+            else if (//goalState.proximalTranslation().y < -3.inch ||
+                    minProxAngle < kMinimumSafeSyncedProximal &&
                     goalState.proximal > kOutsideFrame) {
                 // arm first if it's a downward move to below electronics or if we're inside the crossbar
                 println("// arm first if it's a downward move to below electronics or if we're inside the crossbar")
-                +parallel {
+                +sequential {
                     val armMove = parallel { +ClosedLoopWristMove(goalState.wrist)
                         +ClosedLoopProximalMove(goalState.proximal) }
                     +armMove
-                    +sequential {
-                        +WaitUntilCommand { Superstructure.currentState.proximal > kOutsideFrame }.withExit { armMove.isFinished }
-                        +ClosedLoopElevatorMove(goalState.elevator)
-                    }
+//                    +sequential {
+//                        +WaitUntilCommand { Superstructure.currentState.proximal > kOutsideFrame }.withExit { armMove.isFinished }
+                    +ClosedLoopElevatorMove(goalState.elevator)
+//                    }
                 }
             } else if (currentState.elevator > goalState.elevator &&
                     goalState.elevator < kCrossbar &&
@@ -121,9 +124,9 @@ object SuperstructurePlanner {
                         +ClosedLoopProximalMove(goalState.proximal)
                     }
                 }
-            } else if (worstCaseProximal < 2.inch &&
-                    currentState.proximal > kOutsideFrame &&
-                    goalState.proximal < kOutsideFrame) {
+            } else if (worstCaseProximal < -3.inch &&
+                    currentState.proximal > kOutsideFrame //&&
+                    /*goalState.proximal < kOutsideFrame*/) {
                 // elevator first (i.e. coming from cargo grab to stowed)
                 +ClosedLoopElevatorMove(goalState.elevator)
                 +parallel {
@@ -136,7 +139,7 @@ object SuperstructurePlanner {
         }
     }
 
-    private fun worstCaseProximalTipElevation(currentState: SuperstructureState, goalState: SuperstructureState): Length {
+    fun worstCaseProximalTipElevation(currentState: SuperstructureState, goalState: SuperstructureState): Length {
         val worstArmTranslation = Translation2d(kProximalLen, min(currentState.proximal, goalState.proximal).minus(5.degree).toRotation2d())
         return min(currentState.elevator, goalState.elevator) + worstArmTranslation.y
     }

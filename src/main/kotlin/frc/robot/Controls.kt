@@ -10,6 +10,7 @@ import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.ZeroSuperStructureRoutine
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.*
@@ -20,6 +21,8 @@ object Controls : Updatable {
 
     var isClimbing = false
         private set
+
+    private val zero = ZeroSuperStructureRoutine()
 
     val driverFalconXbox = xboxController(0) {
         registerEmergencyMode()
@@ -32,6 +35,7 @@ object Controls : Updatable {
 
             // Shifting
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
+            button(kA).changeOn { ZeroSuperStructureRoutine().schedule() }
         }
     }
 

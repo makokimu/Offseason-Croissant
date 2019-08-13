@@ -32,7 +32,8 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
         wantedState = WantedState.Nothing
         motor.setNeutral() }
 
-    open val currentState: MultiMotorTransmission.State<T> = motor.currentState
+    open val currentState: MultiMotorTransmission.State<T>
+            get() = motor.currentState
 
     internal val wantedStateMutex = Object()
     /**

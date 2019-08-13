@@ -3,16 +3,22 @@ package frc.robot.subsystems.superstructure
 import com.ctre.phoenix.motorcontrol.ControlMode
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 
 class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(Superstructure,
         Elevator, Proximal, Wrist) {
 
     private var mCurrentState: ZeroingState = ZeroingState.IDLE
 
-    override fun runsWhenDisabled() = true
+    private var isDone = false
+
+    override fun runsWhenDisabled(): Boolean {
+        return true
+    }
 
     private enum class ZeroingState {
         IDLE, WAITING_FOR_TRIGGER, ZEROED
@@ -22,18 +28,18 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     override fun initialize() {
         mCurrentState = ZeroingState.IDLE
         SmartDashboard.putBoolean("Elevator zeroed", false)
-        SmartDashboard.putData(this)
+//        SmartDashboard.putData(this)
 //        println("zeroing INIT")
     }
 
     // Called repeatedly when this Command is scheduled to run
     override fun execute() {
 //        println("zeroing EXECUTE")
-//        SmartDashboard.putNumber("random", random())
+        SmartDashboard.putNumber("random", Math.random())
 
         val limitTriggered = Elevator.limitSwitchTriggered
 
-//        println("limitTriggered $limitTriggered")
+//        println("limitxTriggered $limitTriggered")
 
         SmartDashboard.putString("Zeroing state", mCurrentState.name)
         SmartDashboard.putBoolean("Elevator limit switch", limitTriggered)
@@ -54,6 +60,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
             if (limitTriggered) {
                 observeElevatorZero(positions)
                 mCurrentState = ZeroingState.ZEROED
+                isDone = true
             }
         }
     }
@@ -79,9 +86,12 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
         val wristPWM = positions[1]
         val targetWristComp = 3200
-        val wristPWMDelta = (wristPWM - targetWristComp)
-        val wristStartPosNativeUnits = Wrist.motor.master.model.toNativeUnitPosition((-45).degree).value // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
-        Wrist.motor.master.talonSRX.selectedSensorPosition = (wristPWMDelta + wristStartPosNativeUnits).toInt()
+        val wristPWMDelta = (wristPWM - targetWristComp).nativeUnits
+        val wristStartPosNativeUnits = Wrist.motor.master.model.toNativeUnitPosition((-45).degree) // .getTicks(RoundRotation2d.getDegree(-43 + 4 - 9)) as Int
+
+        Wrist.motor.encoder.resetPositionRaw(wristPWMDelta + wristStartPosNativeUnits)
+
+//        Wrist.motor.master.talonSRX.selectedSensorPosition = (wristPWMDelta + wristStartPosNativeUnits).toInt()
 
         Elevator.motor.encoder.resetPositionRaw(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight))
     }
@@ -90,14 +100,14 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
         val prox = (Proximal.motor.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
             var temp = it
-            while (it < 0) temp += 4096
-            while (it > 4096) temp -= 4096
+            while (temp < 0) temp += 4096
+            while (temp > 4096) temp -= 4096
             temp
         }
         val wrist = (Wrist.motor.master.talonSRX.sensorCollection.pulseWidthPosition % 4096).let {
             var temp = it
-            while (it < 0) temp += 4096
-            while (it > 4096) temp -= 4096
+            while (temp < 0) temp += 4096
+            while (temp > 4096) temp -= 4096
             temp
         }
 
@@ -106,9 +116,13 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
     // Make this return true when this Command no longer needs to run execute()
     override fun isFinished(): Boolean {
+//        println("IS FINISHED WAS CALLED")
         if (mCurrentState == ZeroingState.ZEROED) println("We're zeroed so we're done")
 //        if(Robot.lastRobotMode != FishyRobot.Mode.DISABLED) println("ds NOT disabled, returning")
-        return mCurrentState == ZeroingState.ZEROED // || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
+//        return mCurrentState == ZeroingState.ZEROED // || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
+        val shouldEnd = isDone || Robot.isEnabled
+//        println("should end? $shouldEnd")
+        return shouldEnd
     }
 
     // Called once after isFinished returns true

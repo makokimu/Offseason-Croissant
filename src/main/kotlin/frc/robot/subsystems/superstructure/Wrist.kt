@@ -1,8 +1,11 @@
 package frc.robot.subsystems.superstructure
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants
 import frc.robot.Ports
 import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
@@ -14,6 +17,11 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         val encoder = synchronized(motor) { motor.encoder }
         encoder.resetPositionRaw(ticks.toDouble().nativeUnits)
     }
+
+//    override fun periodic() {
+////        println("wrist raw ${motor.master.encoder.rawPosition.value}")
+//        SmartDashboard.putNumber("wrist pos", motor.master.encoder.position.degree) // idk why but if this isn't here it breaks
+//    }
 
     override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
         override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,

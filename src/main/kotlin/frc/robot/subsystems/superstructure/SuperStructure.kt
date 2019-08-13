@@ -1,5 +1,6 @@
 package frc.robot.subsystems.superstructure
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
@@ -82,11 +83,13 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
     override suspend fun updateState() {
         // update the states of our components
 
+        Wrist.updateState()
+
         // use these updated states to build our current state
         val newState = State.Position(
             Elevator.updateState().position,
             Proximal.updateState().position,
-            Wrist.updateState().position // ,
+            Wrist.currentState.position
 //            wristUnDumb = false
         )
 
@@ -104,8 +107,16 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         Proximal.resetPosition(0)
         Wrist.resetPosition(0)
 
-        zero.schedule()
         SmartDashboard.putData(zero)
+        zero.schedule()
+
+        SmartDashboard.putData(this)
+    }
+
+    override fun initSendable(builder: SendableBuilder) {
+        builder.addStringProperty("cState", { currentState.asString() }, { })
+        builder.addDoubleProperty("cProxTranslation", { currentState.proximalTranslation().y.inch }, { })
+        super.initSendable(builder)
     }
 
     sealed class State {
@@ -113,7 +124,7 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
         object Nothing : State()
 
         data class Position(
-            val elevator: Length,
+            val elevator: SIUnit<Meter>,
             val proximal: SIUnit<Radian>,
             val wrist: SIUnit<Radian>,
             val isPassedThrough: Boolean = proximal < (-135).degree,
@@ -123,13 +134,13 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
             constructor() : this(20.inch, (-90).degree, (-45).degree) // semi-sane numbers?
 
             fun proximalTranslation() =
-                    Translation2d(kProximalLen, proximal.toRotation2d())
+                    Translation2d(kProximalLen, proximal.toRotation2d()) + Translation2d(0.meter, elevator)
 
             fun dumbState() = if (!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
             fun trueState() = if (isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
 
             fun asString(): String {
-                return "Elevator [${(elevator.inch).roundToInt()}\"] proximal [${proximal.degree.roundToInt()}deg] wrist [${toDegrees(wrist.degree).roundToInt()}deg]"
+                return "Elevator [${(elevator.inch).roundToInt()}\"] proximal [${proximal.degree.roundToInt()}deg] wrist [${wrist.degree.roundToInt()}deg]"
             }
 
             override fun toString(): String = asString()
