@@ -14,8 +14,6 @@ class GsonTest {
     val test: Double
         get() = Math.random()
 
-    fun getTest(yes: Double) = test
-
     @Test
     fun testGson() {
 

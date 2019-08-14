@@ -139,6 +139,69 @@ object SuperstructurePlanner {
         }
     }
 
+    /**
+     * Code from 2019 inseason
+     */
+    private fun planOldPath(currentState: SuperstructureState, goalState: SuperstructureState) = sequential {
+
+        // check passthrough
+        val needsPassthrough = currentState.proximal < (-100).degree
+        if(needsPassthrough) {
+            +SyncedMove.shortPassthrough
+        }
+        
+        // choose between everything at the same time, elevator first or arm first
+        val proximalThreshold = (-68).degree
+        val nowOutsideCrossbar = currentState.proximal > proximalThreshold
+        val willBeOutsideCrossbar = goalState.proximal > proximalThreshold
+        var mightHitElectronics = (goalState.elevator < 26.inch && goalState.proximal > proximalThreshold) || (goalState.elevator < 31.inch && goalState.proximal < proximalThreshold) // TODO check angles?
+
+        val proximalStartSafe = currentState.proximal > -80.degree
+        val proximalEndSafe = goalState.proximal > -80.degree
+        val startHighEnough = currentState.elevator > 18.inch
+        val endHighEnough = goalState.elevator > 31.inch
+
+        val needsExceptionForCargoGrab = currentState.proximal > (-62).degree && currentState.elevator > 36.inch && goalState.proximal > (-62).degree
+
+        val safeToMoveSynced = (nowOutsideCrossbar && willBeOutsideCrossbar && (!mightHitElectronics || needsExceptionForCargoGrab))
+                || (proximalStartSafe && proximalEndSafe && startHighEnough && endHighEnough)
+
+        if(safeToMoveSynced) {
+            // yeet everything at the same time
+            +parallel {
+                +ClosedLoopElevatorMove(goalState.elevator)
+                +ClosedLoopWristMove(goalState.wrist)
+                +ClosedLoopProximalMove(goalState.proximal)
+            }
+        } else {
+            // choose between arm first or elevator first
+            val proximalThresh = (-18).degree
+            val startAboveSafe = goalState.elevator > 36.inch
+            val endAboveSafe = currentState.elevator > 36.inch
+            val nowOutsideFrame = currentState.proximal > proximalThresh
+            val willBeOutsideFrame = goalState.proximal > proximalThresh
+
+            val shouldMoveElevatorFirst = (nowOutsideFrame && !willBeOutsideFrame && !startAboveSafe) || (nowOutsideFrame && willBeOutsideFrame)
+                    || (((-35).degree >= currentState.proximal && currentState.proximal >= (-90).degree)
+                        && ((-50).degree >= goalState.proximal && goalState.proximal >= (-100).degree))
+            if(shouldMoveElevatorFirst) {
+                +ClosedLoopElevatorMove(goalState.elevator)
+                +parallel {
+                    +ClosedLoopWristMove(goalState.wrist)
+                    +ClosedLoopProximalMove(goalState.proximal)
+                }
+            } else {
+                +parallel {
+                    +ClosedLoopWristMove(goalState.wrist)
+                    +ClosedLoopProximalMove(goalState.proximal)
+                }
+                +ClosedLoopElevatorMove(goalState.elevator)
+            }
+        }
+
+    }
+
+
     fun worstCaseProximalTipElevation(currentState: SuperstructureState, goalState: SuperstructureState): Length {
         val worstArmTranslation = Translation2d(kProximalLen, min(currentState.proximal, goalState.proximal).minus(5.degree).toRotation2d())
         return min(currentState.elevator, goalState.elevator) + worstArmTranslation.y
@@ -154,7 +217,8 @@ object SuperstructurePlanner {
                 var pathStarted = false
 
                 override fun initialize() {
-                    path = planPath(Superstructure.currentState, goalState)
+//                    path = planPath(Superstructure.currentState, goalState)
+                    path = planOldPath(currentState = Superstructure.currentState, goalState = goalState)
                     path!!.initialize()
                     pathStarted = true
                 }
@@ -174,130 +238,6 @@ object SuperstructurePlanner {
                     return path?.isFinished ?: pathStarted // if the path is null, check that it's started, otherwise call the path's isFinished() method
                 }
             }
-}
 
-//    fun everythingMoveTo(goalState: State.Position): SendableCommandBase = object : FalconCommand(Superstructure, Proximal, Wrist, Elevator) {
-//        // This whole {} thing is a Supplier<Command> that will return a Command that moves everything safely (hopefully)
-//
-//        override fun getName() = "move to ${goalState.asString()}"
-//
-//        fun planPath(): SendableCommandBase {
-//
-//            println("========================================")
-//
-//            val currentStateq = currentState
-//
-//            // returns if we can move everything at the same time or not
-//            fun safeToMoveSynced(): Boolean {
-//                val proximalThreshold = -68
-//                val nowOutsideCrossbar = currentState.proximal.radianToDegree > proximalThreshold
-//                val willBeOutsideCrossbar = goalState.proximal.radianToDegree > proximalThreshold
-//                val mightHitElectronics = (goalState.elevator / SILengthConstants.kInchToMeter < 15 && goalState.proximal.radianToDegree > proximalThreshold) || (goalState.elevator / SILengthConstants.kInchToMeter < 20 && goalState.proximal.radianToDegree < proximalThreshold) // TODO check angles?
-//                val proximalStartSafe = currentState.proximal.radianToDegree > -80
-//                val proximalEndSafe = goalState.proximal.radianToDegree > -80
-//                val startHighEnough = currentState.elevator / SILengthConstants.kInchToMeter > 18
-//                val endHighEnough = goalState.elevator / SILengthConstants.kInchToMeter > 20
-//                val needsExceptionForCargoGrab = currentState.proximal.radianToDegree > -62 && currentState.elevator / SILengthConstants.kInchToMeter > 25 && goalState.proximal.radianToDegree > -62
-//                val needsExceptionForStartingDown = (currentState.proximal.radianToDegree > -130.0 && currentState.proximal.radianToDegree < -75.0)
-//                val safeToMoveSynced = ((nowOutsideCrossbar && willBeOutsideCrossbar && (!mightHitElectronics || needsExceptionForCargoGrab)) ||
-//                        (proximalStartSafe && proximalEndSafe && startHighEnough && endHighEnough)) && !needsExceptionForStartingDown
-//
-//                println("need exception for starting down? $needsExceptionForStartingDown")
-//
-//                 SmartDashboard.putString("passthru data", "nowOutsideCrossbar " + nowOutsideCrossbar + " willBeOutsideCrossbar " + willBeOutsideCrossbar + " might hit electronics? " + mightHitElectronics +
-//                         " proximalStartSafe " + proximalStartSafe + " proximalEndSafe? " + proximalEndSafe + " startHighEnough " + startHighEnough +
-//                         " endHighEnough " + endHighEnough)
-//
-//                println("Safe to move synced? $safeToMoveSynced")
-//                return safeToMoveSynced
-//            }
-//
-//            // returns which joint to move first
-//            fun shouldMoveElevatorFirst(): Boolean {
-//                val proximalThreshold = -18.0
-// //            var currentState = currentst
-//                val startAboveSafe = goalState.elevator / SILengthConstants.kInchToMeter > 25.0
-//                var endAboveSafe = currentState.elevator / SILengthConstants.kInchToMeter > 25.0
-//                val nowOutsideFrame = currentState.proximal.radianToDegree > proximalThreshold
-//                val willBeOutsideFrame = goalState.proximal.radianToDegree > proximalThreshold
-//                val shouldMoveElevatorFirst = (nowOutsideFrame && !willBeOutsideFrame && !startAboveSafe) ||
-//                        (nowOutsideFrame && willBeOutsideFrame) ||
-//                        ((-35 >= currentState.proximal.radianToDegree && currentState.proximal.radianToDegree >= -90) && (-50 >= goalState.proximal.radianToDegree && goalState.proximal.radianToDegree >= -100))
-//
-//                println("requested state: $goalState")
-//
-//                println((if (shouldMoveElevatorFirst) "We are moving the elevator first!" else "We are moving the arm first!"))
-//
-//                return shouldMoveElevatorFirst
-//            }
-//
-//            return sequential {
-//
-//                // first check if we need to pass through front to back or not
-//                if (!currentState.isPassedThrough and goalState.isPassedThrough) +SyncedMove.shortPassthrough
-//
-//                // next check if we can move everything at once
-//                if (safeToMoveSynced()) {
-//                    +parallel {
-//                        +PrintCommand("Moving elevator and prox and wrist")
-//                        +ClosedLoopElevatorMove(goalState.elevator)
-//                        +ClosedLoopProximalMove(goalState.proximal)
-//                        +ClosedLoopWristMove(goalState.wrist)
-//                        +PrintCommand("Everything moved!")
-//                    }
-//                } else {
-//                    // otherwise, pick the elevator or elbow/wrist to move first
-//                    if (shouldMoveElevatorFirst()) {
-//                        +sequential {
-//                            +PrintCommand("Moving elevator...")
-//                            +ClosedLoopElevatorMove(goalState.elevator)
-//                            +PrintCommand("Elevator moved!")
-//                            +parallel {
-//                                +PrintCommand("Moving prox and wrist...")
-//                                +ClosedLoopProximalMove(goalState.proximal)
-//                                +ClosedLoopWristMove(goalState.wrist)
-//                                +PrintCommand("Prox and wrist moved")
-//                            }
-//                        }
-//                    } else {
-//                        // move arm first
-//                        +sequential {
-//                            +parallel {
-//                                +PrintCommand("Moving prox and wrist then elevator")
-//                                +ClosedLoopProximalMove(goalState.proximal)
-//                                +ClosedLoopWristMove(goalState.wrist)
-//                                +PrintCommand("both moved!")
-//                            }
-//                            +PrintCommand("Moving elevator")
-//                            +ClosedLoopElevatorMove(goalState.elevator)
-//                        }
-//                    }
-//                }
-//                +PrintCommand("[Superstructure Planner] =======> MOVE COMPLETE")
-//            }
-//        }
-//
-//        var path: SendableCommandBase? = null
-//        var pathStarted = false
-//
-//        override fun initialize() {
-//            path = planPath()
-//            path!!.initialize()
-//            pathStarted = true
-//        }
-//
-//        override fun execute() {
-//            path!!.execute()
-//        }
-//
-//        override fun end(interrupted: Boolean) {
-//            path?.end(interrupted)
-//            path = null
-//            pathStarted = false
-//        }
-//
-//        override fun isFinished(): Boolean {
-//            val path = this.path
-//            return path?.isFinished ?: pathStarted // if the path is null, check that it's started, otherwise call the path's isFinished() method
-//        }
-//    }
+
+}

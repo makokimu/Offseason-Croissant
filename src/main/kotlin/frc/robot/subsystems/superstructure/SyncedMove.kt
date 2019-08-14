@@ -154,7 +154,7 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
 
         val shortPassthrough
             get() = sequential {
-                +ClosedLoopElevatorMove(22.5.inch)
+                +ClosedLoopElevatorMove(33.inch)
                 +SyncedMove(0.0.degree, false) }
     }
 }
