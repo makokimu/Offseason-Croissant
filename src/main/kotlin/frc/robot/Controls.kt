@@ -56,9 +56,9 @@ object Controls : Updatable {
             button(8).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
 
             // hatch presets
-            button(3).changeOn(Superstructure.kHatchLow).changeOff { Superstructure.kStowed.schedule() }
-            button(2).changeOn(Superstructure.kHatchMid).changeOff { Superstructure.kStowed.schedule() }
-            button(1).changeOn(Superstructure.kHatchHigh).changeOff { Superstructure.kStowed.schedule() }
+            button(3).changeOn(Superstructure.kHatchLow)//.changeOff { Superstructure.kStowed.schedule() }
+            button(2).changeOn(Superstructure.kHatchMid)//.changeOff { Superstructure.kStowed.schedule() }
+            button(1).changeOn(Superstructure.kHatchHigh)//.changeOff { Superstructure.kStowed.schedule() }
 
             // that one passthrough preset that doesnt snap back to normal
             button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)

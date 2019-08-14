@@ -34,6 +34,16 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
                 followers[index].talonSRX.setInverted(ElevatorPorts.FOLLOWER_INVERSION[index])
             }
 
+            master.talonSRX.configForwardSoftLimitThreshold(58500)
+            master.talonSRX.configReverseSoftLimitThreshold(1300)
+            master.talonSRX.configForwardSoftLimitEnable(true)
+            master.talonSRX.configReverseSoftLimitEnable(true)
+            master.talonSRX.configPeakOutputForward(1.0)
+            master.talonSRX.configPeakOutputReverse(-1.0)
+
+//            master.talonSRX.enableVoltageCompensation(true)
+            master.voltageCompSaturation = 12.volt
+
             setClosedLoopGains()
         }
 

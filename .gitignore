@@ -165,3 +165,4 @@ bin/
 *.kotlin_module
 
 !*.xml
+*.xml
