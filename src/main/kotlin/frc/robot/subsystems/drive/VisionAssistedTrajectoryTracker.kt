@@ -1,11 +1,13 @@
 package frc.robot.subsystems.drive
 
+import edu.wpi.first.wpilibj.Timer
 import frc.robot.Constants
 import frc.robot.Network
 import frc.robot.subsystems.superstructure.Length
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.debug.LiveDashboard
+import org.ghrobotics.lib.mathematics.min
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTrackerOutput
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
@@ -30,14 +32,15 @@ class VisionAssistedTrajectoryTracker(
     val useAbsoluteVision: Boolean = false
 ) : FalconCommand(DriveSubsystem) {
 
-    private var trajectoryFinished = false
+//    private var trajectoryFinished = false
+    private var visionFinished = false
 
     private var prevError = 0.0
 
     @Suppress("LateinitUsage")
     private lateinit var trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>
 
-    override fun isFinished() = trajectoryFinished
+    override fun isFinished() = visionFinished
 
     /**
      * Reset the trajectory follower with the new trajectory.
@@ -45,11 +48,16 @@ class VisionAssistedTrajectoryTracker(
     override fun initialize() {
         trajectory = trajectorySource()
         DriveSubsystem.trajectoryTracker.reset(trajectory)
-        trajectoryFinished = false
+//        trajectoryFinished = false
         LiveDashboard.isFollowingPath = true
+        inTheEndgame = false
+        endgameTimer.reset()
+        visionFinished = false
     }
 
     private var lastKnownTargetPose: Pose2d? = null
+    private var inTheEndgame: Boolean = false
+    private var endgameTimer = Timer()
 
     override fun execute() {
         val robotPositionWithIntakeOffset = DriveSubsystem.robotPosition // IntakeSubsystem.robotPositionWithIntakeOffset
@@ -64,6 +72,7 @@ class VisionAssistedTrajectoryTracker(
 //                        )
                 ) < radiusFromEnd.value
 
+        // only check for new targets if we are close to the end of the spline
         if (withinVisionRadius) {
             val newTarget = if (!useAbsoluteVision) {
                 TargetTracker.getBestTarget(!trajectory.reversed)
@@ -72,7 +81,7 @@ class VisionAssistedTrajectoryTracker(
             }
 
             val newPose = newTarget?.averagedPose2d
-            if (newTarget?.isAlive == true && newPose != null) lastKnownTargetPose = newPose
+            if (newTarget?.isAlive == true && newPose != null) this.lastKnownTargetPose = newPose
         }
 
         val lastKnownTargetPose = this.lastKnownTargetPose
@@ -89,9 +98,25 @@ class VisionAssistedTrajectoryTracker(
             val error = (angle + if (!trajectory.reversed) Rotation2d() else Math.PI.radian.toRotation2d()).radian
             val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
 
+            // get the distance from the target for the distance P controller
+            val distance = transform.translation.norm
+            val linear = (distance * kLinearKp).velocity
+
+            val shouldUseForwardCamera = !trajectory.reversed
+
+            // check if within radius to start counting the timeout up from
+            if ((shouldUseForwardCamera && distance.absoluteValue < (Constants.kForwardIntakeToCenter.translation.norm.absoluteValue + kLinearEndTolerance).absoluteValue) ||
+                    (!shouldUseForwardCamera && distance.absoluteValue < (Constants.kBackwardIntakeToCenter.translation.norm.absoluteValue + kLinearEndTolerance).absoluteValue)) {
+                if (!this.inTheEndgame) { endgameTimer.reset() }
+                this.inTheEndgame = true
+            }
+
+            // update if our timer is done
+            this.visionFinished = inTheEndgame && endgameTimer.hasPeriodPassed(kLinearEndTimeout.second)
+
             DriveSubsystem.setOutput(
                     TrajectoryTrackerOutput(
-                            nextState.linearVelocity,
+                            min(linear, kMaxLinearVelocityVision),
                             0.meter.acceleration,
                             turn.radian.velocity,
                             0.radian.acceleration
@@ -113,7 +138,7 @@ class VisionAssistedTrajectoryTracker(
             LiveDashboard.pathHeading = referencePose.rotation.radian
         }
 
-        trajectoryFinished = DriveSubsystem.trajectoryTracker.isFinished
+//        trajectoryFinished = DriveSubsystem.trajectoryTracker.isFinished
     }
 
     /**
@@ -128,6 +153,10 @@ class VisionAssistedTrajectoryTracker(
     companion object {
         const val kCorrectionKp = 5.5
         const val kCorrectionKd = 0.0
+        const val kLinearKp = 0.6
+        val kMaxLinearVelocityVision = 3.feet.velocity
+        val kLinearEndTolerance = 2.inch // how close we must be to the target to be in the the endgame
+        val kLinearEndTimeout = 0.5.second // how long to try once we are in the endgame
         var visionActive = false
     }
 }
