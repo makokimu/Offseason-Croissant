@@ -43,7 +43,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         override fun setClosedLoopGains() {
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.2, 0.0) else setClosedLoopGains(0.92, 0.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 0.0)
             // old gains
 //            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
@@ -56,7 +56,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         override fun setClosedLoopGains() {
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.2, 0.0) else setClosedLoopGains(0.92, 0.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 0.0)
             // Old gains
 //            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
