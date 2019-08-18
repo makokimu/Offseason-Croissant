@@ -41,7 +41,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
         val lastKnownTargetPose = this.lastKnownTargetPose
 
-        val source = speedSource()
+        val source = -speedSource()
 
         if (lastKnownTargetPose == null) {
 //            ElevatorSubsystem.wantedVisionMode = true

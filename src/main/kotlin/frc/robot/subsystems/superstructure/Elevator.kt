@@ -5,11 +5,11 @@ import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kElevatorRange
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
-import org.team5940.pantry.lib.*
+import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 
 object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
@@ -37,7 +37,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             master.talonSRX.configForwardSoftLimitThreshold(58500)
             master.talonSRX.configReverseSoftLimitThreshold(1300)
             master.talonSRX.configForwardSoftLimitEnable(true)
-            master.talonSRX.configReverseSoftLimitEnable(true)
+            master.talonSRX.configReverseSoftLimitEnable(false)
             master.talonSRX.configPeakOutputForward(1.0)
             master.talonSRX.configPeakOutputReverse(-1.0)
 
@@ -52,7 +52,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
             master.useMotionProfileForPosition = true
             // TODO use FalconSRX properties for velocities and accelerations
-            master.talonSRX.configMotionCruiseVelocity((4000.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
+            master.talonSRX.configMotionCruiseVelocity((5500.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
             master.talonSRX.configMotionAcceleration(10000)
             master.talonSRX.configMotionSCurveStrength(0)
 

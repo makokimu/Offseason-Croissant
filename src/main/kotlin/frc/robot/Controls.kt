@@ -2,10 +2,13 @@ package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
+import edu.wpi.first.wpilibj.experimental.command.Command
 import edu.wpi.first.wpilibj.experimental.command.ConditionalCommand
+import edu.wpi.first.wpilibj.experimental.command.InstantCommand
 import edu.wpi.first.wpilibj.experimental.command.PrintCommand
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
+import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Elevator
@@ -13,7 +16,7 @@ import frc.robot.subsystems.superstructure.Superstructure
 import frc.robot.subsystems.superstructure.ZeroSuperStructureRoutine
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.wrappers.hid.*
+import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
 import java.util.function.BooleanSupplier
 
@@ -49,19 +52,22 @@ object Controls : Updatable {
             button(11).changeOn { Elevator.elevatorOffset -= 0.3.inch }
 
             // cargo presets
-            button(12).changeOn(Superstructure.kCargoIntake).changeOff { Superstructure.kStowed.schedule() }
-            button(7).changeOn(Superstructure.kCargoLow).changeOff { Superstructure.kStowed.schedule() }
-            button(6).changeOn(Superstructure.kCargoMid).changeOff { Superstructure.kStowed.schedule() }
-            button(5).changeOn(Superstructure.kCargoHigh).changeOff { Superstructure.kStowed.schedule() }
-            button(8).changeOn(Superstructure.kCargoShip).changeOff { Superstructure.kStowed.schedule() }
+            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
+            button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
+            button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
+            button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
+            button(8).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
 
             // hatch presets
-            button(3).changeOn(Superstructure.kHatchLow)//.changeOff { Superstructure.kStowed.schedule() }
-            button(2).changeOn(Superstructure.kHatchMid)//.changeOff { Superstructure.kStowed.schedule() }
-            button(1).changeOn(Superstructure.kHatchHigh)//.changeOff { Superstructure.kStowed.schedule() }
+            button(3).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
+            button(2).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
+            button(1).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
+
+            // Stow (for now like this coz i dont wanna break anything
+            button(10).changeOn(Superstructure.kStowed)
 
             // that one passthrough preset that doesnt snap back to normal
-            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
+//            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
             // hatches
             lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
@@ -80,6 +86,8 @@ object Controls : Updatable {
         operatorFalconHID.update()
     }
 }
+
+private fun Command.andThen(block: () -> Unit) = sequential { +this@andThen ; +InstantCommand(Runnable(block)) }
 
 private fun FalconXboxBuilder.registerEmergencyMode() {
     button(kBack).changeOn {

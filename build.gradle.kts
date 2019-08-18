@@ -30,7 +30,7 @@ deploy {
             debug = frc.getDebugOrDefault(false)
             jvmArgs = listOf(
                     "-Xmx20M",
-                    "-XX:+UseG1GC"//,
+                    "-XX:+UseG1GC" // ,
 //                    "-Dcom.sun.management.jmxremote=true",
 //                    "-Dcom.sun.management.jmxremote.port=1099",
 //                    "-Dcom.sun.management.jmxremote.local.only=false",
@@ -56,7 +56,7 @@ dependencies {
     compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.0-RC")
 
     // FalconLibrary
-    compile("com.github.5190GreenHopeRobotics:FalconLibrary:6677e9305d")
+    compile("com.github.5190GreenHopeRobotics:FalconLibrary:dd8e6b2314")
 
     compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0") // gson

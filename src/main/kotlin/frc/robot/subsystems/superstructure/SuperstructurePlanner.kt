@@ -9,7 +9,7 @@ import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.min
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import java.lang.IllegalStateException
@@ -90,7 +90,7 @@ object SuperstructurePlanner {
             }
 
             // next arm first vs elevator first
-            else if (//goalState.proximalTranslation().y < -3.inch ||
+            else if (
                     minProxAngle < kMinimumSafeSyncedProximal &&
                     goalState.proximal > kOutsideFrame) {
                 // arm first if it's a downward move to below electronics or if we're inside the crossbar
@@ -125,7 +125,7 @@ object SuperstructurePlanner {
                     }
                 }
             } else if (worstCaseProximal < -3.inch &&
-                    currentState.proximal > kOutsideFrame //&&
+                    currentState.proximal > kOutsideFrame // &&
                     /*goalState.proximal < kOutsideFrame*/) {
                 // elevator first (i.e. coming from cargo grab to stowed)
                 +ClosedLoopElevatorMove(goalState.elevator)
@@ -146,10 +146,10 @@ object SuperstructurePlanner {
 
         // check passthrough
         val needsPassthrough = currentState.proximal < (-100).degree
-        if(needsPassthrough) {
+        if (needsPassthrough) {
             +SyncedMove.shortPassthrough
         }
-        
+
         // choose between everything at the same time, elevator first or arm first
         val proximalThreshold = (-68).degree
         val nowOutsideCrossbar = currentState.proximal > proximalThreshold
@@ -163,10 +163,10 @@ object SuperstructurePlanner {
 
         val needsExceptionForCargoGrab = currentState.proximal > (-62).degree && currentState.elevator > 36.inch && goalState.proximal > (-62).degree
 
-        val safeToMoveSynced = (nowOutsideCrossbar && willBeOutsideCrossbar && (!mightHitElectronics || needsExceptionForCargoGrab))
-                || (proximalStartSafe && proximalEndSafe && startHighEnough && endHighEnough)
+        val safeToMoveSynced = (nowOutsideCrossbar && willBeOutsideCrossbar && (!mightHitElectronics || needsExceptionForCargoGrab)) ||
+                (proximalStartSafe && proximalEndSafe && startHighEnough && endHighEnough)
 
-        if(safeToMoveSynced) {
+        if (safeToMoveSynced) {
             // yeet everything at the same time
             +parallel {
                 +ClosedLoopElevatorMove(goalState.elevator)
@@ -181,10 +181,10 @@ object SuperstructurePlanner {
             val nowOutsideFrame = currentState.proximal > proximalThresh
             val willBeOutsideFrame = goalState.proximal > proximalThresh
 
-            val shouldMoveElevatorFirst = (nowOutsideFrame && !willBeOutsideFrame && !startAboveSafe) || (nowOutsideFrame && willBeOutsideFrame)
-                    || (((-35).degree >= currentState.proximal && currentState.proximal >= (-90).degree)
-                        && ((-50).degree >= goalState.proximal && goalState.proximal >= (-100).degree))
-            if(shouldMoveElevatorFirst) {
+            val shouldMoveElevatorFirst = (nowOutsideFrame && !willBeOutsideFrame && !startAboveSafe) || (nowOutsideFrame && willBeOutsideFrame) ||
+                    (((-35).degree >= currentState.proximal && currentState.proximal >= (-90).degree) &&
+                        ((-50).degree >= goalState.proximal && goalState.proximal >= (-100).degree))
+            if (shouldMoveElevatorFirst) {
                 +ClosedLoopElevatorMove(goalState.elevator)
                 +parallel {
                     +ClosedLoopWristMove(goalState.wrist)
@@ -198,9 +198,7 @@ object SuperstructurePlanner {
                 +ClosedLoopElevatorMove(goalState.elevator)
             }
         }
-
     }
-
 
     fun worstCaseProximalTipElevation(currentState: SuperstructureState, goalState: SuperstructureState): Length {
         val worstArmTranslation = Translation2d(kProximalLen, min(currentState.proximal, goalState.proximal).minus(5.degree).toRotation2d())
@@ -238,6 +236,4 @@ object SuperstructurePlanner {
                     return path?.isFinished ?: pathStarted // if the path is null, check that it's started, otherwise call the path's isFinished() method
                 }
             }
-
-
 }

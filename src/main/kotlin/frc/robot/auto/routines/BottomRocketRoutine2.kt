@@ -10,7 +10,7 @@ import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.utils.withEquals
 
 class BottomRocketRoutine2 : AutoRoutine() {

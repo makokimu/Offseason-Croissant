@@ -74,7 +74,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1], kPCMID)
     var lowGear: Boolean by Delegates.observable(false) { _, _, wantsLow ->
 
-        shifter.state = if (wantsLow) FalconSolenoid.State.Forward else FalconSolenoid.State.Reverse
+        shifter.state = if (wantsLow) FalconSolenoid.State.Reverse else FalconSolenoid.State.Forward
 
         // update PID gains
         leftMotor.setClosedLoopGains()

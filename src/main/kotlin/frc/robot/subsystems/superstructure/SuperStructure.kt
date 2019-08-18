@@ -4,13 +4,12 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
-import org.team5940.pantry.lib.*
-import java.lang.Math.toDegrees
+import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.roundToInt
 
 typealias Length = SIUnit<Meter>
@@ -25,7 +24,7 @@ object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, Concurre
     }
 
     val kStowed
-            get() = everythingMoveTo(29.inch, (-70).degree, 36.degree)
+            get() = everythingMoveTo(29.inch, (-70).degree, 40.degree)
 
     val kBackHatchFromLoadingStation
             get() = SyncedMove.frontToBack

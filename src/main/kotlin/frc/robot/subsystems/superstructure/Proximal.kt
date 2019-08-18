@@ -10,7 +10,7 @@ import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
-import org.team5940.pantry.lib.*
+import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.cos
 import kotlin.math.withSign
 

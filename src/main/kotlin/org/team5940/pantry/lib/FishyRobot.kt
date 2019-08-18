@@ -4,8 +4,8 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.superstructure.*
-import kotlinx.coroutines.*
+import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
+import kotlinx.coroutines.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.utils.loopFrequency
 import org.ghrobotics.lib.wrappers.FalconTimedRobot
 

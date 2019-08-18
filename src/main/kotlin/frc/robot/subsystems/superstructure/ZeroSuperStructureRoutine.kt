@@ -3,7 +3,6 @@ package frc.robot.subsystems.superstructure
 import com.ctre.phoenix.motorcontrol.ControlMode
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import frc.robot.Robot
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
@@ -35,7 +34,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     // Called repeatedly when this Command is scheduled to run
     override fun execute() {
 //        println("zeroing EXECUTE")
-        SmartDashboard.putNumber("random", Math.random())
+//        SmartDashboard.putNumber("random", Math.random())
 
         val limitTriggered = Elevator.limitSwitchTriggered
 
@@ -120,7 +119,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         if (mCurrentState == ZeroingState.ZEROED) println("We're zeroed so we're done")
 //        if(Robot.lastRobotMode != FishyRobot.Mode.DISABLED) println("ds NOT disabled, returning")
 //        return mCurrentState == ZeroingState.ZEROED // || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
-        val shouldEnd = isDone || Robot.isEnabled
+        val shouldEnd = isDone // || Robot.isEnabled
 //        println("should end? $shouldEnd")
         return shouldEnd
     }

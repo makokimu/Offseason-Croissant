@@ -17,7 +17,7 @@ class IntakeHatchCommand(val releasing: Boolean) : FalconCommand(Intake) {
 
     override fun initialize() {
         println("intaking hatch command")
-        Intake.hatchMotorOutput = 12.volt * (if (releasing) 1 else -1)
+        Intake.hatchMotorOutput = 12.volt * (if (releasing) -1 else 1)
         Intake.cargoMotorOutput = 0.volt
         Intake.wantsOpen = false
         wasOpen = Intake.wantsOpen
@@ -39,8 +39,8 @@ class IntakeCargoCommand(val releasing: Boolean) : FalconCommand(Intake) {
         wasOpen = Intake.wantsOpen
         Intake.wantsOpen = !releasing
 
-        Intake.hatchMotorOutput = 12.volt * (if (!releasing) 1 else -1)
-        Intake.cargoMotorOutput = 12.volt * (if (releasing) 1 else -1)
+        Intake.hatchMotorOutput = 12.volt * (if (releasing) 1 else -1)
+        Intake.cargoMotorOutput = 12.volt * (if (!releasing) 1 else -1)
 
         super.initialize()
     }

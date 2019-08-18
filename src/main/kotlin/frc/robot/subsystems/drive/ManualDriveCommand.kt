@@ -7,7 +7,7 @@ import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.withDeadband
-import org.ghrobotics.lib.wrappers.hid.*
+import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max

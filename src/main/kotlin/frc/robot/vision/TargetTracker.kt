@@ -23,7 +23,7 @@ import org.team5940.pantry.lib.Updatable
 
 object TargetTracker : Loggable, Updatable {
 
-     private val targets = mutableSetOf<TrackedTarget>()
+    private val targets = mutableSetOf<TrackedTarget>()
 
     val kGson = Gson()
     private val visionTargetEntry = LiveDashboard.liveDashboardTable["visionTargets"]

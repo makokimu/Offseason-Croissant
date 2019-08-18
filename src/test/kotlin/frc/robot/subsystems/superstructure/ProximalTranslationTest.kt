@@ -2,7 +2,7 @@ package frc.robot.subsystems.superstructure
 
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.junit.Test
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 
 class ProximalTranslationTest {
 
@@ -19,7 +19,5 @@ class ProximalTranslationTest {
         val inches = 15.inch
         val nativeunit = Elevator.motor.master.model.toNativeUnitPosition(inches)
         println(nativeunit.value)
-
     }
-
 }

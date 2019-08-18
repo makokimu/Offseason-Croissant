@@ -9,8 +9,8 @@ import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.min
-import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derived.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.units.derived.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.SIRotationConstants.kRadianToDegrees
 import org.team5940.pantry.lib.WantedState
 import kotlin.math.abs
@@ -128,27 +128,27 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
 
         val frontToBack
             get() = sequential {
-                +PrintCommand("passiing thru front to back")
+                +PrintCommand("passing thru front to back")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(22.5.inch)
-                +SyncedMove(-160.degree, true)
+                +ClosedLoopElevatorMove(33.inch)
+                +SyncedMove((-160).degree, true)
                 +parallel {
-                    +ClosedLoopProximalMove(-193.0.degree)
-                    +ClosedLoopWristMove(-112.0.degree)
+                    +ClosedLoopProximalMove((-193.0).degree)
+                    +ClosedLoopWristMove((-112.0).degree)
                 }
-                +ClosedLoopElevatorMove(5.5.inch)
+                +ClosedLoopElevatorMove(16.5.inch)
             }
 
         val backToFront
             get() = sequential {
                 +PrintCommand("passiing thru back to front")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(22.5.inch)
+                +ClosedLoopElevatorMove(33.inch)
                 +SyncedMove(0.0.degree, false)
                 +parallel {
                     +ClosedLoopProximalMove(0.0.degree)
                     +ClosedLoopWristMove(0.0.degree)
-                    +ClosedLoopElevatorMove(15.0.inch)
+                    +ClosedLoopElevatorMove(26.0.inch)
                 }
             }
 

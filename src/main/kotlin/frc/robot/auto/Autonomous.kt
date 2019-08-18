@@ -5,7 +5,7 @@ package frc.robot.auto
 import frc.robot.Network
 import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
-import frc.robot.auto.routines.*
+import frc.robot.auto.routines.* // ktlint-disable no-wildcard-imports
 import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.stateCommandGroup

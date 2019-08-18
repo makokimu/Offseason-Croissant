@@ -2,8 +2,8 @@ package org.team5940.pantry.lib
 
 import com.ctre.phoenix.motorcontrol.IMotorControllerEnhanced
 import edu.wpi.first.wpilibj.Timer
-import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derived.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.units.derived.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.motors.ctre.FalconCTRE
 import org.ghrobotics.lib.motors.rev.FalconMAX
@@ -48,6 +48,14 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
     override var brakeMode
         get() = master.brakeMode
         set(value) { master.brakeMode = value }
+    override val drawnCurrent: SIUnit<Ampere>
+        get() {
+            var ret = master.drawnCurrent
+            followers?.forEach {
+                ret += it.drawnCurrent
+            }
+            return ret / (1 + (followers?.size ?: 0))
+        }
 
     override fun follow(motor: FalconMotor<*>): Boolean {
         var result = true
