@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 
 typealias Length = SIUnit<Meter>
 
-object Superstructure : LoggableFalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
+object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     init {
         // force instantiation of subsystems

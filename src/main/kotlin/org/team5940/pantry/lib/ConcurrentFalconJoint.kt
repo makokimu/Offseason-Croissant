@@ -22,7 +22,7 @@ interface ConcurrentlyUpdatingJoint<T : SIKey> {
  * demands of type [WantedState].
  */
 abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : ConcurrentlyUpdatingJoint<T>,
-        LoggableFalconSubsystem(), EmergencyHandleable {
+        FalconSubsystem(), EmergencyHandleable {
 
     abstract val motor: MultiMotorTransmission<T, V>
 

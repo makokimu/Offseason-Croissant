@@ -18,10 +18,8 @@ import org.ghrobotics.lib.mathematics.units.second
 @Suppress("SpellCheckingInspection")
 val kGson = Gson()
 
-@Suppress("unused", "SpellCheckingInspection")
 fun TimedTrajectory<Pose2dWithCurvature>.toJson() = kGson.toJson(this@toJson)
 
-@Suppress("unused", "SpellCheckingInspection")
 fun jsonToTrajectory(trajectory: String): TimedTrajectory<Pose2dWithCurvature> {
 
     val jsonData = kGson.fromJson<JsonObject>(trajectory)
