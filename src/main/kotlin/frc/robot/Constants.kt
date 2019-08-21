@@ -5,6 +5,7 @@ import com.team254.lib.physics.DCMotorTransmission
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
@@ -68,7 +69,8 @@ object Constants {
         val kProximalCos = 0.94.volt // volts
         const val kJointSpeedMultiplier = 1
         val kProximalLen = 32.0.inch
-        val kElevatorRange = 11.inch..66.inch
+        val kElevatorRange = 11.inch..69.inch
+        val kProximalThrustVelocity = 50.degree.velocity
     }
 
     object IntakeConstants {

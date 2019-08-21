@@ -6,6 +6,7 @@ import frc.robot.Constants.SuperStructureConstants.kProximalStatic
 import frc.robot.Ports
 import org.ghrobotics.lib.mathematics.units.SIKey
 import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.AngularVelocity
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
@@ -19,6 +20,16 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
     fun resetPosition(ticks: Int) {
         val encoder = synchronized(motor) { motor.encoder }
         encoder.resetPositionRaw(ticks.nativeUnits)
+    }
+
+    val activeTrajectoryPosition: SIUnit<Radian>
+        get() {
+            val nativeTrajectoryPos = motor.master.talonSRX.activeTrajectoryPosition.nativeUnits
+            return motor.master.model.fromNativeUnitPosition(nativeTrajectoryPos)
+        }
+
+    fun configureThrust(thrustVelocity: SIUnit<AngularVelocity>) {
+        motor.motionProfileCruiseVelocity = thrustVelocity
     }
 
     override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {

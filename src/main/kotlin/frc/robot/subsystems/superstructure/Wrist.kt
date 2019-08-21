@@ -15,11 +15,6 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         encoder.resetPositionRaw(ticks.toDouble().nativeUnits)
     }
 
-//    override fun periodic() {
-// //        println("wrist raw ${motor.master.encoder.rawPosition.value}")
-//        SmartDashboard.putNumber("wrist pos", motor.master.encoder.position.degree) // idk why but if this isn't here it breaks
-//    }
-
     override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
         override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,
                 Ports.SuperStructurePorts.WristPorts.ROTATION_MODEL)
@@ -32,7 +27,9 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
             setClosedLoopGains()
         }
 
-        override fun setClosedLoopGains() {
+        override fun setClosedLoopGains() = setMotionMagicGains()
+
+        fun setMotionMagicGains() {
             master.useMotionProfileForPosition = true
             // TODO use FalconSRX properties for velocities and accelerations
             master.talonSRX.configMotionCruiseVelocity((2000.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
@@ -43,5 +40,15 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
                     3.5, 0.0, ff = 0.4
             )
         }
+    }
+
+    @Suppress("UNREACHABLE_CODE")
+    fun setPositionMode() = motor.run {
+        setClosedLoopGains(0.0.apply { TODO("TUNE IT YOU HECK") }, 0.0, 0.0)
+        useMotionProfileForPosition = false
+    }
+    fun setMotionMagicMode() = motor.run {
+        setClosedLoopGains()
+        useMotionProfileForPosition = true
     }
 }

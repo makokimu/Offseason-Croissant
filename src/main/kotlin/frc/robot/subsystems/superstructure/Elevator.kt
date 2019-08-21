@@ -47,7 +47,10 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             setClosedLoopGains()
         }
 
-        override fun setClosedLoopGains() {
+        override fun setClosedLoopGains() =
+                setMotionMagicGains()
+
+        fun setMotionMagicGains() {
             // TODO also wrap the solenoid boi for the shifter?
 
             master.useMotionProfileForPosition = true
@@ -62,6 +65,15 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         }
     }
 
+    fun setPositionMode() = motor.run {
+        setClosedLoopGains(0.17, 0.0, 0.0)
+        useMotionProfileForPosition = false
+    }
+    fun setMotionMagicMode() = motor.run {
+        setClosedLoopGains()
+        useMotionProfileForPosition = true
+    }
+
     private val innerStageMinLimitSwitch = DigitalInput(0)
     val limitSwitchTriggered: Boolean get() = !innerStageMinLimitSwitch.get()
 
@@ -70,13 +82,14 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
     override fun lateInit() { motor.encoder.resetPosition(30.0.inch) }
 
     /** The maximum distance by which the elevator setpoint can be mutate */
-    private val kMaxElevatorOffset = -3.0.inch..3.0.inch
+    private val kMaxElevatorOffset = (-3.0).inch..3.0.inch
 
     var elevatorOffset: SIUnit<Meter> = 0.0.meter
         set(newValue) {
             field = newValue.coerceIn(kMaxElevatorOffset)
         }
 
+    @Suppress("UNCHECKED_CAST")
     override fun customizeWantedState(wantedState: WantedState): WantedState =
             when (wantedState) {
                 /** add the [wantedState] and [elevatorOffset] to get an offset total and then bound to the [kElevatorRange] */
