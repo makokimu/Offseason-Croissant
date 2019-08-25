@@ -44,7 +44,7 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
     @Suppress("UNREACHABLE_CODE")
     fun setPositionMode() = motor.run {
-        setClosedLoopGains(0.0.apply { TODO("TUNE IT YOU HECK") }, 0.0, 0.0)
+        setClosedLoopGains(0.5, 0.0, 0.0)
         useMotionProfileForPosition = false
     }
     fun setMotionMagicMode() = motor.run {
