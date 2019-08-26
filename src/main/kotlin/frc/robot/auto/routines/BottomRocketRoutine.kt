@@ -1,6 +1,6 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.experimental.command.InstantCommand
+import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints

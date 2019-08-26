@@ -2,10 +2,10 @@ package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
-import edu.wpi.first.wpilibj.experimental.command.Command
-import edu.wpi.first.wpilibj.experimental.command.ConditionalCommand
-import edu.wpi.first.wpilibj.experimental.command.InstantCommand
-import edu.wpi.first.wpilibj.experimental.command.PrintCommand
+import edu.wpi.first.wpilibj.frc2.command.Command
+import edu.wpi.first.wpilibj.frc2.command.ConditionalCommand
+import edu.wpi.first.wpilibj.frc2.command.InstantCommand
+import edu.wpi.first.wpilibj.frc2.command.PrintCommand
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.Intake

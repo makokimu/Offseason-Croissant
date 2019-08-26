@@ -1,7 +1,7 @@
 
 package frc.robot
 
-import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
+import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.auto.Autonomous
 import frc.robot.subsystems.drive.DriveSubsystem

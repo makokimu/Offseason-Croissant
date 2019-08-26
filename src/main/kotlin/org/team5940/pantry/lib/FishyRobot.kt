@@ -1,7 +1,7 @@
 package org.team5940.pantry.lib
 
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.experimental.command.CommandScheduler
+import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports

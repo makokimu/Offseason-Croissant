@@ -2,7 +2,7 @@
 
 package frc.robot.subsystems.intake
 
-import edu.wpi.first.wpilibj.experimental.command.InstantCommand
+import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.volt

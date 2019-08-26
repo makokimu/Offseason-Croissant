@@ -3,7 +3,7 @@ package frc.robot.vision
 import edu.wpi.first.networktables.NetworkTableEntry
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.experimental.command.SendableSubsystemBase
+import edu.wpi.first.wpilibj.frc2.command.SendableSubsystemBase
 import frc.robot.Constants
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.Length
