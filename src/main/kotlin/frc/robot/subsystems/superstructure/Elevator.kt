@@ -11,6 +11,9 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 
+/**
+ * The (singleton) [ConcurrentFalconJoint] elevator of Croissant.
+ */
 object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
     override val motor = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
@@ -34,6 +37,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
                 followers[index].talonSRX.setInverted(ElevatorPorts.FOLLOWER_INVERSION[index])
             }
 
+            // Config master settings and stuff
             master.talonSRX.configForwardSoftLimitThreshold(58500)
             master.talonSRX.configReverseSoftLimitThreshold(1300)
             master.talonSRX.configForwardSoftLimitEnable(true)
@@ -50,6 +54,9 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         override fun setClosedLoopGains() =
                 setMotionMagicGains()
 
+        /**
+         * Configure the master talon for motion magic control
+         */
         fun setMotionMagicGains() {
             // TODO also wrap the solenoid boi for the shifter?
 
@@ -65,23 +72,34 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         }
     }
 
+    /**
+     * Configure the motor for position closed loop and
+     * disable motion profile
+     */
     fun setPositionMode() = motor.run {
         setClosedLoopGains(0.17, 0.0, 0.0)
         useMotionProfileForPosition = false
     }
+
+    /**
+     * Configure the motor for motion profile closed loop
+     * and enable the use of motion profile
+     */
     fun setMotionMagicMode() = motor.run {
         setClosedLoopGains()
         useMotionProfileForPosition = true
     }
 
+    // The elevator's limit switch
     private val innerStageMinLimitSwitch = DigitalInput(0)
     val limitSwitchTriggered: Boolean get() = !innerStageMinLimitSwitch.get()
 
     init { motor.encoder.position }
 
+    // Set the elevator height to a sane-ish number by default
     override fun lateInit() { motor.encoder.resetPosition(30.0.inch) }
 
-    /** The maximum distance by which the elevator setpoint can be mutate */
+    /** The maximum distance by which the elevator setpoint can be offset */
     private val kMaxElevatorOffset = (-3.0).inch..3.0.inch
 
     var elevatorOffset: SIUnit<Meter> = 0.0.meter
@@ -97,7 +115,9 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
                 else -> wantedState
             }
 
-    override val currentState get() = motor.currentState
+    // The current state of the elevator
+    override val currentState get() =
+        motor.currentState
 
     /** Calculate the arbitrary feed forward given a [currentState] */
     override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Meter>) =

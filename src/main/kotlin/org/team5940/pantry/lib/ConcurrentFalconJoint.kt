@@ -37,6 +37,7 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
             get() = motor.currentState
 
     internal val wantedStateMutex = Object()
+
     /**
      * The current wantedState of the joint.
      * Setting this will both set the backing field and s3nd the new demand into the [wantedStateChannel]
@@ -48,11 +49,23 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
         get() = synchronized(wantedStateMutex) { field }
         set(newValue) = synchronized(wantedStateMutex) { field = newValue }
 
+    /**
+     * Determine if the joint is within the [tolerance] of the current wantedState.
+     * If the wantedState isn't [WantedState.Position<*>], return false.
+     */
     fun isWithTolerance(tolerance: SIUnit<T> /* radian */): Boolean {
         val state = wantedState as? WantedState.Position<*> ?: return false // smart cast state, return false if it's not Position
 
         return abs(state.targetPosition.value - currentState.position.value) < tolerance.value
     }
+
+    fun isWithTolerance(goal: SIUnit<T>, tolerance: SIUnit<T>): Boolean {
+        val state = wantedState as? WantedState.Position<*> ?: return false // smart cast state, return false if it's not Position
+
+        return abs(state.targetPosition.value - currentState.position.value) < tolerance.value
+    }
+
+
 
     /**
      * Calculate the arbitrary feed forward given the [currentState] in Volts

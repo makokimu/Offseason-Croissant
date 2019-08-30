@@ -10,6 +10,13 @@ import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.team5940.pantry.lib.WantedState
 
+/**
+ * Thrust the wrist out. This reduces the proximal cruise velocity and uses position closed loop on the
+ * Elevator and Wrist such that the proximal remains at a fixed [mWristHeightToMaintain] out to a given
+ * [proximalAngle].
+ * @param mWristHeightToMaintain the wrist height to maintain
+ * @param proximalAngle the proximal angle to reach
+ */
 class PrismaticWristPokeMove(private val mWristHeightToMaintain: SIUnit<Meter>, val proximalAngle: SIUnit<Radian>) : FalconCommand(Superstructure, Elevator, Proximal, Wrist) {
 
     override fun initialize() {
@@ -28,6 +35,8 @@ class PrismaticWristPokeMove(private val mWristHeightToMaintain: SIUnit<Meter>, 
         Proximal.wantedState = WantedState.Position(proximalAngle)
         Wrist.wantedState = WantedState.Position(wristPos)
     }
+
+    override fun isFinished() = Proximal.isWithTolerance(mWristHeightToMaintain, 2.degree)
 
     override fun end(interrupted: Boolean) {
         Proximal.motor.setClosedLoopGains()
