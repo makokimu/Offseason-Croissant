@@ -29,23 +29,21 @@ class ClosedLoopClimbCommand: AutoRoutine() {
         })
         // take superstructure to prop up position
         +SuperstructurePlanner.everythingMoveTo(30.inch, (-60).degree, 120.degree) // TODO check preset
-        +parallel(
-                object : FalconCommand(ClimbSubsystem, Elevator) {
-                    var elevatorCruisingToPosition = true
-                    override fun execute() {
-                        // something something make the speeds the same between the elevator and climb somehow?
-                        ClimbSubsystem.wantedState = WantedState.Position(18.inch)
-                        // do the Thing with the Elevator
-                        if(Elevator.currentState.position < 35.inch && elevatorCruisingToPosition) // TODO check preset
-                            elevatorCruisingToPosition = false
-                        Elevator.wantedState = if(elevatorCruisingToPosition) WantedState.Voltage((-4).volt) else
-                            WantedState.Position(33.inch) // TODO check preset
-                    }
+        +object : FalconCommand(ClimbSubsystem, Elevator) {
+            var elevatorCruisingToPosition = true
+            override fun execute() {
+                // something something make the speeds the same between the elevator and climb somehow?
+                ClimbSubsystem.wantedState = WantedState.Position(18.inch)
+                // do the Thing with the Elevator
+                if(Elevator.currentState.position < 35.inch && elevatorCruisingToPosition) // TODO check preset
+                    elevatorCruisingToPosition = false
+                Elevator.wantedState = if(elevatorCruisingToPosition) WantedState.Voltage((-4).volt) else
+                    WantedState.Position(33.inch) // TODO check preset
+            }
 
-                    override fun isFinished() = Elevator.isWithTolerance(2.inch)
-                            && ClimbSubsystem.isWithTolerance(2.inch)
-                }
-        )
+            override fun isFinished() = Elevator.isWithTolerance(2.inch)
+                    && ClimbSubsystem.isWithTolerance(2.inch)
+        }
         // yeet forward again
         +executeFor(5.second, object : FalconCommand(DriveSubsystem, ClimbSubsystem) {
             override fun execute() {
