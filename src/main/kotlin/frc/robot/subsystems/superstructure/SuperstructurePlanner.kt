@@ -10,6 +10,7 @@ import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.min
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import java.lang.IllegalStateException
@@ -204,6 +205,10 @@ object SuperstructurePlanner {
         val worstArmTranslation = Translation2d(kProximalLen, min(currentState.proximal, goalState.proximal).minus(5.degree).toRotation2d())
         return min(currentState.elevator, goalState.elevator) + worstArmTranslation.y
     }
+
+    fun everythingMoveTo(elevator: Length, proximal: SIUnit<Radian>,
+                         wrist: SIUnit<Radian>) = everythingMoveTo(
+            SuperstructureState(elevator, proximal, wrist))
 
     fun everythingMoveTo(goalState: SuperstructureState): SendableCommandBase =
             object : FalconCommand(Superstructure, Proximal, Wrist, Elevator) {
