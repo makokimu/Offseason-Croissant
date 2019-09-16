@@ -13,18 +13,15 @@ val openIntake = InstantCommand(Runnable { Intake.wantsOpen = true })
 
 class IntakeHatchCommand(val releasing: Boolean) : FalconCommand(Intake) {
 
-    var wasOpen: Boolean = false
-
     override fun initialize() {
         println("intaking hatch command")
         Intake.hatchMotorOutput = 12.volt * (if (releasing) -1 else 1)
         Intake.cargoMotorOutput = 0.volt
         Intake.wantsOpen = false
-        wasOpen = Intake.wantsOpen
     }
 
     override fun end(interrupted: Boolean) {
-        Intake.wantsOpen = wasOpen
+        Intake.wantsOpen = false
         Intake.hatchMotorOutput = 0.volt
         Intake.cargoMotorOutput = 0.volt
     }
