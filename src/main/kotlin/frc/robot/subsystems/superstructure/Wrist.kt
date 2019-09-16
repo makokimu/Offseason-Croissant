@@ -1,12 +1,19 @@
 package frc.robot.subsystems.superstructure
 
+import com.ctre.phoenix.CANifier
+import com.ctre.phoenix.ErrorCode
+import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice
+import com.ctre.phoenix.motorcontrol.RemoteSensorSource
+import edu.wpi.first.wpilibj.DriverStation
 import frc.robot.Constants
 import frc.robot.Ports
 import org.ghrobotics.lib.mathematics.units.derived.Radian
+import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
 import org.team5940.pantry.lib.MultiMotorTransmission
+import org.team5940.pantry.lib.asPWMSource
 
 object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
@@ -15,9 +22,26 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         encoder.resetPositionRaw(ticks.toDouble().nativeUnits)
     }
 
+    private val canifier = CANifier(99999999).also { TODO("NOT YET IMPLEMENTED") }
+    private val absoluteEncoder = canifier.asPWMSource(0.0 to 0.degree, 1.0 to 90.degree,
+            CANifier.PWMChannel.PWMChannel0)
+
+    fun zero() = motor.encoder.resetPosition(absoluteEncoder())
+
     override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
         override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,
-                Ports.SuperStructurePorts.WristPorts.ROTATION_MODEL)
+                Ports.SuperStructurePorts.WristPorts.ROTATION_MODEL).apply { talonSRX.apply {
+
+            var errorCode = configRemoteFeedbackFilter(canifier.deviceID, RemoteSensorSource.CANifier_Quadrature, 0, 100)
+
+            if(errorCode != ErrorCode.OK)
+                DriverStation.reportError("Could not set proximal remote sensor!!:  $errorCode", false)
+
+            errorCode = configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, 100)
+
+            if(errorCode != ErrorCode.OK)
+                DriverStation.reportError("Could not set proximal remote feedback sensor!! $errorCode", false)
+        } }
 
         init {
             master.outputInverted = Ports.SuperStructurePorts.WristPorts.TALON_INVERTED
