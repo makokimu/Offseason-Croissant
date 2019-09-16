@@ -60,9 +60,7 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
     }
 
     fun isWithTolerance(goal: SIUnit<T>, tolerance: SIUnit<T>): Boolean {
-        val state = wantedState as? WantedState.Position<*> ?: return false // smart cast state, return false if it's not Position
-
-        return abs(state.targetPosition.value - currentState.position.value) < tolerance.value
+        return (goal - currentState.position).absoluteValue < tolerance
     }
 
 

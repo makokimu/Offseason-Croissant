@@ -17,7 +17,7 @@ import org.team5940.pantry.lib.WantedState
  * @param mWristHeightToMaintain the wrist height to maintain
  * @param proximalAngle the proximal angle to reach
  */
-class PrismaticWristPokeMove(private val mWristHeightToMaintain: SIUnit<Meter>, val proximalAngle: SIUnit<Radian>) : FalconCommand(Superstructure, Elevator, Proximal, Wrist) {
+class PrismaticWristPokeMove(private val mWristHeightToMaintain: SIUnit<Meter>, private val proximalAngle: SIUnit<Radian>) : FalconCommand(Superstructure, Elevator, Proximal, Wrist) {
 
     override fun initialize() {
         Elevator.setPositionMode()
@@ -36,7 +36,7 @@ class PrismaticWristPokeMove(private val mWristHeightToMaintain: SIUnit<Meter>, 
         Wrist.wantedState = WantedState.Position(wristPos)
     }
 
-    override fun isFinished() = Proximal.isWithTolerance(mWristHeightToMaintain, 2.degree)
+    override fun isFinished() = Proximal.isWithTolerance(proximalAngle, 2.degree)
 
     override fun end(interrupted: Boolean) {
         Proximal.motor.setClosedLoopGains()
