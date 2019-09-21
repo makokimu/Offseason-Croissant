@@ -17,6 +17,7 @@ import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
 import org.ghrobotics.lib.mathematics.units.inch
 import org.team5940.pantry.lib.FishyRobot
+import setLEDOutput
 
 object Robot : FishyRobot() {
 
@@ -45,6 +46,9 @@ object Robot : FishyRobot() {
     }
 
     override fun robotPeriodic() {
+
+        Proximal.canifier.setLEDOutput(255, 255, 255)
+
         super.robotPeriodic()
     }
 }

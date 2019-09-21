@@ -22,7 +22,7 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         encoder.resetPositionRaw(ticks.toDouble().nativeUnits)
     }
 
-    private val canifier = CANifier(99999999).also { TODO("NOT YET IMPLEMENTED") }
+    private val canifier = CANifier(34)
     private val absoluteEncoder = canifier.asPWMSource(0.0 to 0.degree, 1.0 to 90.degree,
             CANifier.PWMChannel.PWMChannel0)
 

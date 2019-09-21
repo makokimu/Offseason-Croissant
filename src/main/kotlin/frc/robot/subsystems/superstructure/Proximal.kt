@@ -38,7 +38,7 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         motor.motionProfileCruiseVelocity = thrustVelocity
     }
 
-    private val canifier = CANifier(99999999).also { TODO("NOT YET IMPLEMENTED") }
+    val canifier = CANifier(35)
     private val absoluteEncoder = canifier.asPWMSource(0.0 to 0.degree, 1.0 to 90.degree,
             CANifier.PWMChannel.PWMChannel0)
 
