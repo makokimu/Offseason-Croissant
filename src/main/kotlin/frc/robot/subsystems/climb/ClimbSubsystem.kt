@@ -1,9 +1,14 @@
 package frc.robot.subsystems.climb
 
 import com.revrobotics.CANSparkMaxLowLevel
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.superstructure.Length
+import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructurePlanner
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
@@ -15,7 +20,7 @@ import kotlin.math.abs
 
 object ClimbSubsystem: FalconSubsystem() {
 
-    val stiltMotor = FalconMAX(99999, CANSparkMaxLowLevel.MotorType.kBrushless,
+    val stiltMotor: FalconMAX<Meter> = FalconMAX(9, CANSparkMaxLowLevel.MotorType.kBrushless,
            // the encoder is attached behind a 1:9 versaplanetary and a 1:2 pulley thing
             NativeUnitLengthModel(
                     1.nativeUnits * 9.0 * 2.0,
@@ -23,11 +28,23 @@ object ClimbSubsystem: FalconSubsystem() {
             )
             ).apply {
 
-        setPIDGains(0.0, 0.0)
-        encoder.resetPosition(0.meter)
+        setPIDGains(1.0, 0.0)
+        encoder.canEncoder.positionConversionFactor = -1.0
+        encoder.resetPosition(33.inch)
         canSparkMax.setSmartCurrentLimit(30, 30) // TODO check
-        canSparkMax.burnFlash()
+//        canSparkMax.burnFlash()
     }
+
+    override fun lateInit() {
+        SmartDashboard.putData("test move", sequential {
+            +SuperstructurePlanner.everythingMoveTo(30.inch, 0.degree, 0.degree) // TODO check preset
+            +SuperstructurePlanner.everythingMoveTo(30.inch, (-60).degree, 120.degree) // TODO check preset
+        })
+
+        SmartDashboard.putData("straight out", Superstructure.kHatchMid)
+    }
+
+    val safeRange = (10.inch..33.inch)
 
     val intakeWheels = FalconSRX(99999, DefaultNativeUnitModel)
 

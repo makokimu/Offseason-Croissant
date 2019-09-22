@@ -104,8 +104,8 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
     val zero = ZeroSuperStructureRoutine()
     override fun lateInit() {
-        Proximal.resetPosition(0)
-        Wrist.resetPosition(0)
+        Proximal.zero()
+        Wrist.zero()
 
         SmartDashboard.putData(zero)
         zero.schedule()

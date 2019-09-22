@@ -7,9 +7,11 @@ import com.ctre.phoenix.motorcontrol.RemoteSensorSource
 import edu.wpi.first.wpilibj.DriverStation
 import frc.robot.Constants
 import frc.robot.Ports
+import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
+import org.ghrobotics.lib.mathematics.units.nativeunit.toNativeUnitPosition
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
 import org.team5940.pantry.lib.MultiMotorTransmission
@@ -17,16 +19,22 @@ import org.team5940.pantry.lib.asPWMSource
 
 object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
-    fun resetPosition(ticks: Int) {
-        val encoder = synchronized(motor) { motor.encoder }
-        encoder.resetPositionRaw(ticks.toDouble().nativeUnits)
+    fun resetPosition(position: SIUnit<Radian>) {
+        val ticks = position.toNativeUnitPosition(motor.master.model)
+        println("reseting position to ${position.degree} or ${ticks.value}")
+        canifier.setQuadraturePosition(ticks.value.toInt(), 0)
     }
 
-    private val canifier = CANifier(34)
-    private val absoluteEncoder = canifier.asPWMSource(0.0 to 0.degree, 1.0 to 90.degree,
-            CANifier.PWMChannel.PWMChannel0)
+    override fun periodic() {
+//        zero()
+        println(motor.encoder.position.degree)
+    }
 
-    fun zero() = motor.encoder.resetPosition(absoluteEncoder())
+    private val canifier = CANifier(35)
+    val absoluteEncoder = Proximal.canifier.asPWMSource(1336.4 to (-45).degree, 2004.0 to 90.degree,
+            CANifier.PWMChannel.PWMChannel1)
+
+    fun zero() = resetPosition(absoluteEncoder())
 
     override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
         override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.WristPorts.TALON_PORTS,

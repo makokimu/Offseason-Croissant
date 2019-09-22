@@ -14,18 +14,21 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.AngularVelocity
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
-import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
+import org.ghrobotics.lib.mathematics.units.nativeunit.*
+import org.ghrobotics.lib.motors.AbstractFalconEncoder
+import org.ghrobotics.lib.motors.ctre.FalconCTREEncoder
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.withSign
+import kotlin.properties.Delegates
 
 object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
-    fun resetPosition(ticks: Int) {
-        val encoder = synchronized(motor) { motor.encoder }
-        encoder.resetPositionRaw(ticks.nativeUnits)
+    fun resetPosition(position: SIUnit<Radian>) {
+        val ticks = position.toNativeUnitPosition(motor.master.model)
+        canifier.setQuadraturePosition(ticks.value.toInt(), 0)
     }
 
     val activeTrajectoryPosition: SIUnit<Radian>
@@ -38,27 +41,27 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         motor.motionProfileCruiseVelocity = thrustVelocity
     }
 
-    val canifier = CANifier(35)
-    private val absoluteEncoder = canifier.asPWMSource(0.0 to 0.degree, 1.0 to 90.degree,
+    val canifier = CANifier(34)
+    val absoluteEncoder = canifier.asPWMSource(1131.0 to (-90).degree, 677.0 to 0.degree,
             CANifier.PWMChannel.PWMChannel0)
 
-    fun zero() = motor.encoder.resetPosition(absoluteEncoder())
+    fun zero() = resetPosition(absoluteEncoder())
+
+    override fun periodic() {
+        val prox = doubleArrayOf(0.0, 0.0)
+        val wrist = doubleArrayOf(0.0, 0.0)
+        canifier.getPWMInput(CANifier.PWMChannel.PWMChannel0, prox)
+        canifier.getPWMInput(CANifier.PWMChannel.PWMChannel1, wrist)
+
+//        println("${prox[0]}, ${wrist[0]}") // 541.3, 19977 to 2394, 19977
+//        println("${prox[0]}/${absoluteEncoder().degree}, ${wrist[0]}/${Wrist.absoluteEncoder().degree}")
+//        println(Wrist.motor.encoder.position.degree)
+    }
 
     override val motor = object : MultiMotorTransmission<Radian, FalconSRX<Radian>>() {
 
         override val master: FalconSRX<Radian> = FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[0],
-                Ports.SuperStructurePorts.ProximalPorts.ROTATION_MODEL).apply { talonSRX.apply {
-
-            var errorCode = configRemoteFeedbackFilter(canifier.deviceID, RemoteSensorSource.CANifier_Quadrature, 0, 100)
-
-            if(errorCode != ErrorCode.OK)
-                DriverStation.reportError("Could not set proximal remote sensor!!:  $errorCode", false)
-
-            errorCode = configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, 100)
-
-            if(errorCode != ErrorCode.OK)
-                DriverStation.reportError("Could not set proximal remote feedback sensor!! $errorCode", false)
-        } }
+                Ports.SuperStructurePorts.ProximalPorts.ROTATION_MODEL)
 
         override val followers: List<FalconSRX<*>> = listOf(
                 FalconSRX(Ports.SuperStructurePorts.ProximalPorts.TALON_PORTS[1], DefaultNativeUnitModel))
@@ -66,6 +69,9 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         init {
             if (Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION.size < followers.size)
                 throw ArrayIndexOutOfBoundsException("Follower inversion list size contains less indices than the number of followers!")
+
+            master.talonSRX.configRemoteFeedbackFilter(canifier.deviceID, RemoteSensorSource.CANifier_Quadrature, 0, 100)
+            master.talonSRX.configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, 100)
 
             master.outputInverted = Ports.SuperStructurePorts.ProximalPorts.TALON_INVERTED
             master.feedbackSensor = Ports.SuperStructurePorts.ProximalPorts.SENSOR

@@ -1,9 +1,11 @@
 
 package frc.robot
 
+import com.ctre.phoenix.CANifier
 import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.auto.Autonomous
+import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.superstructure.Elevator
@@ -30,6 +32,7 @@ object Robot : FishyRobot() {
         +Elevator
         +Superstructure
         +Intake
+        +ClimbSubsystem
 
         +TargetTracker
         JeVoisManager
@@ -46,8 +49,6 @@ object Robot : FishyRobot() {
     }
 
     override fun robotPeriodic() {
-
-        Proximal.canifier.setLEDOutput(255, 255, 255)
 
         super.robotPeriodic()
     }
