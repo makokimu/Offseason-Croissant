@@ -9,7 +9,7 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 
 object Ports {
 
-    const val kPCMID = 9
+    const val kPCMID = 8
 
     object DrivePorts {
         val LEFT_PORTS = listOf(1, 2)
@@ -18,8 +18,8 @@ object Ports {
     }
 
     object IntakePorts {
-        const val CARGO_PORT = 34
-        const val HATCH_PORT = 35
+        const val CARGO_PORT = 36
+        const val HATCH_PORT = 37
         val PISTON_PORTS = listOf(0, 1)
     }
 

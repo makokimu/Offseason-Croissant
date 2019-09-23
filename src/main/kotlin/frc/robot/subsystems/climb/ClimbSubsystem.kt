@@ -37,8 +37,9 @@ object ClimbSubsystem: FalconSubsystem() {
 
     override fun lateInit() {
         SmartDashboard.putData("test move", sequential {
-            +SuperstructurePlanner.everythingMoveTo(30.inch, 0.degree, 0.degree) // TODO check preset
-            +SuperstructurePlanner.everythingMoveTo(30.inch, (-60).degree, 120.degree) // TODO check preset
+            +SuperstructurePlanner.everythingMoveTo(35.inch, 0.degree, 0.degree) // TODO check preset
+            +SuperstructurePlanner.everythingMoveTo(35.inch, (-5).degree, 80.degree) // TODO check preset
+            +SuperstructurePlanner.everythingMoveTo(25.inch, (-5).degree, 95.degree) // TODO check preset
         })
 
         SmartDashboard.putData("straight out", Superstructure.kHatchMid)
@@ -46,7 +47,10 @@ object ClimbSubsystem: FalconSubsystem() {
 
     val safeRange = (10.inch..33.inch)
 
-    val intakeWheels = FalconSRX(99999, DefaultNativeUnitModel)
+    val intakeWheels = FalconSRX(45, DefaultNativeUnitModel).apply {
+        outputInverted = true
+        configCurrentLimit(true, FalconSRX.CurrentLimitConfig(30.amp, 2.second, 15.amp))
+    }
 
     private val wantedStateMutex = Object()
     private val currentStateMutex = Object()

@@ -6,6 +6,8 @@ import edu.wpi.first.wpilibj.frc2.command.Command
 import edu.wpi.first.wpilibj.frc2.command.ConditionalCommand
 import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.PrintCommand
+import frc.robot.subsystems.climb.ClimbSubsystem
+import frc.robot.subsystems.climb.SketchyTest
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.Intake
@@ -13,11 +15,15 @@ import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.subsystems.superstructure.SuperstructurePlanner
 import frc.robot.subsystems.superstructure.ZeroSuperStructureRoutine
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
+import org.team5940.pantry.lib.WantedState
 import java.util.function.BooleanSupplier
 
 object Controls : Updatable {
@@ -30,6 +36,9 @@ object Controls : Updatable {
     val driverFalconXbox = xboxController(0) {
         registerEmergencyMode()
 
+        button(kB).changeOn { isClimbing = true }
+        button(kX).changeOn { isClimbing = false }
+
         state({ !isClimbing }) {
             // Vision align
             triggerAxisButton(GenericHID.Hand.kRight).change(
@@ -38,7 +47,14 @@ object Controls : Updatable {
 
             // Shifting
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
-            button(kA).changeOn { ZeroSuperStructureRoutine().schedule() }
+//            button(kA).changeOn { ZeroSuperStructureRoutine().schedule() }
+            button(kA).changeOn(sequential {
+                +SuperstructurePlanner.everythingMoveTo(35.inch, 0.degree, 0.degree) // TODO check preset
+                +SuperstructurePlanner.everythingMoveTo(25.inch, (-12).degree, 87.degree) // TODO check preset
+            })
+        }
+        state({ isClimbing }) {
+            button(kA).changeOn(SketchyTest())
         }
     }
 
