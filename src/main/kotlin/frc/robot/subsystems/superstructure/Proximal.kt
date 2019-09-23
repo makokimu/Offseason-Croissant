@@ -48,10 +48,10 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
     fun zero() = resetPosition(absoluteEncoder())
 
     override fun periodic() {
-        val prox = doubleArrayOf(0.0, 0.0)
-        val wrist = doubleArrayOf(0.0, 0.0)
-        canifier.getPWMInput(CANifier.PWMChannel.PWMChannel0, prox)
-        canifier.getPWMInput(CANifier.PWMChannel.PWMChannel1, wrist)
+//        val prox = doubleArrayOf(0.0, 0.0)
+//        val wrist = doubleArrayOf(0.0, 0.0)
+//        canifier.getPWMInput(CANifier.PWMChannel.PWMChannel0, prox)
+//        canifier.getPWMInput(CANifier.PWMChannel.PWMChannel1, wrist)
 
 //        println("${prox[0]}, ${wrist[0]}") // 541.3, 19977 to 2394, 19977
 //        println("${prox[0]}/${absoluteEncoder().degree}, ${wrist[0]}/${Wrist.absoluteEncoder().degree}")
@@ -69,6 +69,10 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         init {
             if (Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION.size < followers.size)
                 throw ArrayIndexOutOfBoundsException("Follower inversion list size contains less indices than the number of followers!")
+
+            canifier.setLEDOutput(0.0, CANifier.LEDChannel.LEDChannelA)
+            canifier.setLEDOutput(0.0, CANifier.LEDChannel.LEDChannelB)
+            canifier.setLEDOutput(0.0, CANifier.LEDChannel.LEDChannelC)
 
             master.talonSRX.configRemoteFeedbackFilter(canifier.deviceID, RemoteSensorSource.CANifier_Quadrature, 0, 100)
             master.talonSRX.configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, 100)

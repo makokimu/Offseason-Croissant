@@ -20,6 +20,7 @@ import frc.robot.subsystems.superstructure.Wrist
 import org.ghrobotics.lib.mathematics.units.inch
 import org.team5940.pantry.lib.FishyRobot
 import setLEDOutput
+import java.awt.Color
 
 object Robot : FishyRobot() {
 
@@ -40,8 +41,8 @@ object Robot : FishyRobot() {
         VisionProcessing
         +Controls
         +Autonomous
+        LEDs
 
-        SmartDashboard.putData(ClosedLoopElevatorMove(23.0.inch))
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 
@@ -49,7 +50,6 @@ object Robot : FishyRobot() {
     }
 
     override fun robotPeriodic() {
-
         super.robotPeriodic()
     }
 }

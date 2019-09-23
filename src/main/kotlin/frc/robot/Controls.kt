@@ -50,7 +50,7 @@ object Controls : Updatable {
 //            button(kA).changeOn { ZeroSuperStructureRoutine().schedule() }
             button(kA).changeOn(sequential {
                 +SuperstructurePlanner.everythingMoveTo(35.inch, 0.degree, 0.degree) // TODO check preset
-                +SuperstructurePlanner.everythingMoveTo(25.inch, (-12).degree, 87.degree) // TODO check preset
+                +SuperstructurePlanner.everythingMoveTo(25.inch, (-5).degree, 90.degree) // TODO check preset
             })
         }
         state({ isClimbing }) {
