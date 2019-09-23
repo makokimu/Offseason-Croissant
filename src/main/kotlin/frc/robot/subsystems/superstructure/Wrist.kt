@@ -22,12 +22,12 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
     fun resetPosition(position: SIUnit<Radian>) {
         val ticks = position.toNativeUnitPosition(motor.master.model)
         println("reseting position to ${position.degree} or ${ticks.value}")
-        canifier.setQuadraturePosition(ticks.value.toInt(), 0)
+        canifier.setQuadraturePosition(ticks.value.toInt() * -1, 0)
     }
 
     override fun periodic() {
 //        zero()
-        println(motor.encoder.position.degree)
+//        println(motor.encoder.position.degree)
     }
 
     private val canifier = CANifier(35)

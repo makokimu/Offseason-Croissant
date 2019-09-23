@@ -43,7 +43,7 @@ object Ports {
         object WristPorts {
             val TALON_PORTS = 33
             val TALON_INVERTED = true
-            val TALON_SENSOR_PHASE = true
+            val TALON_SENSOR_PHASE = false
             val ROTATION_MODEL = NativeUnitRotationModel(4096.nativeUnits * 8)
             val SENSOR = FeedbackDevice.RemoteSensor0
         }
