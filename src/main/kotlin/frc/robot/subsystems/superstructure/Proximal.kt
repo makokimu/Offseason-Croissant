@@ -27,7 +27,7 @@ import kotlin.properties.Delegates
 object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
     fun resetPosition(position: SIUnit<Radian>) {
-        val ticks = (position - 15.degree).toNativeUnitPosition(motor.master.model)
+        val ticks = (position).toNativeUnitPosition(motor.master.model)
         canifier.setQuadraturePosition(ticks.value.toInt(), 0)
     }
 
