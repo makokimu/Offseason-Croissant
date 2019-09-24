@@ -1,5 +1,6 @@
 package frc.robot.subsystems.superstructure
 
+import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
 import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
@@ -13,6 +14,7 @@ import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-impo
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import java.awt.Color
 import java.lang.IllegalStateException
 import kotlin.math.min
 
@@ -174,7 +176,8 @@ object SuperstructurePlanner {
                 +ClosedLoopWristMove(goalState.wrist)
                 +ClosedLoopProximalMove(goalState.proximal)
             }
-        } else {
+        }
+        else {
             // choose between arm first or elevator first
             val proximalThresh = (-18).degree
             val startAboveSafe = goalState.elevator > 36.inch
@@ -199,6 +202,7 @@ object SuperstructurePlanner {
                 +ClosedLoopElevatorMove(goalState.elevator)
             }
         }
+        +InstantCommand(Runnable{ LEDs.wantedState = LEDs.State.Blink(0.25.second, Color.green, count = 4, nextState = LEDs.State.Default) })
     }
 
     fun worstCaseProximalTipElevation(currentState: SuperstructureState, goalState: SuperstructureState): Length {
