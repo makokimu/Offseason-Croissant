@@ -1,89 +1,81 @@
 package frc.robot.subsystems.superstructure
 
 import com.ctre.phoenix.CANifier
-import edu.wpi.first.networktables.EntryNotification
-import edu.wpi.first.networktables.NetworkTable
-import edu.wpi.first.networktables.NetworkTableEntry
-import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.FalconSubsystem
-import org.ghrobotics.lib.mathematics.units.milli
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.Second
 import org.ghrobotics.lib.mathematics.units.millisecond
-import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
+import org.ghrobotics.lib.mathematics.units.second
+import org.team5940.pantry.lib.FishyRobot
 import java.awt.Color
-import java.util.function.Consumer
 
 object LEDs: FalconSubsystem() {
 
-    class LEDBlinkCommand(val color: Color, val duration: Double): FalconCommand(LEDs) {
-        var wantsOn = false
-        var lastChangeTime = -1.0
-
-        override fun isFinished() = false
-
-        override fun execute() {
-            // check if we need to change
-            if(lastChangeTime + duration < Timer.getFPGATimestamp()) {
-                if(wantsOn) setColor(color) else setColor(Color.BLACK)
-                lastChangeTime = Timer.getFPGATimestamp()
-                wantsOn = !wantsOn
-            }
-        }
-    }
-
     override fun lateInit() {
-//        setColor(PURPLE)
-//        setColor(Color.red)
-        println("INITing LED BLINK COMMAND")
         updateThread.start()
-//        LEDBlinkCommand(PURPLE, 1.0).schedule()
     }
 
     fun setVisionMode(wantsVision: Boolean) {
-        if(wantsVision) {
-            wantsBlink = true
-            wantedColor = Color.GREEN
+        this.wantedState = if(wantsVision) {
+            State.Blink((1.0/8.0).second, Color.green)
         } else {
-            wantsBlink = false
-            wantedColor = Color.RED
+            State.Solid(Color.green)
         }
     }
 
     sealed class State(open val color: Color) {
-        object Default: State(Color.red)
-        class Solid(override val color: Color): State(color)
-        class Blink(val blinkTime: Double, override val color: Color): State(color)
-        class Fade(val fadeTime: Double, override val color: Color): State(color)
+        open class Solid(override val color: Color): State(color)
+        object Default: Solid(Color.red)
+        class Blink(val blinkTime: SIUnit<Second>, override val color: Color): State(color)
+        class Fade(val fadeTime: SIUnit<Second>, override val color: Color): State(color)
     }
-    
-    var wantsBlink = false
+
+    var wantedState: State = State.Default
         @Synchronized get
         @Synchronized set
 
-    var wantedColor = Color.red
+    var lastWantedState = wantedState
         @Synchronized get
         @Synchronized set
 
-    var blinkFreq = 150.milli.second
-        @Synchronized get
-        @Synchronized set
-
-    val updateThread = Thread {
+    private val updateThread = FishyRobot.updateScope.launch {
         while(true) {
-            if(wantsBlink) {
-                // blink on then off
-                setColor(wantedColor)
-                Thread.sleep(blinkFreq.millisecond.toLong())
-                setColor(Color.BLACK)
-                Thread.sleep(blinkFreq.millisecond.toLong())
-            } else {
-                setColor(wantedColor)
-                Thread.sleep(500)
+            when(val wantedState = this@LEDs.wantedState) {
+                is State.Solid -> { setColor(wantedState.color); delay(250) }
+                is State.Blink -> {
+                    setColor(wantedState.color)
+                    delay(wantedState.blinkTime.millisecond.toLong() / 2)
+                    setColor(Color.BLACK)
+                    delay(wantedState.blinkTime.millisecond.toLong() / 2)
+                }
+                is State.Fade -> {
+                    val startColor = lastWantedState.color
+                    val endColor = wantedState.color
+                    val delta = endColor - startColor
+                    // we can do a subdivision every, say, 20ms
+                    // so we divide the total duration by 20ms to get how long we have
+                    val steps = (wantedState.fadeTime.millisecond / 20.0).toInt()
+                    for(i in 0..steps) {
+                        val interpolated = startColor + delta * (i.toDouble() / steps.toDouble())
+                        setColor(interpolated)
+                        delay(20)
+                    }
+                    setColor(endColor)
+                }
             }
+            lastWantedState = wantedState
         }
     }
+
+    operator fun Color.plus(other: Color) = Color(this.red + other.red, this.green + other.green, this.blue + other.blue)
+    operator fun Color.times(scalar: Double) = Color((this.red * scalar).toFloat(), (this.green * scalar).toFloat(), (this.blue * scalar).toFloat())
+    operator fun Color.minus(other: Color) = Color(this.red - other.red, this.green - other.green, this.blue - other.blue)
 
     private val canifier by lazy { Proximal.canifier }
     fun setColor(color: Color) {

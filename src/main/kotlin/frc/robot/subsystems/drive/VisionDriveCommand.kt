@@ -14,6 +14,7 @@ import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.second
+import java.awt.Color
 import kotlin.math.absoluteValue
 
 class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
@@ -59,7 +60,8 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
             // and when we're 1.5ft away like 6x per sec
             // so y = -1.6x + 8.4
             val frequency = -1.6 * distance + 8.4
-            LEDs.blinkFreq = 1.second / frequency
+//            LEDs.blinkFreq = 1.second / frequency
+            LEDs.wantedState = LEDs.State.Blink((1.0/frequency).second, Color.GREEN)
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
