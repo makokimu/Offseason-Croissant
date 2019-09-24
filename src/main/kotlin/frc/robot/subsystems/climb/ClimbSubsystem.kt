@@ -71,7 +71,8 @@ object ClimbSubsystem: FalconSubsystem() {
             intakeWheels.setDutyCycle(0.7)
 
             println("Elevator pos ${Elevator.motor.encoder.position.inch} Prox pos ${Proximal.motor.encoder.position.degree} " +
-                    "Prox output ${Proximal.motor.master.talonSRX.motorOutputPercent} Hab climber pos ${stiltMotor.encoder.position.inch}")
+                    "Prox output ${Proximal.motor.master.talonSRX.motorOutputPercent} Hab climber pos ${stiltMotor.encoder.position.inch} " +
+                    "Hab climber amp ${stiltMotor.drawnCurrent} Hab climber volts ${stiltMotor.voltageOutput}")
         }
         override fun isFinished() = stiltMotor.encoder.position < targetHeight + 0.5.inch
                 && Elevator.motor.encoder.position < targetHeight + 0.5.inch

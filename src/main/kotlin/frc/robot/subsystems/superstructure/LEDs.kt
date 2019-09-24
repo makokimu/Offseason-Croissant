@@ -51,6 +51,13 @@ object LEDs: FalconSubsystem() {
         }
     }
 
+    sealed class State(open val color: Color) {
+        object Default: State(Color.red)
+        class Solid(override val color: Color): State(color)
+        class Blink(val blinkTime: Double, override val color: Color): State(color)
+        class Fade(val fadeTime: Double, override val color: Color): State(color)
+    }
+    
     var wantsBlink = false
         @Synchronized get
         @Synchronized set

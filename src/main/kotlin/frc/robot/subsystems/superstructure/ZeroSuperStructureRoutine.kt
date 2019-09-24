@@ -3,6 +3,7 @@ package frc.robot.subsystems.superstructure
 import com.ctre.phoenix.motorcontrol.ControlMode
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.robot.subsystems.climb.ClimbSubsystem
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
@@ -71,6 +72,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         val wristPos = Wrist.absoluteEncoder()
         Proximal.resetPosition(proxPos)
         Wrist.resetPosition(wristPos)
+        ClimbSubsystem.stiltMotor.encoder.resetPosition(25.inch)
         Elevator.motor.encoder.resetPositionRaw(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight))
     }
 
