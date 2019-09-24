@@ -4,6 +4,7 @@ package frc.robot.subsystems.drive
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
+import frc.robot.subsystems.superstructure.LEDs
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
@@ -25,6 +26,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
     override fun initialize() {
         isActive = true
         referencePose = DriveSubsystem.robotPosition
+        LEDs.setVisionMode(true)
     }
 
     override fun execute() {
@@ -75,6 +77,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
         this.lastKnownTargetPose = null
 //        ElevatorSubsystem.wantedVisionMode = false
         isActive = false
+        LEDs.setVisionMode(false)
     }
 
     override fun initSendable(builder: SendableBuilder) {

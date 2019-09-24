@@ -55,10 +55,10 @@ object ClimbSubsystem: FalconSubsystem() {
     val fullS3ndClimbCommand = object : FalconCommand(ClimbSubsystem,
             Elevator, Proximal, Wrist, Superstructure) {
 
-        val targetHeight = 14.inch
+        val targetHeight = 16.inch
 
         override fun initialize() {
-            stiltMotor.controller.setOutputRange(-0.5, 0.5)
+            stiltMotor.controller.setOutputRange(-0.55, 0.55)
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 0.3)
             Proximal.wantedState = WantedState.Position((-15).degree)
             Elevator.setPositionMode()

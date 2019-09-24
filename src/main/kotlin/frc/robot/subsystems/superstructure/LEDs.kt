@@ -35,16 +35,50 @@ object LEDs: FalconSubsystem() {
 //        setColor(PURPLE)
 //        setColor(Color.red)
         println("INITing LED BLINK COMMAND")
-        setColor(Color.RED)
+        updateThread.start()
 //        LEDBlinkCommand(PURPLE, 1.0).schedule()
+    }
+
+    fun setVisionMode(wantsVision: Boolean) {
+        if(wantsVision) {
+            wantsBlink = true
+            wantedColor = Color.GREEN
+        } else {
+            wantsBlink = false
+            wantedColor = Color.RED
+        }
+    }
+
+    var wantsBlink = false
+        @Synchronized get
+        @Synchronized set
+
+    var wantedColor = Color.RED
+        @Synchronized get
+        @Synchronized set
+
+    val updateThread = Thread {
+        while(true) {
+            if(wantsBlink) {
+                // blink on then off
+                setColor(wantedColor)
+                Thread.sleep(150)
+                setColor(Color.BLACK)
+                Thread.sleep(100)
+            } else {
+                setColor(wantedColor)
+                Thread.sleep(500)
+            }
+        }
     }
 
     private val canifier by lazy { Proximal.canifier }
     fun setColor(color: Color) {
-        println("Setting color to r${color.red} r${color.green} b${color.blue}")
+//        println("Setting color to r${color.red} r${color.green} b${color.blue}")
         canifier.setLEDOutput(color.red * (1.0 / 255.0), CANifier.LEDChannel.LEDChannelB)
         canifier.setLEDOutput(color.green * (1.0 / 255.0), CANifier.LEDChannel.LEDChannelA)
         canifier.setLEDOutput(color.blue * (1.0 / 255.0), CANifier.LEDChannel.LEDChannelC)
     }
+
     val PURPLE = Color(128, 0, 128)
 }
