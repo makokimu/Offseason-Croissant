@@ -32,8 +32,7 @@ object LEDs: FalconSubsystem() {
     sealed class State(open val color: Color) {
         open class Solid(override val color: Color): State(color)
         object Default: Solid(Color.red)
-        object Off: Solid(Color.black)
-        class Blink(val blinkTime: SIUnit<Second>, override val color: Color, val count: Int = -1, val nextState: State = Off): State(color)
+        class Blink(val blinkTime: SIUnit<Second>, override val color: Color): State(color)
         class Fade(val fadeTime: SIUnit<Second>, override val color: Color): State(color)
     }
 
@@ -50,21 +49,10 @@ object LEDs: FalconSubsystem() {
             when(val wantedState = this@LEDs.wantedState) {
                 is State.Solid -> { setColor(wantedState.color); delay(250) }
                 is State.Blink -> {
-                    if(wantedState.count < 0) {
-                        setColor(wantedState.color)
-                        delay(wantedState.blinkTime.millisecond.toLong() / 2)
-                        setColor(Color.BLACK)
-                        delay(wantedState.blinkTime.millisecond.toLong() / 2)
-                    } else {
-                        for(i in 0..wantedState.count) {
-                            if(this@LEDs.wantedState != this@LEDs.lastWantedState) break
-                            setColor(wantedState.color)
-                            delay(wantedState.blinkTime.millisecond.toLong() / 2)
-                            setColor(Color.BLACK)
-                            delay(wantedState.blinkTime.millisecond.toLong() / 2)
-                        }
-                        this@LEDs.wantedState = wantedState.nextState
-                    }
+                    setColor(wantedState.color)
+                    delay(wantedState.blinkTime.millisecond.toLong() / 2)
+                    setColor(Color.BLACK)
+                    delay(wantedState.blinkTime.millisecond.toLong() / 2)
                 }
                 is State.Fade -> {
                     val startColor = lastWantedState.color
