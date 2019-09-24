@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.mathematics.units.milli
+import org.ghrobotics.lib.mathematics.units.millisecond
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import java.awt.Color
 import java.util.function.Consumer
@@ -53,7 +55,11 @@ object LEDs: FalconSubsystem() {
         @Synchronized get
         @Synchronized set
 
-    var wantedColor = Color.RED
+    var wantedColor = Color.red
+        @Synchronized get
+        @Synchronized set
+
+    var blinkFreq = 150.milli.second
         @Synchronized get
         @Synchronized set
 
@@ -62,9 +68,9 @@ object LEDs: FalconSubsystem() {
             if(wantsBlink) {
                 // blink on then off
                 setColor(wantedColor)
-                Thread.sleep(150)
+                Thread.sleep(blinkFreq.millisecond.toLong())
                 setColor(Color.BLACK)
-                Thread.sleep(100)
+                Thread.sleep(blinkFreq.millisecond.toLong())
             } else {
                 setColor(wantedColor)
                 Thread.sleep(500)

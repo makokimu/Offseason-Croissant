@@ -11,7 +11,9 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
+import org.ghrobotics.lib.mathematics.units.second
 import kotlin.math.absoluteValue
 
 class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
@@ -52,6 +54,12 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 //            ElevatorSubsystem.wantedVisionMode = false
             val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
             val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
+            val distance = transform.translation.norm.feet
+            // so when we're 4ft away we want a blink freq of like 2x/sec
+            // and when we're 1.5ft away like 6x per sec
+            // so y = -1.6x + 8.4
+            val frequency = -1.6 * distance + 8.4
+            LEDs.blinkFreq = 1.second / frequency
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
