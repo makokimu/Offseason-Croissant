@@ -4,9 +4,14 @@ import com.ctre.phoenix.motorcontrol.ControlMode
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.climb.ClimbSubsystem
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.second
+import java.awt.Color
 
 class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) : FalconCommand(Superstructure,
         Elevator, Proximal, Wrist) {
@@ -27,6 +32,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     override fun initialize() {
         mCurrentState = ZeroingState.IDLE
         SmartDashboard.putBoolean("Elevator zeroed", false)
+        LEDs.wantedState = LEDs.State.Solid(LEDs.PURPLE)
     }
 
     // Called repeatedly when this Command is scheduled to run
@@ -78,12 +84,8 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
     // Make this return true when this Command no longer needs to run execute()
     override fun isFinished(): Boolean {
-//        println("IS FINISHED WAS CALLED")
         if (mCurrentState == ZeroingState.ZEROED) println("We're zeroed so we're done")
-//        if(Robot.lastRobotMode != FishyRobot.Mode.DISABLED) println("ds NOT disabled, returning")
-//        return mCurrentState == ZeroingState.ZEROED // || Robot.lastRobotMode != FishyRobot.Mode.DISABLED
         val shouldEnd = isDone // || Robot.isEnabled
-//        println("should end? $shouldEnd")
         return shouldEnd
     }
 
@@ -92,6 +94,13 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         println("ENDING ${javaClass.simpleName}")
 //        Elevator.elevatorZeroed = !interrupted
         SmartDashboard.putString("Zeroing state", mCurrentState.name)
+        LEDs.wantedState = LEDs.State.Blink(0.125.second, Color.GREEN)
+        GlobalScope.launch {
+            delay(2000)
+            LEDs.wantedState = LEDs.State.Off
+            delay(500)
+            LEDs.wantedState = LEDs.State.Default
+        }
     }
 
     companion object {

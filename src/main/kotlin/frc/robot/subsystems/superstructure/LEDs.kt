@@ -32,44 +32,45 @@ object LEDs: FalconSubsystem() {
     sealed class State(open val color: Color) {
         open class Solid(override val color: Color): State(color)
         object Default: Solid(Color.red)
+        object Off: Solid(Color.black)
         class Blink(val blinkTime: SIUnit<Second>, override val color: Color): State(color)
-        class Fade(val fadeTime: SIUnit<Second>, override val color: Color): State(color)
+//        class Fade(val fadeTime: SIUnit<Second>, override val color: Color): State(color)
     }
 
     var wantedState: State = State.Default
         @Synchronized get
         @Synchronized set
 
-    var lastWantedState = wantedState
-        @Synchronized get
-        @Synchronized set
+//    var lastWantedState = wantedState
+//        @Synchronized get
+//        @Synchronized set
 
-    private val updateThread = FishyRobot.updateScope.launch {
+    private val updateThread = Thread {
         while(true) {
             when(val wantedState = this@LEDs.wantedState) {
-                is State.Solid -> { setColor(wantedState.color); delay(250) }
+                is State.Solid -> { setColor(wantedState.color); Thread.sleep(250) }
                 is State.Blink -> {
                     setColor(wantedState.color)
-                    delay(wantedState.blinkTime.millisecond.toLong() / 2)
+                    Thread.sleep(wantedState.blinkTime.millisecond.toLong() / 2)
                     setColor(Color.BLACK)
-                    delay(wantedState.blinkTime.millisecond.toLong() / 2)
+                    Thread.sleep(wantedState.blinkTime.millisecond.toLong() / 2)
                 }
-                is State.Fade -> {
-                    val startColor = lastWantedState.color
-                    val endColor = wantedState.color
-                    val delta = endColor - startColor
-                    // we can do a subdivision every, say, 20ms
-                    // so we divide the total duration by 20ms to get how long we have
-                    val steps = (wantedState.fadeTime.millisecond / 20.0).toInt()
-                    for(i in 0..steps) {
-                        val interpolated = startColor + delta * (i.toDouble() / steps.toDouble())
-                        setColor(interpolated)
-                        delay(20)
-                    }
-                    setColor(endColor)
-                }
+//                is State.Fade -> {
+//                    val startColor = lastWantedState.color
+//                    val endColor = wantedState.color
+//                    val delta = endColor - startColor
+//                    // we can do a subdivision every, say, 20ms
+//                    // so we divide the total duration by 20ms to get how long we have
+//                    val steps = (wantedState.fadeTime.millisecond / 20.0).toInt()
+//                    for(i in 0..steps) {
+//                        val interpolated = startColor + delta * (i.toDouble() / steps.toDouble())
+//                        setColor(interpolated)
+//                        delay(20)
+//                    }
+//                    setColor(endColor)
+//                }
             }
-            lastWantedState = wantedState
+//            lastWantedState = wantedState
         }
     }
 
