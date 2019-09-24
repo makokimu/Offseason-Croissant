@@ -80,7 +80,7 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         get() = synchronized(currentStateMutex) { field }
         set(newValue) = synchronized(currentStateMutex) { field = newValue }
 
-    override suspend fun updateState() {
+    override fun updateState() {
         // update the states of our components
 
         Wrist.updateState()

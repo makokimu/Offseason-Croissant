@@ -2,10 +2,8 @@ package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
-import edu.wpi.first.wpilibj.frc2.command.Command
-import edu.wpi.first.wpilibj.frc2.command.ConditionalCommand
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.PrintCommand
+import edu.wpi.first.wpilibj.frc2.command.*
+import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.climb.SketchyTest
 import frc.robot.subsystems.drive.DriveSubsystem
@@ -13,13 +11,12 @@ import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
-import frc.robot.subsystems.superstructure.Elevator
-import frc.robot.subsystems.superstructure.Superstructure
-import frc.robot.subsystems.superstructure.SuperstructurePlanner
-import frc.robot.subsystems.superstructure.ZeroSuperStructureRoutine
+import frc.robot.subsystems.superstructure.*
 import org.ghrobotics.lib.commands.FalconCommand
+import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
@@ -36,8 +33,8 @@ object Controls : Updatable {
     val driverFalconXbox = xboxController(0) {
         registerEmergencyMode()
 
-        button(kB).changeOn { isClimbing = true }
-        button(kX).changeOn { isClimbing = false }
+//        button(kB).changeOn { isClimbing = true }
+//        button(kX).changeOn { isClimbing = false }
 
         state({ !isClimbing }) {
             // Vision align
@@ -47,15 +44,15 @@ object Controls : Updatable {
 
             // Shifting
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
-//            button(kA).changeOn { ZeroSuperStructureRoutine().schedule() }
-            button(kA).changeOn(sequential {
-                +SuperstructurePlanner.everythingMoveTo(35.inch, 0.degree, 0.degree) // TODO check preset
-                +SuperstructurePlanner.everythingMoveTo(25.inch, (-5).degree, 90.degree) // TODO check preset
-            })
+            button(kA).changeOn(ClimbSubsystem.prepMove)
         }
-        state({ isClimbing }) {
-            button(kA).changeOn(SketchyTest())
-        }
+
+    }
+
+    val auxFalconXbox = xboxController(1) {
+        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+//        button(kX).change(ClosedLoopElevatorMove(29.inch))
+//        button(kB).change(RunCommand(Runnable{ ClimbSubsystem.wantedState = WantedState.Voltage(this.genericHID.getY(GenericHID.Hand.kRight).volt * 2.0) }, ClimbSubsystem))
     }
 
     private val operatorJoy = Joystick(5)
@@ -100,6 +97,7 @@ object Controls : Updatable {
     override fun update() {
         driverFalconXbox.update()
         operatorFalconHID.update()
+        auxFalconXbox.update()
     }
 }
 

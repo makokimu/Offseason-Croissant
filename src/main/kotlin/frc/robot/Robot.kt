@@ -41,7 +41,7 @@ object Robot : FishyRobot() {
         VisionProcessing
         +Controls
         +Autonomous
-        LEDs
+        +LEDs
 
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()

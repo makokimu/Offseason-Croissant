@@ -105,7 +105,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override val differentialDrive: DifferentialDrive
         get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
 
-    override suspend fun updateState() {
+    override fun updateState() {
 //        localization.update()
     }
 }

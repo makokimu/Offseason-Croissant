@@ -69,7 +69,7 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
             master.talonSRX.configMotionSCurveStrength(0)
 
             master.setClosedLoopGains(
-                    3.5, 0.0, ff = 0.4
+                    2.0, 0.0, ff = 0.4
             )
         }
     }

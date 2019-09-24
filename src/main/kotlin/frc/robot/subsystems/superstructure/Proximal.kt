@@ -70,10 +70,6 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
             if (Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION.size < followers.size)
                 throw ArrayIndexOutOfBoundsException("Follower inversion list size contains less indices than the number of followers!")
 
-            canifier.setLEDOutput(0.0, CANifier.LEDChannel.LEDChannelA)
-            canifier.setLEDOutput(0.0, CANifier.LEDChannel.LEDChannelB)
-            canifier.setLEDOutput(0.0, CANifier.LEDChannel.LEDChannelC)
-
             master.talonSRX.configRemoteFeedbackFilter(canifier.deviceID, RemoteSensorSource.CANifier_Quadrature, 0, 100)
             master.talonSRX.configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, 100)
 
@@ -104,6 +100,15 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
                     0.85, 6.0, ff = 0.45
             )
         }
+    }
+
+    fun setPositionMode() = motor.run {
+        setClosedLoopGains(3.0, 0.0, 0.0)
+        useMotionProfileForPosition = false
+    }
+    fun setMotionMagicMode() = motor.run {
+        setClosedLoopGains()
+        useMotionProfileForPosition = true
     }
 
     override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Radian>) =
