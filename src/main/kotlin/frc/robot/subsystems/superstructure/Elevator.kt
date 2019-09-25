@@ -81,6 +81,11 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         useMotionProfileForPosition = false
     }
 
+    fun setClimbMode() = motor.run {
+        setClosedLoopGains(0.375, 0.0, 0.0)
+        useMotionProfileForPosition = false
+    }
+
     /**
      * Configure the motor for motion profile closed loop
      * and enable the use of motion profile
