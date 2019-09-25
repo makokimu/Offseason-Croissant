@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.frc2.command.*
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.climb.ClimbSubsystem
-import frc.robot.subsystems.climb.SketchyTest
+//import frc.robot.subsystems.climb.SketchyTest
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.Intake
@@ -27,7 +27,7 @@ import java.util.function.BooleanSupplier
 object Controls : Updatable {
 
     var isClimbing = false
-        private set
+        set
 
     private val zero = ZeroSuperStructureRoutine()
 
@@ -55,7 +55,7 @@ object Controls : Updatable {
 //        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 //    }
 
-    private val operatorJoy = Joystick(5)
+    val operatorJoy = Joystick(5)
     val operatorFalconHID = operatorJoy.mapControls {
 
         button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
@@ -67,7 +67,7 @@ object Controls : Updatable {
             button(11).changeOn { Elevator.elevatorOffset -= 0.3.inch }
 
             // cargo presets
-            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
+//            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
             button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
             button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
             button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
@@ -99,7 +99,7 @@ object Controls : Updatable {
     override fun update() {
         driverFalconXbox.update()
         operatorFalconHID.update()
-        auxFalconXbox.update()
+//        auxFalconXbox.update()
     }
 }
 

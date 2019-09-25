@@ -28,6 +28,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
         init {
             master.outputInverted = MASTER_INVERTED
+            master.voltageCompSaturation = 12.volt
             master.feedbackSensor = ElevatorPorts.SENSOR
             master.talonSRX.setSensorPhase(ElevatorPorts.MASTER_SENSOR_PHASE)
 
@@ -35,6 +36,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
                 index, followerMotor ->
                 followerMotor.follow(master)
                 followers[index].talonSRX.setInverted(ElevatorPorts.FOLLOWER_INVERSION[index])
+                master.voltageCompSaturation = 12.volt
             }
 
             // Config master settings and stuff

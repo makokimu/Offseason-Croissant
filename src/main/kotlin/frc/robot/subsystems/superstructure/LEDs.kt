@@ -86,5 +86,5 @@ object LEDs: FalconSubsystem() {
         canifier.setLEDOutput(color.blue * (1.0 / 255.0), CANifier.LEDChannel.LEDChannelC)
     }
 
-    val PURPLE = Color(128, 0, 128)
+    val PURPLE = Color(100, 0, 150)
 }
