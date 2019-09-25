@@ -21,7 +21,6 @@ import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
@@ -35,8 +34,8 @@ import java.awt.Color
 object ClimbSubsystem: FalconSubsystem() {
 
     val stiltTransmission = DCMotorTransmission(
-            594.0 / 12.0 / 18.0, // 18:1 gearing
-            2.6 / 12.0 * 18.0, // 18:1 gearing
+            594.0 / 12.0, // 42:1 gearing
+            2.6 / 12.0 * 42.0, // 42:1 gearing
             0.5 // totally a guess
     )
     val gravityVoltage = 1.3.volt
@@ -60,10 +59,10 @@ object ClimbSubsystem: FalconSubsystem() {
         stiltMotor.setPIDGains(0.007, 0.0)
     }
 
-    fun setClimbProfile(state: TrapezoidProfile.State) {
+    fun setClimbProfile(state: TrapezoidProfile.State, offset: SIUnit<Meter>) {
         val motorSpeedRadPerSec = (state.velocity / (1.5.inch.meter * Math.PI) * 2 * Math.PI) // meters per sec divided by meter per circum is revolutions per sec, times 2pi is rad per sec
         val transFeedforward = stiltTransmission.getVoltageForTorque(motorSpeedRadPerSec, 5.0) // idk if 5 is right
-        stiltMotor.setPosition(state.position.meter, transFeedforward.volt)
+        stiltMotor.setPosition(state.position.meter + offset, transFeedforward.volt)
     }
 
     private val kZero = 25.inch
@@ -125,10 +124,11 @@ object ClimbSubsystem: FalconSubsystem() {
             val t = Timer.getFPGATimestamp() - startTime
             if(!profile.isFinished(t))  {
                 val newState = profile.calculate(t)
-                setClimbProfile(newState)
+                setClimbProfile(newState, (-4.5).inch)
                 Elevator.setClimbProfile(newState)
             } else {
                 Elevator.wantedState = WantedState.Position(profile.m_goal.position.meter)
+                stiltMotor.setPosition(profile.m_goal.position.meter - 4.5.inch)
             }
 
             var s3nd = intakeAxis() * -1.0
