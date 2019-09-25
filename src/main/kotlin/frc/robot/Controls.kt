@@ -2,6 +2,7 @@ package frc.robot
 
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
+import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.frc2.command.*
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.climb.ClimbSubsystem
@@ -49,14 +50,15 @@ object Controls : Updatable {
 
     }
 
-    val auxFalconXbox = xboxController(1) {
-        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
-//        button(kX).change(ClosedLoopElevatorMove(29.inch))
-//        button(kB).change(RunCommand(Runnable{ ClimbSubsystem.wantedState = WantedState.Voltage(this.genericHID.getY(GenericHID.Hand.kRight).volt * 2.0) }, ClimbSubsystem))
-    }
+//    val auxXbox = XboxController(1)
+//    val auxFalconXbox = auxXbox.mapControls {
+//        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+//    }
 
     private val operatorJoy = Joystick(5)
     val operatorFalconHID = operatorJoy.mapControls {
+
+        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
         state({ !isClimbing }) {
 

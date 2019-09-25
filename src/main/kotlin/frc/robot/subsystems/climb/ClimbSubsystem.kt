@@ -67,11 +67,12 @@ object ClimbSubsystem: FalconSubsystem() {
 
         val targetHeight = 13.inch
         val intakeAxis by lazy { Controls.operatorFalconHID.getRawAxis(1) }
-        val cancel by lazy { Controls.auxFalconXbox.kA }
+//        val endCommand by lazy { { Controls.auxXbox.aButton } }
+        val endCommand by lazy { Controls.operatorFalconHID.getRawButton(12) }
 //        var proximalChanged = false
 
         override fun initialize() {
-            stiltMotor.controller.setOutputRange(-0.6, 0.6)
+            stiltMotor.controller.setOutputRange(-0.65, 0.65)
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 0.3)
             Proximal.wantedState = WantedState.Position((-15).degree)
             Elevator.setClimbMode()
@@ -81,26 +82,31 @@ object ClimbSubsystem: FalconSubsystem() {
         override fun execute() {
             if(Elevator.currentState.position < 18.inch && Elevator.currentState.position > 13.inch) Proximal.wantedState = WantedState.Position((-37).degree)
             else if(Elevator.currentState.position < 12.5.inch) Proximal.wantedState = WantedState.Position((-45).degree)
-            stiltMotor.setPosition(8.5.inch)
-            Elevator.wantedState = WantedState.Position(11.5.inch)
+            stiltMotor.setPosition(7.5.inch)
+            Elevator.wantedState = WantedState.Position(12.inch)
             var s3nd = intakeAxis() * -1.0
-            if(s3nd < 0) s3nd = 0.0
+            if(s3nd < -0.1) s3nd = -0.1
 
-            intakeWheels.setDutyCycle(s3nd + 0.35)
+            val wantedIntake = if(s3nd > 0.0) s3nd + 0.35 else s3nd
+
+            intakeWheels.setDutyCycle(wantedIntake)
             DriveSubsystem.lowGear = true
-            DriveSubsystem.tankDrive(s3nd, s3nd)
+            DriveSubsystem.tankDrive(s3nd, s3nd )
 
             println("Elevator pos ${Elevator.motor.encoder.position.inch} Prox pos ${Proximal.motor.encoder.position.degree} " +
                     "Prox output ${Proximal.motor.master.talonSRX.motorOutputPercent} Hab climber pos ${stiltMotor.encoder.position.inch} " +
                     "Hab climber amp ${stiltMotor.drawnCurrent} Hab climber volts ${stiltMotor.voltageOutput}")
         }
-        override fun isFinished() = false || cancel()//stiltMotor.encoder.position < targetHeight + 0.5.inch
+        override fun isFinished() = endCommand() //stiltMotor.encoder.position < targetHeight + 0.5.inch
 //                && Elevator.motor.encoder.position < targetHeight + 0.5.inch
         override fun end(interrupted: Boolean) {
             Elevator.setMotionMagicMode()
+            Elevator.wantedState = WantedState.Position(24.inch)
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
             Proximal.setMotionMagicMode()
+            Proximal.wantedState = WantedState.Position((-20).degree)
             intakeWheels.setNeutral()
+            stiltMotor.setPosition(24.inch)
         }
     }
 
