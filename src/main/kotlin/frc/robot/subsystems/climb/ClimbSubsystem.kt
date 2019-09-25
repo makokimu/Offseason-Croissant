@@ -107,7 +107,7 @@ object ClimbSubsystem: FalconSubsystem() {
             DriveSubsystem.lowGear = true
             DriveSubsystem.tankDrive(s3nd / 5.0, s3nd / 5.0)
 
-            println(intakeWheels.drawnCurrent.amp)
+            println("${intakeWheels.drawnCurrent.amp}, ${stiltMotor.drawnCurrent.amp}")
 //            println("Elevator pos ${Elevator.motor.encoder.position.inch} Prox pos ${Proximal.motor.encoder.position.degree} " +
 //                    "Prox output ${Proximal.motor.master.talonSRX.motorOutputPercent} Hab climber pos ${stiltMotor.encoder.position.inch} " +
 //                    "Hab climber amp ${stiltMotor.drawnCurrent} Hab climber volts ${stiltMotor.voltageOutput}")
@@ -144,7 +144,7 @@ object ClimbSubsystem: FalconSubsystem() {
 
     val intakeWheels = FalconSRX(45, DefaultNativeUnitModel).apply {
         outputInverted = true
-        configCurrentLimit(true, FalconSRX.CurrentLimitConfig(30.amp, 2.second, 10.amp))
+        configCurrentLimit(true, FalconSRX.CurrentLimitConfig(20.amp, 0.5.second, 15.amp))
     }
 
     private val wantedStateMutex = Object()
