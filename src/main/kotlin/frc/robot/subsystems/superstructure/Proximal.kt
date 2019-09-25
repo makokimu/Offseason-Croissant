@@ -102,7 +102,7 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
         }
     }
 
-    fun setPositionMode() = motor.run {
+    fun setClimbPositionMode() = motor.run {
         setClosedLoopGains(3.0, 0.0, 0.0)
         useMotionProfileForPosition = false
     }

@@ -184,7 +184,10 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
 
         when (wantedState) {
             is WantedState.Nothing -> setNeutral()
-            is WantedState.Position<*> -> setPosition(SIUnit(wantedState.targetPosition.value), arbitraryFeedForward)
+            is WantedState.Position<*> -> {
+                val ff = if(wantedState.ignoreDefaultFF) wantedState.feedForward else arbitraryFeedForward
+                setPosition(SIUnit(wantedState.targetPosition.value), ff)
+            }
             is WantedState.Velocity<*> -> setVelocity(SIUnit(wantedState.targetVelocity.value), arbitraryFeedForward)
             is WantedState.Voltage -> setVoltage(wantedState.output, arbitraryFeedForward)
             is WantedState.CustomState -> wantedState.useState(wantedState)

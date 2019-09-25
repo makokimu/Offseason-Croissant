@@ -3,13 +3,14 @@ package org.team5940.pantry.lib
 import org.ghrobotics.lib.mathematics.units.SIKey
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Volt
+import org.ghrobotics.lib.mathematics.units.derived.volt
 
 sealed class WantedState {
     object Nothing : WantedState() {
         override fun toString(): String = "Nothing"
     }
 
-    class Position<T : SIKey>(val targetPosition: SIUnit<T>) : WantedState() {
+    class Position<T : SIKey>(val targetPosition: SIUnit<T>, val feedForward: SIUnit<Volt> = 0.volt, val ignoreDefaultFF: Boolean = false) : WantedState() {
         operator fun plus(delta: SIUnit<T>) = Position(targetPosition + delta)
 
         fun coerceIn(range: ClosedRange<SIUnit<T>>) = Position(
