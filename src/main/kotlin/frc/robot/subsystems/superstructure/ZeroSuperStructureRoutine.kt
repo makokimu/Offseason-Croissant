@@ -78,7 +78,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         val wristPos = Wrist.absoluteEncoder()
         Proximal.resetPosition(proxPos)
         Wrist.resetPosition(wristPos)
-        ClimbSubsystem.stiltMotor.encoder.resetPosition(25.inch)
+        ClimbSubsystem.zero()
         Elevator.motor.encoder.resetPositionRaw(Elevator.motor.master.model.toNativeUnitPosition(mZeroHeight))
     }
 
@@ -96,9 +96,9 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putString("Zeroing state", mCurrentState.name)
         LEDs.wantedState = LEDs.State.Blink(0.125.second, Color.GREEN)
         GlobalScope.launch {
-            delay(2000)
+            delay(1500)
             LEDs.wantedState = LEDs.State.Off
-            delay(500)
+            delay(250)
             LEDs.wantedState = LEDs.State.Default
         }
     }

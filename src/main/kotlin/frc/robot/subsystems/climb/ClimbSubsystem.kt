@@ -1,3 +1,5 @@
+@file:Suppress("RemoveRedundantQualifierName")
+
 package frc.robot.subsystems.climb
 
 import com.revrobotics.CANSparkMaxLowLevel
@@ -6,6 +8,7 @@ import edu.wpi.first.wpilibj.frc2.command.RunCommand
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Controls
 import frc.robot.auto.routines.withExit
+import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.*
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.FalconSubsystem
@@ -36,11 +39,13 @@ object ClimbSubsystem: FalconSubsystem() {
 
         setPIDGains(1.0, 0.0)
         encoder.canEncoder.positionConversionFactor = -1.0
-        encoder.resetPosition(25.inch)
+        encoder.resetPosition(kZero)
         canSparkMax.setSmartCurrentLimit(30, 30) // TODO check
         brakeMode = false
 //        canSparkMax.burnFlash()
     }
+    private val kZero = 25.inch
+    fun zero() = stiltMotor.encoder.resetPosition(kZero)
 
     val prepMove = sequential {
         +SuperstructurePlanner.everythingMoveTo(35.inch, 0.degree, 0.degree) // TODO check preset
@@ -52,36 +57,47 @@ object ClimbSubsystem: FalconSubsystem() {
         }
     }
 
+    override fun periodic() {
+        SmartDashboard.putNumber("Stilt pos", ClimbSubsystem.stiltMotor.encoder.position.inch)
+        SmartDashboard.putNumber("Stilt amps", ClimbSubsystem.stiltMotor.drawnCurrent.amp)
+    }
+
     val fullS3ndClimbCommand = object : FalconCommand(ClimbSubsystem,
             Elevator, Proximal, Wrist, Superstructure) {
 
-        val targetHeight = 16.inch
+        val targetHeight = 13.inch
+        val intakeAxis by lazy { Controls.operatorFalconHID.getRawAxis(1) }
+//        var proximalChanged = false
 
         override fun initialize() {
-            stiltMotor.controller.setOutputRange(-0.55, 0.55)
+            stiltMotor.controller.setOutputRange(-0.7, 0.7)
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 0.3)
             Proximal.wantedState = WantedState.Position((-15).degree)
             Elevator.setPositionMode()
             Proximal.setPositionMode()
-            Wrist.wantedState = WantedState.Position(85.degree)
+            Wrist.wantedState = WantedState.Position(89.degree)
         }
         override fun execute() {
-            stiltMotor.setPosition(targetHeight)
-            Elevator.wantedState = WantedState.Position(targetHeight)
-            intakeWheels.setDutyCycle(0.7)
+            if(Elevator.currentState.position < 18.inch) Proximal.wantedState = WantedState.Position((-37).degree)
+            stiltMotor.setPosition(7.5.inch)
+            Elevator.wantedState = WantedState.Position(12.inch)
+            var s3nd = intakeAxis() * -1.0
+            if(s3nd < 0) s3nd = 0.0
+
+            intakeWheels.setDutyCycle(s3nd + 0.25)
+            DriveSubsystem.lowGear = true
+            DriveSubsystem.tankDrive(s3nd, s3nd)
 
             println("Elevator pos ${Elevator.motor.encoder.position.inch} Prox pos ${Proximal.motor.encoder.position.degree} " +
                     "Prox output ${Proximal.motor.master.talonSRX.motorOutputPercent} Hab climber pos ${stiltMotor.encoder.position.inch} " +
                     "Hab climber amp ${stiltMotor.drawnCurrent} Hab climber volts ${stiltMotor.voltageOutput}")
         }
-        override fun isFinished() = stiltMotor.encoder.position < targetHeight + 0.5.inch
-                && Elevator.motor.encoder.position < targetHeight + 0.5.inch
+        override fun isFinished() = false//stiltMotor.encoder.position < targetHeight + 0.5.inch
+//                && Elevator.motor.encoder.position < targetHeight + 0.5.inch
         override fun end(interrupted: Boolean) {
             Elevator.setMotionMagicMode()
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
             Proximal.setMotionMagicMode()
-            Elevator.setNeutral()
-            stiltMotor.setNeutral()
             intakeWheels.setNeutral()
         }
     }
