@@ -3,15 +3,14 @@
 package frc.robot.subsystems.climb
 
 import com.revrobotics.CANSparkMaxLowLevel
-import com.team254.lib.physics.DCMotorTransmission
-import edu.first.wpilibj.trajectory.TrapezoidProfile
+import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.frc2.command.RunCommand
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
-import frc.robot.Constants
 import frc.robot.Controls
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.drive.ManualDriveCommand
 import frc.robot.subsystems.superstructure.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -21,40 +20,23 @@ import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.Velocity
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
+import org.ghrobotics.lib.utils.withDeadband
+import org.ghrobotics.lib.wrappers.hid.getY
 import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
 import java.awt.Color
-import org.ghrobotics.lib.mathematics.units.operations.*
 import kotlin.math.PI
-import kotlin.math.pow
 
 object ClimbSubsystem: FalconSubsystem() {
-
-//    // kv and ka calculation
-//    private const val G: Double = 42.0 // output over input
-//    const val R = 0.114 // ohms?
-//    private const val radius = 1.5 * kInchToMeter / 2.0 // radius, meters
-//    const val m = 35.0 // kilogram
-//    const val motorCount = 4.0
-//    private const val internalKv = 50.40 // volts per meter per sec
-//    private const val internalKt = 0.0247 // volts per meter per sec squared
-//    private const val metersKa = (R * radius * m)/(G * internalKt)
-//    private const val metersKv = (G * G * internalKt * metersKa) / (R * radius * radius * m * internalKv)
-//
-//    val stiltTransmission = DCMotorTransmission(
-//            1 / (metersKv * 1 / (2.0 / radius)), // 603.2 /* rad per sec free */ / R / 12.0, // 42:1 gearing
-//            radius * radius * m / (2.0 * metersKa / (2.0 / radius)),
-//            0.0 // totally a guess
-//    )
-
-//    val gravityVoltage = 1.3.volt
 
     val stiltMotor: FalconMAX<Meter> = FalconMAX(9, CANSparkMaxLowLevel.MotorType.kBrushless,
             // the encoder is attached behind a 1:9 versaplanetary and a 1:2 pulley thing
@@ -75,19 +57,19 @@ object ClimbSubsystem: FalconSubsystem() {
         stiltMotor.setPIDGains(0.007, 0.0)
     }
 
-    fun setClimbProfile(state: TrapezoidProfile.State, offset: SIUnit<Meter>) {
-        val linearSpeed = state.velocity
+    val reduction = 42.0 / 1.0
+    fun setClimbProfile(position: SIUnit<Meter>, velocity: SIUnit<Velocity<Meter>>, offset: SIUnit<Meter>) {
         // meters per second div meters per rotation is rotations per second
-        val rotPerSec = linearSpeed / (PI * 1.5.inch.meter)
+        val rotPerSec = velocity.value / (PI * 1.5.inch.meter)
         val radPerSec = rotPerSec * PI * 2
 
         val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inch.meter
 
-        val stallTorque = 42.0 * 2.6
-        val freeYeet = 594.4 /* rad per sec */ / 42.0
+        val stallTorque = reduction * 2.6
+        val freeYeet = 594.4 /* rad per sec */ / reduction
         val voltage = torque / stallTorque + radPerSec / freeYeet
 
-        stiltMotor.setPosition(state.position.meter + offset, voltage.volt)
+        stiltMotor.setPosition(position + offset, voltage.volt)
     }
 
     private val kZero = 25.inch
@@ -106,19 +88,22 @@ object ClimbSubsystem: FalconSubsystem() {
     override fun periodic() {
         SmartDashboard.putNumber("Stilt pos", ClimbSubsystem.stiltMotor.encoder.position.inch)
         SmartDashboard.putNumber("Stilt amps", ClimbSubsystem.stiltMotor.drawnCurrent.amp)
+//        stiltMotor.setDutyCycle(0.0, 1.volt) // negative voltage is pushing us down
     }
 
     val fullS3ndClimbCommand = object : FalconCommand(ClimbSubsystem,
             Elevator, Proximal, Wrist, Superstructure) {
 
         val targetHeight = 13.inch
-        val intakeAxis by lazy { { Controls.operatorJoy.getRawAxis(1) } }
-        val endCommand by lazy { { Controls.operatorJoy.getRawButton(12) } }
-        //        var hasIncreasedStiltVelocity = false
+//        val yeetForwardSource by lazy { { Controls.operatorJoy.getRawAxis(1) } }
+//        val endCommand by lazy { { Controls.operatorJoy.getRawButton(12) } }
+        val yeetForwardSource by lazy { { Controls.driverControllerLowLevel.getY(GenericHID.Hand.kLeft) } }
+        val endCommand by lazy { { Controls.driverControllerLowLevel.getRawButton(4) } }
+
         var startTime = 0.0
-        val profile = TrapezoidProfile(TrapezoidProfile.Constraints(0.3, 3.0), // meters per sec and meters per sec ^2
-                TrapezoidProfile.State(25.inch.meter, 0.0), TrapezoidProfile.State(12.inch.meter, 0.0)
-        )
+        val yeetUpVelocity = (-6).inch // meters per second
+        var stiltsInPosition = false
+        var elevatorInPosition = false
 
         override fun initialize() {
             stiltMotor.controller.setOutputRange(-0.80, 0.80)
@@ -137,26 +122,21 @@ object ClimbSubsystem: FalconSubsystem() {
                 Proximal.wantedState = WantedState.Position((-45).degree)
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
-//            if(Elevator.currentState.position < 15.inch && !hasIncreasedStiltVelocity) {
-////                stiltMotor.controller.setOutputRange(-0.9, 0.9)
-//                Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 0.31)
-//                hasIncreasedStiltVelocity = true
 //            }
+            elevatorInPosition = Elevator.currentState.position < 13.inch
+            stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
+            val now = Timer.getFPGATimestamp()
+            val elapsedTime = now - startTime
+            val targetState = yeetUpVelocity * elapsedTime
 
-            // actually set the positions
-//            stiltMotor.setPosition(7.5.inch)
-//            Elevator.wantedState = WantedState.Position(12.inch)
-            val t = Timer.getFPGATimestamp() - startTime
-            if(!profile.isFinished(t))  {
-                val newState = profile.calculate(t)
-                setClimbProfile(newState, (-4.5).inch)
-                Elevator.setClimbProfile(newState)
-            } else {
-                Elevator.wantedState = WantedState.Position(profile.m_goal.position.meter)
-                stiltMotor.setPosition(profile.m_goal.position.meter - 4.5.inch)
+            if(elevatorInPosition) Elevator.wantedState = WantedState.Position(12.inch) else {
+                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
+            }
+            if(stiltsInPosition) stiltMotor.setPosition(12.inch - 4.5.inch) else {
+                setClimbProfile(targetState, yeetUpVelocity.velocity, (-4.5).inch)
             }
 
-            var s3nd = intakeAxis() * -1.0
+            var s3nd = yeetForwardSource() * -1.0
             if(s3nd < -0.1) s3nd = -0.2
 
             val wantedIntake = if(Timer.getFPGATimestamp() < startTime + 2.0) 1.0 else if(s3nd > 0.0) s3nd + 0.35 else s3nd
@@ -166,9 +146,6 @@ object ClimbSubsystem: FalconSubsystem() {
             DriveSubsystem.tankDrive(s3nd / 5.0, s3nd / 5.0)
 
             println("${intakeWheels.drawnCurrent.amp}, ${stiltMotor.drawnCurrent.amp}")
-//            println("Elevator pos ${Elevator.motor.encoder.position.inch} Prox pos ${Proximal.motor.encoder.position.degree} " +
-//                    "Prox output ${Proximal.motor.master.talonSRX.motorOutputPercent} Hab climber pos ${stiltMotor.encoder.position.inch} " +
-//                    "Hab climber amp ${stiltMotor.drawnCurrent} Hab climber volts ${stiltMotor.voltageOutput}")
         }
         override fun isFinished() = endCommand() //stiltMotor.encoder.position < targetHeight + 0.5.inch
         //                && Elevator.motor.encoder.position < targetHeight + 0.5.inch

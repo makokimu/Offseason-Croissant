@@ -1,13 +1,11 @@
 package frc.robot.subsystems.superstructure
 
 import com.team254.lib.physics.DCMotorTransmission
-import edu.first.wpilibj.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.DigitalInput
 import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kElevatorRange
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
-import frc.robot.subsystems.climb.ClimbSubsystem
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
@@ -114,20 +112,19 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         useMotionProfileForPosition = false
     }
 
-    val reduction = 14.66
-    fun setClimbProfile(state: TrapezoidProfile.State) {
-        val linearSpeed = state.velocity
+    const val reduction = 14.66
+    fun setClimbProfile(position: SIUnit<Meter>, velocity: SIUnit<Velocity<Meter>>) {
         // meters per second div meters per rotation is rotations per second
-        val rotPerSec = linearSpeed / (PI * 1.5.inch.meter)
+        val rotPerSec = velocity.value / (PI * 1.5.inch.meter)
         val radPerSec = rotPerSec * PI * 2
 
         val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inch.meter
 
-        val stallTorque = 14.66 * 0.71 * 4
-        val freeYeet = 1961 /* rad per sec */ / 42.0
+        val stallTorque = reduction * 0.71 * 4
+        val freeYeet = 1961 /* rad per sec */ / reduction
         val voltage = torque / stallTorque + radPerSec / freeYeet
 
-        wantedState = WantedState.Position(state.position.meter, voltage.volt)
+        wantedState = WantedState.Position(position, voltage.volt)
     }
 
     /**

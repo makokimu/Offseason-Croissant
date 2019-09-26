@@ -24,8 +24,8 @@ fun main() {
 
         // torque is force times distance so
         val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inch.meter
-        println("torque $torque")
-        println("angular Velocity $radPerSec")
+//        println("torque $torque")
+//        println("angular Velocity $radPerSec")
 
         // stall torque of the neo is 2.6 newton meters
         // at a 42 to 1 the stall torque is 42 * 2.6
@@ -39,19 +39,24 @@ fun main() {
     }
 
     val profile = TrapezoidProfile(TrapezoidProfile.Constraints(0.3, 3.0), // meters per sec and meters per sec ^2
-            TrapezoidProfile.State(25.inch.meter, 0.0), TrapezoidProfile.State(12.inch.meter, 0.0)
+            TrapezoidProfile.State(12.inch.meter, 0.0), TrapezoidProfile.State(25.inch.meter, 0.0)
     )
     val x: ArrayList<Double> = arrayListOf()
-    val y: ArrayList<Double> = arrayListOf()
-    for(i in 0..(profile.totalTime() * 50.0).toInt()) {
-        x.add(i / 50.0)
-        val state = profile.calculate(i / 50.0)
-        val volts = getVoltage(state)
-        y.add(volts.value)
+    val pos: ArrayList<Double> = arrayListOf()
+    val vel: ArrayList<Double> = arrayListOf()
+    var currentTime = 0.0
+    while(!profile.isFinished(currentTime)) {
+        currentTime += 1.0 / 50.0
+        x.add(currentTime)
+        pos.add(profile.calculate(currentTime).position)
+        vel.add(profile.calculate(currentTime).velocity)
+
     }
 
     val chart = XYChart(XYChartBuilder())
-    chart.addSeries("Voltage", x, y)
+    chart.addSeries("pos", x, pos)
+    chart.addSeries("vel", x, vel)
+
     (SwingWrapper(chart)).displayChart()
 
 

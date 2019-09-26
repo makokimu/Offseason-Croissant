@@ -31,11 +31,13 @@ object Controls : Updatable {
 
     private val zero = ZeroSuperStructureRoutine()
 
-    val driverFalconXbox = xboxController(0) {
+    val driverControllerLowLevel = XboxController(0)
+    val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
 
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
+        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
         state({ !isClimbing }) {
             // Vision align
@@ -45,7 +47,7 @@ object Controls : Updatable {
 
             // Shifting
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
-            button(kA).changeOn(ClimbSubsystem.prepMove)
+            button(kB).changeOn(ClimbSubsystem.prepMove)
         }
 
     }
@@ -58,7 +60,7 @@ object Controls : Updatable {
     val operatorJoy = Joystick(5)
     val operatorFalconHID = operatorJoy.mapControls {
 
-        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+//        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
         state({ !isClimbing }) {
 

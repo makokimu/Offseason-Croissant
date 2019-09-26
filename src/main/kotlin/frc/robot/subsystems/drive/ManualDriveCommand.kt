@@ -107,7 +107,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private var quickStopAccumulator = 0.0
         private const val kQuickStopThreshold = TankDriveSubsystem.kQuickStopThreshold
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
-        private const val kDeadband = 0.05
+        const val kDeadband = 0.05
         private const val cubicPrecision = 0.1
         val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
         private val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight) }
