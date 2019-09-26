@@ -7,11 +7,13 @@ import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kElevatorRange
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
+import frc.robot.subsystems.climb.ClimbSubsystem
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
+import kotlin.math.PI
 
 /**
  * The (singleton) [ConcurrentFalconJoint] elevator of Croissant.
@@ -112,11 +114,20 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         useMotionProfileForPosition = false
     }
 
+    val reduction = 14.66
     fun setClimbProfile(state: TrapezoidProfile.State) {
-        val motorSpeedRadPerSec = (state.velocity / (1.5.inch.meter * Math.PI) * 2 * Math.PI) // meters per sec divided by meter per circum is revolutions per sec, times 2pi is rad per sec
-        val transFeedforward = lowGearTransmissionHAB.getVoltageForTorque(motorSpeedRadPerSec, 0.6) // idk if 5 is right
-//        motor.setPosition(state.position.meter, transFeedforward.volt)
-        wantedState = WantedState.Position(state.position.meter, transFeedforward.volt)
+        val linearSpeed = state.velocity
+        // meters per second div meters per rotation is rotations per second
+        val rotPerSec = linearSpeed / (PI * 1.5.inch.meter)
+        val radPerSec = rotPerSec * PI * 2
+
+        val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inch.meter
+
+        val stallTorque = 14.66 * 0.71 * 4
+        val freeYeet = 1961 /* rad per sec */ / 42.0
+        val voltage = torque / stallTorque + radPerSec / freeYeet
+
+        wantedState = WantedState.Position(state.position.meter, voltage.volt)
     }
 
     /**

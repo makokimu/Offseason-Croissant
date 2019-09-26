@@ -1,50 +1,58 @@
 package frc.robot.subsystems
 
 import com.team254.lib.physics.DCMotorTransmission
+import edu.first.wpilibj.trajectory.TrapezoidProfile
 import frc.robot.Constants
+import org.ghrobotics.lib.mathematics.units.SIUnit
+import org.ghrobotics.lib.mathematics.units.derived.Volt
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.kInchToMeter
 import org.ghrobotics.lib.mathematics.units.meter
+import org.knowm.xchart.SwingWrapper
+import org.knowm.xchart.XYChart
+import org.knowm.xchart.XYChartBuilder
 import kotlin.math.PI
 
 fun main() {
 
-    // kv and ka calculation
-    val G: Double = 5.0 // output over input
-    val motorResistance = 0.114 // ohms?
-    val radius = 1.5 * kInchToMeter / 2.0 // radius, meters
-    val m = 45.0 // kilogram
-    val motorCount = 4.0
-    val internalKv = 50.40 // volts per meter per sec
-    val internalKt = 0.0247 // volts per meter per sec squared
-    val metersKa = (motorResistance * radius * m)/(G * internalKt)
-    val metersKv = (G * G * internalKt * metersKa) / (motorResistance * radius * radius * m * internalKv)
+    fun getVoltage(state: TrapezoidProfile.State): SIUnit<Volt> {
+        val linearSpeed = state.velocity
+        // meters per second div meters per rotation is rotations per second
+        val rotPerSec = linearSpeed / (PI * 1.5.inch.meter)
+        val radPerSec = rotPerSec * PI * 2
 
-    val stiltTransmission = DCMotorTransmission(
-            1 / (metersKv * 1 / (2.0 / radius)), // 603.2 /* rad per sec free */ / R / 12.0, // 42:1 gearing
-            radius * radius * m / (2.0 * metersKa / (2.0 / radius)),
-//            1.5.inch.meter / 2.0 * 1.5.inch.meter / 2.0 * Constants.DriveConstants.kRobotMass
-//                    / 2.0 / (2.0 * 0.164 /* volts per meter per second squared (FRCControl) */ * 1 /
-//                    ( /* radians per meter */ 2.0 / 1.5.inch.meter ) ), // 42:1 gearing given by frccontrol (1.01?)
-            0.0 // totally a guess
+        // torque is force times distance so
+        val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inch.meter
+        println("torque $torque")
+        println("angular Velocity $radPerSec")
+
+        // stall torque of the neo is 2.6 newton meters
+        // at a 42 to 1 the stall torque is 42 * 2.6
+//        val stallTorque = 42.0 * 2.6
+//        val freeYeet = 594.4 /* rad per sec */ / 42.0
+        val stallTorque = 14.66 * 0.71 * 4
+        val freeYeet = 1961 /* rad per sec */ / 42.0
+        val voltage = torque / stallTorque + radPerSec / freeYeet
+
+        return voltage.volt
+    }
+
+    val profile = TrapezoidProfile(TrapezoidProfile.Constraints(0.3, 3.0), // meters per sec and meters per sec ^2
+            TrapezoidProfile.State(25.inch.meter, 0.0), TrapezoidProfile.State(12.inch.meter, 0.0)
     )
+    val x: ArrayList<Double> = arrayListOf()
+    val y: ArrayList<Double> = arrayListOf()
+    for(i in 0..(profile.totalTime() * 50.0).toInt()) {
+        x.add(i / 50.0)
+        val state = profile.calculate(i / 50.0)
+        val volts = getVoltage(state)
+        y.add(volts.value)
+    }
 
-    val stiltTransmissio2 = DCMotorTransmission(
-            603.2 /* rad per sec free */ / G / 12.0, // 42:1 gearing
-//            r * r * m / (2.0 * metersKa / (2.0 / r)),
-            1.5.inch.meter / 2.0 * 1.5.inch.meter / 2.0 * Constants.DriveConstants.kRobotMass
-                    / 2.0 / (2.0 * 0.164 /* volts per meter per second squared (FRCControl) */ * 1 /
-                    ( /* radians per meter */ 2.0 / 1.5.inch.meter ) ), // 42:1 gearing given by frccontrol (1.01?)
-            0.0 // totally a guess
-    )
+    val chart = XYChart(XYChartBuilder())
+    chart.addSeries("Voltage", x, y)
+    (SwingWrapper(chart)).displayChart()
 
-//    println("State space transmission: speedPerVolt ${stiltTransmission.speedPerVolt} torque ${radius * radius * m / (2.0 * metersKa / (2.0 / radius))}")
-//    println("other transmission: speedPerVolt ${stiltTransmissio2.speedPerVolt} torque ${1.5.inch.meter / 2.0 * 1.5.inch.meter / 2.0 * Constants.DriveConstants.kRobotMass
-//            / 2.0 / (2.0 * 0.164 /* volts per meter per second squared (FRCControl) */ * 1 /
-//            ( /* radians per meter */ 2.0 / 1.5.inch.meter ) )}")
-
-    val motorSpeedRadPerSec = (0.3 / (1.5.inch.meter * Math.PI) * 2 * Math.PI) // meters per sec divided by meter per circum is revolutions per sec, times 2pi is rad per sec
-
-    println(stiltTransmission.getVoltageForTorque(motorSpeedRadPerSec, 0.6))
 
 }
