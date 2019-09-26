@@ -18,12 +18,22 @@ import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
  */
 object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
-    val fastSpeedTransmission = DCMotorTransmission(
-            1924.0 / 12.0 / 14.67, // 14.67:1 gearing
-            0.71 / 12.0 * 14.67 * 4.0, // 14.67:1 gearing, 4x motors
-            0.5 // totally a guess
+    // kv and ka calculation
+    private const val G: Double = 14.67 // output over input
+    private const val R = 0.114 // ohms?
+    private const val radius = 1.5 * kInchToMeter / 2.0 // radius, meters
+    private const val m = 35.0 // kilogram
+    const val motorCount = 4.0
+    private const val internalKv = 164.3 // volts per meter per sec
+    private const val internalKt = 0.0212 // volts per meter per sec squared
+    private const val metersKa = (R * radius * m)/(G * internalKt)
+    private const val metersKv = (G * G * internalKt * metersKa) / (R * radius * radius * m * internalKv)
+
+    private val lowGearTransmissionHAB = DCMotorTransmission(
+            1 / (metersKv * 1 / (2.0 / radius)), // 603.2 /* rad per sec free */ / R / 12.0, // 42:1 gearing
+            radius * radius * m / (2.0 * metersKa / (2.0 / radius)),
+            0.0 // totally a guess
     )
-    val habGravityVoltage = fastSpeedTransmission.frictionVoltage.volt + 0.17.volt // 0.61 newton meters of torque
 
     override val motor = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
@@ -102,15 +112,9 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         useMotionProfileForPosition = false
     }
 
-//    fun setClimbVelocity(velocity: SIUnit<Velocity<Meter>>, arbFF: SIUnit<Volt> = 0.17.volt) {
-//        val motorSpeedRadPerSec = (velocity.value / (1.5 * Math.PI) * 2 * Math.PI) // meters per sec divided by meter per circum is revolutions per sec, times 2pi is rad per sec
-//        val transFeedforward = fastSpeedTransmission.getVoltageForTorque(motorSpeedRadPerSec, 5.0) // idk if 5 is right
-//        motor.wantedState = WantedState.Velocity(velocity, arbitraryFeedForward = (arbFF + transFeedforward.volt))
-//    }
-
     fun setClimbProfile(state: TrapezoidProfile.State) {
         val motorSpeedRadPerSec = (state.velocity / (1.5.inch.meter * Math.PI) * 2 * Math.PI) // meters per sec divided by meter per circum is revolutions per sec, times 2pi is rad per sec
-        val transFeedforward = fastSpeedTransmission.getVoltageForTorque(motorSpeedRadPerSec, 5.0) // idk if 5 is right
+        val transFeedforward = lowGearTransmissionHAB.getVoltageForTorque(motorSpeedRadPerSec, 0.6) // idk if 5 is right
 //        motor.setPosition(state.position.meter, transFeedforward.volt)
         wantedState = WantedState.Position(state.position.meter, transFeedforward.volt)
     }

@@ -16,7 +16,7 @@ object Constants {
         const val kBeta = 2.0
         const val kZeta = 0.7
 
-        private val kRobotMass = (50.0 /* Robot, kg */ + 5.0 /* Battery, kg */ + 2.0 /* Bumpers, kg */).toDouble()
+        val kRobotMass = (50.0 /* Robot, kg */ + 5.0 /* Battery, kg */ + 2.0 /* Bumpers, kg */).toDouble()
         private val kRobotMomentOfInertia = 10.0 // kg m^2 // TODO Tune
         private val kRobotAngularDrag = 12.0 // N*m / (rad/sec)
 

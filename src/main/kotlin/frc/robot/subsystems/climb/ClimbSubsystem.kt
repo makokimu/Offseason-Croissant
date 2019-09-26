@@ -8,6 +8,7 @@ import edu.first.wpilibj.trajectory.TrapezoidProfile
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj.frc2.command.RunCommand
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
+import frc.robot.Constants
 import frc.robot.Controls
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.drive.DriveSubsystem
@@ -30,14 +31,29 @@ import org.ghrobotics.lib.motors.rev.FalconMAX
 import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
 import java.awt.Color
+import org.ghrobotics.lib.mathematics.units.operations.*
+import kotlin.math.PI
+import kotlin.math.pow
 
 object ClimbSubsystem: FalconSubsystem() {
 
+    // kv and ka calculation
+    private const val G: Double = 42.0 // output over input
+    const val R = 0.114 // ohms?
+    private const val radius = 1.5 * kInchToMeter / 2.0 // radius, meters
+    const val m = 35.0 // kilogram
+    const val motorCount = 4.0
+    private const val internalKv = 50.40 // volts per meter per sec
+    private const val internalKt = 0.0247 // volts per meter per sec squared
+    private const val metersKa = (R * radius * m)/(G * internalKt)
+    private const val metersKv = (G * G * internalKt * metersKa) / (R * radius * radius * m * internalKv)
+
     val stiltTransmission = DCMotorTransmission(
-            594.0 / 12.0, // 42:1 gearing
-            2.6 / 12.0 * 42.0, // 42:1 gearing
-            0.5 // totally a guess
+            1 / (metersKv * 1 / (2.0 / radius)), // 603.2 /* rad per sec free */ / R / 12.0, // 42:1 gearing
+            radius * radius * m / (2.0 * metersKa / (2.0 / radius)),
+            0.0 // totally a guess
     )
+
     val gravityVoltage = 1.3.volt
 
     val stiltMotor: FalconMAX<Meter> = FalconMAX(9, CANSparkMaxLowLevel.MotorType.kBrushless,
@@ -61,7 +77,7 @@ object ClimbSubsystem: FalconSubsystem() {
 
     fun setClimbProfile(state: TrapezoidProfile.State, offset: SIUnit<Meter>) {
         val motorSpeedRadPerSec = (state.velocity / (1.5.inch.meter * Math.PI) * 2 * Math.PI) // meters per sec divided by meter per circum is revolutions per sec, times 2pi is rad per sec
-        val transFeedforward = stiltTransmission.getVoltageForTorque(motorSpeedRadPerSec, 5.0) // idk if 5 is right
+        val transFeedforward = stiltTransmission.getVoltageForTorque(motorSpeedRadPerSec, 0.6) // idk if 5 is right
         stiltMotor.setPosition(state.position.meter + offset, transFeedforward.volt)
     }
 
