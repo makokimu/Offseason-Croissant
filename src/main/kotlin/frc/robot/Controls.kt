@@ -65,8 +65,6 @@ object Controls : Updatable {
         state({ !isClimbing }) {
 
             // elevator jogging
-            button(9).changeOn { Elevator.elevatorOffset += 0.3.inch }
-            button(11).changeOn { Elevator.elevatorOffset -= 0.3.inch }
 
             // cargo presets
 //            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
@@ -83,8 +81,11 @@ object Controls : Updatable {
             // Stow (for now like this coz i dont wanna break anything
             button(10).changeOn(Superstructure.kStowed)
 
+            button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inch })
+            button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
+
             // that one passthrough preset that doesnt snap back to normal
-//            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
+            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
             // hatches
             lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
@@ -93,7 +94,7 @@ object Controls : Updatable {
             // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
             // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
             val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
-            lessThanAxisButton(0).changeOff { Superstructure.kStowed.schedule() }.change(cargoCommand)
+            lessThanAxisButton(0).changeOff { (sequential{ +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed;  }).schedule() }.change(cargoCommand)
             greaterThanAxisButton(0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
         }
     }

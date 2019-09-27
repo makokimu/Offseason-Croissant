@@ -66,7 +66,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
 
-            val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d()
+            val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
 
             if (angleError.degree.absoluteValue > 45) {
                 // plz no disable us when going to loading station, kthx
@@ -92,14 +92,14 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
     override fun initSendable(builder: SendableBuilder) {
 
-        builder.addDoubleProperty("forwardKp", { kCorrectionKp }, { newP -> kCorrectionKp = newP })
-        builder.addDoubleProperty("forwardKd", { kCorrectionKd }, { newD -> kCorrectionKd = newD })
+//        builder.addDoubleProperty("forwardKp", { kCorrectionKp }, { newP -> kCorrectionKp = newP })
+//        builder.addDoubleProperty("forwardKd", { kCorrectionKd }, { newD -> kCorrectionKd = newD })
 
         super.initSendable(builder)
     }
 
     companion object {
-        var kCorrectionKp = 0.8
+        var kCorrectionKp = 0.8 * 1.2
         var kCorrectionKd = 8.0
         var isActive = false
             private set

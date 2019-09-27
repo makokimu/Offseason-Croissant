@@ -54,7 +54,7 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
             followers?.forEach {
                 ret += it.drawnCurrent
             }
-            return ret / (1 + (followers?.size ?: 0))
+            return ret /// (1 + (followers?.size ?: 0))
         }
 
     override fun follow(motor: FalconMotor<*>): Boolean {

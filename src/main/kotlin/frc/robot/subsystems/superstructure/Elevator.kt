@@ -12,6 +12,7 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.PI
+import kotlin.math.withSign
 
 /**
  * The (singleton) [ConcurrentFalconJoint] elevator of Croissant.
@@ -108,7 +109,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
     }
 
     fun setClimbVelocityMode() = motor.run {
-        setClosedLoopGains(2.0, 0.0, 0.0)
+        setClosedLoopGains(0.9, 0.0, 0.0)
         useMotionProfileForPosition = false
     }
 
@@ -122,9 +123,12 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
         val stallTorque = reduction * 0.71 * 4
         val freeYeet = 1961 /* rad per sec */ / reduction
-        val voltage = torque / stallTorque + radPerSec / freeYeet
+        var voltage = torque / stallTorque + radPerSec / freeYeet
+        voltage = voltage.withSign(-1)
 
-        wantedState = WantedState.Position(position, voltage.volt)
+        println("elevator voltage is $voltage")
+
+//        wantedState = WantedState.Position(position, voltage.volt, over)
     }
 
     /**
@@ -148,16 +152,16 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
     /** The maximum distance by which the elevator setpoint can be offset */
     private val kMaxElevatorOffset = (-3.0).inch..3.0.inch
 
-    var elevatorOffset: SIUnit<Meter> = 0.0.meter
-        set(newValue) {
-            field = newValue.coerceIn(kMaxElevatorOffset)
-        }
+//    var elevatorOffset: SIUnit<Meter> = 0.0.meter
+//        set(newValue) {
+//            field = newValue.coerceIn(kMaxElevatorOffset)
+//        }
 
     @Suppress("UNCHECKED_CAST")
     override fun customizeWantedState(wantedState: WantedState): WantedState =
             when (wantedState) {
                 /** add the [wantedState] and [elevatorOffset] to get an offset total and then bound to the [kElevatorRange] */
-                is WantedState.Position<*> -> { ((wantedState as WantedState.Position<Meter>) + elevatorOffset).coerceIn(kElevatorRange) }
+                is WantedState.Position<*> -> { ((wantedState as WantedState.Position<Meter>)).coerceIn(kElevatorRange) }
                 else -> wantedState
             }
 

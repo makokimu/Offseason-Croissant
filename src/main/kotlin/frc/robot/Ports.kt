@@ -18,8 +18,8 @@ object Ports {
     }
 
     object IntakePorts {
-        const val CARGO_PORT = 36
-        const val HATCH_PORT = 37
+        const val CARGO_PORT = 51
+        const val HATCH_PORT = 50
         val PISTON_PORTS = listOf(0, 1)
     }
 

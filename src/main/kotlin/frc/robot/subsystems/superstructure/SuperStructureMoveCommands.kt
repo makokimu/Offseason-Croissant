@@ -5,12 +5,15 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.utils.Source
 import org.team5940.pantry.lib.WantedState
 
-class ClosedLoopElevatorMove(private val target: Length) : FalconCommand(Elevator) {
+class ClosedLoopElevatorMove(private val target: Source<Length>) : FalconCommand(Elevator) {
+
+    constructor(target: Length): this({ target })
 
     override fun initialize() {
-        Elevator.wantedState = WantedState.Position(target)
+        Elevator.wantedState = WantedState.Position(target())
     }
 
     override fun end(interrupted: Boolean) {

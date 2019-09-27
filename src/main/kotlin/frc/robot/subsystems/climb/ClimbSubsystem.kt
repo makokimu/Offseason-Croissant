@@ -35,6 +35,7 @@ import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
 import java.awt.Color
 import kotlin.math.PI
+import kotlin.math.withSign
 
 object ClimbSubsystem: FalconSubsystem() {
 
@@ -46,7 +47,7 @@ object ClimbSubsystem: FalconSubsystem() {
             )
     ).apply {
 
-        setPIDGains(1.0, 0.0)
+        setPIDGains(1.0 * 7.0 / 3.0, 0.0)
         encoder.canEncoder.positionConversionFactor = -1.0
         encoder.resetPosition(kZero)
         canSparkMax.setSmartCurrentLimit(40, 40) // TODO check
@@ -67,7 +68,9 @@ object ClimbSubsystem: FalconSubsystem() {
 
         val stallTorque = reduction * 2.6
         val freeYeet = 594.4 /* rad per sec */ / reduction
-        val voltage = torque / stallTorque + radPerSec / freeYeet
+        var voltage = torque / stallTorque + radPerSec / freeYeet
+        voltage = voltage.withSign(-1)
+        println("stilt voltage $voltage")
 
         stiltMotor.setPosition(position + offset, voltage.volt)
     }
@@ -98,18 +101,20 @@ object ClimbSubsystem: FalconSubsystem() {
 //        val yeetForwardSource by lazy { { Controls.operatorJoy.getRawAxis(1) } }
 //        val endCommand by lazy { { Controls.operatorJoy.getRawButton(12) } }
         val yeetForwardSource by lazy { { Controls.driverControllerLowLevel.getY(GenericHID.Hand.kLeft) } }
-        val endCommand by lazy { { Controls.driverControllerLowLevel.getRawButton(4) } }
+        val endCommand by lazy { { Controls.driverControllerLowLevel.getRawButton(1) } }
 
         var startTime = 0.0
         val yeetUpVelocity = (-6).inch // meters per second
         var stiltsInPosition = false
         var elevatorInPosition = false
+        var voltageArray: ArrayList<Double> = arrayListOf()
 
         override fun initialize() {
-            stiltMotor.controller.setOutputRange(-0.80, 0.80)
-            Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
+            stiltMotor.controller.setOutputRange(-1.0, 1.0)
+            Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 0.4)
             Proximal.wantedState = WantedState.Position((-15).degree)
-            Elevator.setClimbMode()
+//            Elevator.setClimbMode()
+            Elevator.setClimbVelocityMode()
             Proximal.setClimbPositionMode()
             Wrist.wantedState = WantedState.Position(88.degree)
             Controls.isClimbing = true
@@ -123,15 +128,23 @@ object ClimbSubsystem: FalconSubsystem() {
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
 //            }
-            elevatorInPosition = Elevator.currentState.position < 13.inch
-            stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
+            if(!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch
+            if(!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
             val now = Timer.getFPGATimestamp()
             val elapsedTime = now - startTime
-            val targetState = yeetUpVelocity * elapsedTime
+            var targetState = 25.inch + yeetUpVelocity * elapsedTime
+            if(targetState < 12.inch) targetState = 12.inch
+            println("target state ${targetState.inch}")
+
+            println("elevator current ${Elevator.motor.drawnCurrent}, stilt current ${stiltMotor.drawnCurrent}")
 
             if(elevatorInPosition) Elevator.wantedState = WantedState.Position(12.inch) else {
-                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
+//                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
+//                Elevator.wantedState = WantedState.Position(targetState)
+                Elevator.wantedState = WantedState.Velocity(yeetUpVelocity.velocity)
+                voltageArray.add(Elevator.motor.voltageOutput.value)
             }
+            println("average elevator voltage ${voltageArray.average()}")
             if(stiltsInPosition) stiltMotor.setPosition(12.inch - 4.5.inch) else {
                 setClimbProfile(targetState, yeetUpVelocity.velocity, (-4.5).inch)
             }
@@ -156,8 +169,8 @@ object ClimbSubsystem: FalconSubsystem() {
             Proximal.setMotionMagicMode()
             Proximal.wantedState = WantedState.Position((-20).degree)
             intakeWheels.setNeutral()
-            stiltMotor.controller.setOutputRange(-0.15, 0.15)
-            stiltMotor.setPosition(24.inch)
+            stiltMotor.controller.setOutputRange(-0.35, 0.35)
+            stiltMotor.setPosition(25.inch)
             Controls.isClimbing = false
             LEDs.wantedState = LEDs.State.Solid(Color.GREEN)
             GlobalScope.launch {

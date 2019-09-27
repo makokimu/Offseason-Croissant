@@ -1,9 +1,13 @@
 package frc.robot.subsystems.superstructure
 
+import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
 import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.auto.routines.withExit
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
@@ -13,6 +17,7 @@ import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-impo
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import java.awt.Color
 import java.lang.IllegalStateException
 import kotlin.math.min
 
@@ -199,6 +204,15 @@ object SuperstructurePlanner {
                 +ClosedLoopElevatorMove(goalState.elevator)
             }
         }
+        +InstantCommand(Runnable {
+            LEDs.wantedState = LEDs.State.Blink(0.175.second, Color.GREEN)
+            GlobalScope.launch {
+                delay(500)
+                LEDs.wantedState = LEDs.State.Off
+                delay(250)
+                LEDs.wantedState = LEDs.State.Default
+            }
+        })
     }
 
     fun worstCaseProximalTipElevation(currentState: SuperstructureState, goalState: SuperstructureState): Length {

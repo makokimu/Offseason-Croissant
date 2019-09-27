@@ -25,7 +25,7 @@ object LEDs: FalconSubsystem() {
         this.wantedState = if(wantsVision) {
             State.Blink((1.0/8.0).second, Color.green)
         } else {
-            State.Solid(Color.green)
+            State.Default
         }
     }
 
