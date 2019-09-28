@@ -20,10 +20,17 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         val linear = -speedSource()
         val driveCubicDeadband = ((cubicPrecision * (linear pow 3) + (1.0 - cubicPrecision) * curvature) - (abs(curvature) / curvature) * (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband)) / (1.0 - (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband))
 
-        curvatureDrive(
+        println("Drive motor power $linear")
+
+        DriveSubsystem.curvatureDrive(
                 linear,
-                driveCubicDeadband,
+                curvature,
                 quickTurnSource())
+
+//        curvatureDrive(
+//                linear,
+//                driveCubicDeadband,
+//                quickTurnSource())
     }
 
     /**
@@ -88,6 +95,8 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
             rightMotorOutput /= maxMagnitude
         }
 
+        print(" left motor $leftMotorOutput right $rightMotorOutput")
+
         tankDrive(leftMotorOutput, rightMotorOutput)
     }
 
@@ -109,7 +118,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         const val kDeadband = 0.05
         private const val cubicPrecision = 0.1
-        val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
+        val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft) }
         private val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight) }
         private val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kBumperRight)/*.getRawButton(kX)8*/ }
     }
