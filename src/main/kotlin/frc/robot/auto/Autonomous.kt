@@ -63,7 +63,7 @@ object Autonomous : Updatable {
         ) {
             stateCommandGroup(autoMode) {
                 state(Mode.DO_NOTHING, sequential {})
-                state(Mode.YEOLDEROUTINE, YeOldeLowRocketAuto()())
+//                state(Mode.YEOLDEROUTINE, YeOldeLowRocketAuto()())
             }
         }
         state(StartingPositions.CENTER) {
