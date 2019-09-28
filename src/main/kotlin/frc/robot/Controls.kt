@@ -36,7 +36,10 @@ object Controls : Updatable {
 
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
-        button(kY).change(ClimbSubsystem.fullS3ndClimbCommand)
+        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+
+        pov(90).changeOn(ClimbSubsystem.hab3prepMove)
+        pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
 
         state({ !isClimbing }) {
             // Vision align
