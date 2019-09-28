@@ -81,7 +81,7 @@ object ClimbSubsystem: FalconSubsystem() {
     val prepMove = sequential {
         +SuperstructurePlanner.everythingMoveTo(35.inch, 0.degree, 0.degree) // TODO check preset
         +SuperstructurePlanner.everythingMoveTo(35.inch, (-5).degree, 93.degree) // TODO check preset
-        val move = SuperstructurePlanner.everythingMoveTo(25.inch, (-5).degree, 93.degree) // TODO check preset
+        val move = SuperstructurePlanner.everythingMoveTo(25.inch - 10.inch /* hab 2 */, (-5).degree, 93.degree) // TODO check preset
         +parallel {
             +move
             +(RunCommand(Runnable{ intakeWheels.setDutyCycle(0.3)}, ClimbSubsystem).withExit { !move.isScheduled }.whenFinished { intakeWheels.setNeutral()})
@@ -105,7 +105,8 @@ object ClimbSubsystem: FalconSubsystem() {
         val elevatorSource by lazy { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
 
         var startTime = 0.0
-        val yeetUpVelocity = (-6).inch // meters per second
+//        val yeetUpVelocity = (-6).inch // meters per second
+        val hab2Offset = 13.inch
         var stiltsInPosition = false
         var elevatorInPosition = false
         var voltageArray: ArrayList<Double> = arrayListOf()
@@ -114,7 +115,7 @@ object ClimbSubsystem: FalconSubsystem() {
             stiltMotor.controller.setOutputRange(-1.0, 1.0)
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 0.3)
             Proximal.wantedState = WantedState.Position((-15).degree)
-            Elevator.setClimbMode()
+            Elevator.wantsLowGear = true
 //            Elevator.setClimbVelocityMode()
             Proximal.setClimbPositionMode()
             Wrist.wantedState = WantedState.Position(88.degree)
@@ -123,31 +124,32 @@ object ClimbSubsystem: FalconSubsystem() {
             LEDs.wantedState = LEDs.State.Blink(0.15.second, Color(130, 24, 30))
         }
         override fun execute() {
-            if(Elevator.currentState.position < 18.inch && Elevator.currentState.position > 13.inch) Proximal.wantedState = WantedState.Position((-37).degree)
-            else if(Elevator.currentState.position < 12.5.inch) {
+            if(Elevator.currentState.position < 18.inch + hab2Offset && Elevator.currentState.position > 13.inch + hab2Offset) Proximal.wantedState = WantedState.Position((-37).degree)
+            else if(Elevator.currentState.position < 12.5.inch + hab2Offset) {
                 Proximal.wantedState = WantedState.Position((-45).degree)
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
 //            }
-            if(!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch
-            if(!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
+            if(!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch + hab2Offset
+            if(!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch + hab2Offset
             val now = Timer.getFPGATimestamp()
             val elapsedTime = now - startTime
 
             println("elevator current ${Elevator.motor.drawnCurrent}, stilt current ${stiltMotor.drawnCurrent}")
 
-            if(elevatorInPosition || Elevator.currentState.position < 12.5.inch) Elevator.wantedState = WantedState.Position(12.inch) else {
-//                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
-//                Elevator.wantedState = WantedState.Velocity(yeetUpVelocity.velocity)
-//                voltageArray.add(Elevator.motor.voltageOutput.value)
-//                Elevator.wantedState = WantedState.Position(12.inch) // just keep yeeting
-                Elevator.wantedState = WantedState.Voltage((-0.2 - elevatorSource()).volt * 12)
-            }
+//            if(elevatorInPosition || Elevator.currentState.position < 12.5.inch + hab2Offset) Elevator.wantedState = WantedState.Position(12.inch + hab2Offset) else {
+////                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
+////                Elevator.wantedState = WantedState.Velocity(yeetUpVelocity.velocity)
+////                voltageArray.add(Elevator.motor.voltageOutput.value)
+////                Elevator.wantedState = WantedState.Position(12.inch) // just keep yeeting
+//                Elevator.wantedState = WantedState.Voltage((-0.2 - elevatorSource()).volt * 12)
+//            }
             println("average elevator voltage ${voltageArray.average()}")
 //            if(stiltsInPosition || stiltMotor.encoder.position < 12.inch - 4.inch) stiltMotor.setPosition(12.inch - 4.5.inch) else {
 //                setClimbProfile(targetState, yeetUpVelocity.velocity, (-4.5).inch)
 //            }
-            stiltMotor.setPosition(12.inch - 4.5.inch)
+            stiltMotor.setPosition(12.inch - 4.5.inch + hab2Offset - 1.inch)
+            Elevator.wantedState = WantedState.Position(12.inch)
 
             var s3nd = yeetForwardSource() * -1.0
             if(s3nd < -0.1) s3nd = -0.2
@@ -164,7 +166,7 @@ object ClimbSubsystem: FalconSubsystem() {
         override fun isFinished() = endCommand()
 
         override fun end(interrupted: Boolean) {
-            Elevator.setMotionMagicMode()
+            Elevator.wantsLowGear = false
             Elevator.motor.master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
             Proximal.setMotionMagicMode()
             intakeWheels.setNeutral()
