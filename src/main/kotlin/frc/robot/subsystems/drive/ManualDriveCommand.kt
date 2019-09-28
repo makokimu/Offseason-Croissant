@@ -25,7 +25,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         DriveSubsystem.run {
             listOf(leftMotor.master, rightMotor.master).forEach {
                 it.brakeMode = true
-                it.talonSRX.configOpenloopRamp(0.16)
+                it.talonSRX.configOpenloopRamp(0.0)
             }
         }
     }
@@ -40,7 +40,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         DriveSubsystem.curvatureDrive(
                 linear * linear.absoluteValue * 0.9,
                 curvature * curvature.absoluteValue * 0.8,
-                quickTurnSource() || linear.absoluteValue < 0.1)
+                quickTurnSource() || linear.absoluteValue < 0.25)
 
 //        curvatureDrive(
 //                linear,
