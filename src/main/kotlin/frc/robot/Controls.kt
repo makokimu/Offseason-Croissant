@@ -27,7 +27,6 @@ import java.util.function.BooleanSupplier
 object Controls : Updatable {
 
     var isClimbing = false
-        set
 
     private val zero = ZeroSuperStructureRoutine()
 
@@ -37,7 +36,7 @@ object Controls : Updatable {
 
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
-        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+        button(kY).change(ClimbSubsystem.fullS3ndClimbCommand)
 
         state({ !isClimbing }) {
             // Vision align
@@ -85,7 +84,7 @@ object Controls : Updatable {
             button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
 
             // that one passthrough preset that doesnt snap back to normal
-            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
+//            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
             // hatches
             lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
@@ -95,7 +94,7 @@ object Controls : Updatable {
             // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
             val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
             lessThanAxisButton(0).changeOff { (sequential{ +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed;  }).schedule() }.change(cargoCommand)
-            greaterThanAxisButton(0).changeOff { Superstructure.kStowed.schedule() }.change(IntakeCargoCommand(true))
+            greaterThanAxisButton(0).changeOff {  }.change(IntakeCargoCommand(true))
         }
     }
 

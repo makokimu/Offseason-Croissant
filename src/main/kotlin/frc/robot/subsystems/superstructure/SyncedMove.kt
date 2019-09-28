@@ -130,20 +130,20 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
             get() = sequential {
                 +PrintCommand("passing thru front to back")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(33.inch)
+                +ClosedLoopElevatorMove(36.inch)
                 +SyncedMove((-160).degree, true)
                 +parallel {
                     +ClosedLoopProximalMove((-193.0).degree)
                     +ClosedLoopWristMove((-112.0).degree)
                 }
-                +ClosedLoopElevatorMove(16.5.inch)
+                +ClosedLoopElevatorMove(19.5.inch)
             }
 
         val backToFront
             get() = sequential {
                 +PrintCommand("passiing thru back to front")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(33.inch)
+                +ClosedLoopElevatorMove(36.inch)
                 +SyncedMove(0.0.degree, false)
                 +parallel {
                     +ClosedLoopProximalMove(0.0.degree)
@@ -154,7 +154,7 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
 
         val shortPassthrough
             get() = sequential {
-                +ClosedLoopElevatorMove(33.inch)
+                +ClosedLoopElevatorMove(36.inch)
                 +SyncedMove(0.0.degree, false) }
     }
 }

@@ -67,7 +67,7 @@ object Constants {
     object SuperStructureConstants {
         val kProximalStatic = 0.4.volt // volts
         val kProximalCos = 0.94.volt // volts
-        const val kJointSpeedMultiplier = 0.7
+        const val kJointSpeedMultiplier = 0.95
         val kProximalLen = 32.0.inch
         val kElevatorRange = 11.inch..69.inch
         val kProximalThrustVelocity = 50.degree.velocity

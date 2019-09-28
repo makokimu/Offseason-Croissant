@@ -4,15 +4,19 @@ import com.team254.lib.physics.DCMotorTransmission
 import edu.wpi.first.wpilibj.DigitalInput
 import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kElevatorRange
+import frc.robot.Ports
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts
 import frc.robot.Ports.SuperStructurePorts.ElevatorPorts.MASTER_INVERTED
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
+import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.PI
 import kotlin.math.withSign
+import kotlin.properties.Delegates
 
 /**
  * The (singleton) [ConcurrentFalconJoint] elevator of Croissant.
@@ -35,6 +39,21 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             radius * radius * m / (2.0 * metersKa / (2.0 / radius)),
             0.0 // totally a guess
     )
+
+    var wantsLowGear by Delegates.observable(false) {
+        _, _, wantsLow ->
+        shifter.state = if(wantsLow) FalconSolenoid.State.Forward else  FalconSolenoid.State.Reverse
+        if(wantsLow) setLowSpeedPositionGains() else setMotionMagicMode()
+    }
+
+    private fun setLowSpeedPositionGains() {
+        motor.useMotionProfileForPosition = false
+        motor.setClosedLoopGains(0.15, 0.0)
+    }
+
+    private val shifter = FalconDoubleSolenoid(2,3, Ports.kPCMID).apply {
+        state = FalconSolenoid.State.Reverse
+    }
 
     override val motor = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
@@ -74,18 +93,18 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         }
 
         override fun setClosedLoopGains() =
-                setMotionMagicGains()
+                setHighSpeedMotionMagicGains()
 
         /**
          * Configure the master talon for motion magic control
          */
-        fun setMotionMagicGains() {
+        fun setHighSpeedMotionMagicGains() {
             // TODO also wrap the solenoid boi for the shifter?
 
             master.useMotionProfileForPosition = true
             // TODO use FalconSRX properties for velocities and accelerations
             master.talonSRX.configMotionCruiseVelocity((5500.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
-            master.talonSRX.configMotionAcceleration(10000)
+            master.talonSRX.configMotionAcceleration(8000)
             master.talonSRX.configMotionSCurveStrength(0)
 
             master.setClosedLoopGains(
@@ -147,15 +166,10 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
     init { motor.encoder.position }
 
     // Set the elevator height to a sane-ish number by default
-    override fun lateInit() { motor.encoder.resetPosition(30.0.inch) }
-
-    /** The maximum distance by which the elevator setpoint can be offset */
-    private val kMaxElevatorOffset = (-3.0).inch..3.0.inch
-
-//    var elevatorOffset: SIUnit<Meter> = 0.0.meter
-//        set(newValue) {
-//            field = newValue.coerceIn(kMaxElevatorOffset)
-//        }
+    override fun lateInit() {
+        motor.encoder.resetPosition(35.0.inch)
+        wantsLowGear = false
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun customizeWantedState(wantedState: WantedState): WantedState =

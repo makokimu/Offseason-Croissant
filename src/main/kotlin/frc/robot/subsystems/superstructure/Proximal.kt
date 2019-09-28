@@ -97,7 +97,7 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
             master.talonSRX.configMotionSCurveStrength(0)
 
             master.setClosedLoopGains(
-                    0.85, 6.0, ff = 0.45
+                    0.5, 6.0, ff = 0.45 // used to be p = 0.85, got oscolation
             )
         }
     }
