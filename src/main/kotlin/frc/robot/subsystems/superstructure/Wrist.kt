@@ -56,6 +56,17 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
             master.feedbackSensor = Ports.SuperStructurePorts.WristPorts.SENSOR
             master.talonSRX.setSensorPhase(Ports.SuperStructurePorts.WristPorts.TALON_SENSOR_PHASE)
 
+            master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
+            master.talonSRX.configPeakOutputForward(1.0)
+            master.talonSRX.configPeakOutputReverse(-1.0)
+
+            followers?.forEach {
+                val motor2 = it as FalconSRX<*>
+                motor2.talonSRX.configClosedLoopPeakOutput(0, 1.0)
+                motor2.talonSRX.configPeakOutputForward(1.0)
+                motor2.talonSRX.configPeakOutputReverse(-1.0)
+            }
+
             setClosedLoopGains()
         }
 

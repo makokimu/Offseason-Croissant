@@ -8,6 +8,7 @@ import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.auto.routines.* // ktlint-disable no-wildcard-imports
 import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.S3ND
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.Source
@@ -54,34 +55,22 @@ object Autonomous : Updatable {
 
     // Autonomous Master Group
     private val JUST = stateCommandGroup(startingPosition) {
-//        state(
-//                StartingPositions.LEFT,
-//                StartingPositions.RIGHT,
-//                StartingPositions.LEFT_REVERSED,
-//                StartingPositions.RIGHT_REVERSED
-//        ) {
-//            stateCommandGroup(autoMode) {
-//                state(Mode.TEST_TRAJECTORIES, block = TestTrajectoriesRoutine())
-//                state(Mode.FORWARD_CARGO_SHIP, sequential {})
-//                state(Mode.DO_NOTHING, sequential {})
-//                state(Mode.BOTTOM_ROCKET, BottomRocketRoutine()())
-//                state(Mode.BOTTOM_ROCKET_2, BottomRocketRoutine2()())
-//                state(Mode.SIDE_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.SIDE)())
-//                state(Mode.HYBRID_LEFT, sequential {})
-//                state(Mode.HYBRID_RIGHT, sequential {})
-//            }
-//        }
-//        state(StartingPositions.CENTER) {
-//            stateCommandGroup(autoMode) {
-//                state(Mode.FORWARD_CARGO_SHIP, CargoShipRoutine(CargoShipRoutine.Mode.FRONT)())
-//                state(Mode.TEST_TRAJECTORIES, block = TestTrajectoriesRoutine())
-//                state(Mode.BOTTOM_ROCKET, sequential {})
-//                state(Mode.BOTTOM_ROCKET_2, sequential {})
-//                state(Mode.SIDE_CARGO_SHIP, sequential {})
-//                state(Mode.HYBRID_LEFT, block = HybridRoutine(HybridRoutine.Mode.LEFT))
-//                state(Mode.HYBRID_RIGHT, block = HybridRoutine(HybridRoutine.Mode.RIGHT))
-//            }
-//        }
+        state(
+                StartingPositions.LEFT,
+                StartingPositions.RIGHT,
+                StartingPositions.LEFT_REVERSED,
+                StartingPositions.RIGHT_REVERSED
+        ) {
+            stateCommandGroup(autoMode) {
+                state(Mode.DO_NOTHING, sequential {})
+                state(Mode.YEOLDEROUTINE, YeOldeLowRocketAuto()())
+            }
+        }
+        state(StartingPositions.CENTER) {
+            stateCommandGroup(autoMode) {
+                state(Mode.DO_NOTHING, sequential {})
+            }
+        }
     }
 
     @Suppress("LocalVariableName")
@@ -101,5 +90,5 @@ object Autonomous : Updatable {
     }
 
     @Suppress("unused")
-    enum class Mode { TEST_TRAJECTORIES, BOTTOM_ROCKET, BOTTOM_ROCKET_2, FORWARD_CARGO_SHIP, SIDE_CARGO_SHIP, HYBRID_LEFT, HYBRID_RIGHT, DO_NOTHING }
+    enum class Mode { YEOLDEROUTINE, DO_NOTHING }
 }

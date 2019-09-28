@@ -18,8 +18,8 @@ object TrajectoryFactory {
 
     /** Constraints **/
 
-    private val kMaxVelocity = 12.feet.velocity
-    private val kMaxAcceleration = 6.feet.acceleration
+    val kMaxVelocity = 12.feet.velocity
+    val kMaxAcceleration = 6.feet.acceleration
 
     private val kMaxHabitatVelocity = 3.feet.velocity
 
@@ -31,7 +31,7 @@ object TrajectoryFactory {
     private val kMaxCentripetalAccelerationElevatorUp = 6.feet.acceleration
     private val kMaxCentripetalAccelerationElevatorDown = 9.feet.acceleration
 
-    private val kMaxVoltage = 10.volt
+    val kMaxVoltage = 10.volt
 
     /** Adjusted Poses **/
 
@@ -72,7 +72,7 @@ object TrajectoryFactory {
             transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(-1.inch, 0.inch)),
             translationalOffset = Translation2d(0.inch, -4.inch)
     )
-    private val rocketNAdjusted = TrajectoryWaypoints.Waypoint(
+    val rocketNAdjusted = TrajectoryWaypoints.Waypoint(
             trueLocation = TrajectoryWaypoints.kRocketN,
             transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(4.inch, 0.inch))
     )
@@ -281,10 +281,10 @@ object TrajectoryFactory {
                     VelocityLimitRegionConstraint(TrajectoryWaypoints.kHabitatL1Platform, kMaxHabitatVelocity)
             )
 
-    private fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: TrajectoryWaypoints.Waypoint) =
+    fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: TrajectoryWaypoints.Waypoint) =
             getConstraints(elevatorUp, trajectoryEndpoint.position)
 
-    private fun generateTrajectory(
+    fun generateTrajectory(
         reversed: Boolean,
         points: List<TrajectoryWaypoints.Waypoint>,
         constraints: List<TimingConstraint<Pose2dWithCurvature>>,
@@ -312,5 +312,6 @@ object TrajectoryFactory {
         )
     }
 
-    private fun Pose2d.asWaypoint() = TrajectoryWaypoints.Waypoint(this)
 }
+
+fun Pose2d.asWaypoint() = TrajectoryWaypoints.Waypoint(this)
