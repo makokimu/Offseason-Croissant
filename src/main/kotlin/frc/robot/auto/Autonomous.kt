@@ -43,35 +43,35 @@ object Autonomous : Updatable {
         // Update localization if the startingPositionMonitor value's changed since the last call
         startingPositionMonitor.onChange { if (!Robot.isEnabled) DriveSubsystem.localization.reset(it.pose) }
 
-        // make sure that we're in auto mode (and cancel auto if we aren't)
-        modeMonitor.onChange { newValue ->
-            if (newValue != FishyRobot.Mode.AUTONOMOUS) JUST.cancel()
-        }
-
-        isReadyMonitor.onChangeToTrue {
-            JUST S3ND IT
-        }
+//        // make sure that we're in auto mode (and cancel auto if we aren't)
+//        modeMonitor.onChange { newValue ->
+//            if (newValue != FishyRobot.Mode.AUTONOMOUS) JUST.cancel()
+//        }
+//
+//        isReadyMonitor.onChangeToTrue {
+//            JUST S3ND IT
+//        }
     }
 
     // Autonomous Master Group
-    private val JUST = stateCommandGroup(startingPosition) {
-        state(
-                StartingPositions.LEFT,
-                StartingPositions.RIGHT,
-                StartingPositions.LEFT_REVERSED,
-                StartingPositions.RIGHT_REVERSED
-        ) {
-            stateCommandGroup(autoMode) {
-                state(Mode.DO_NOTHING, sequential {})
+//    private val JUST = stateCommandGroup(startingPosition) {
+//        state(
+//                StartingPositions.LEFT,
+//                StartingPositions.RIGHT//,
+////                StartingPositions.LEFT_REVERSED,
+////                StartingPositions.RIGHT_REVERSED
+//        ) {
+//            stateCommandGroup(autoMode) {
+//                state(Mode.DO_NOTHING, sequential {})
 //                state(Mode.YEOLDEROUTINE, YeOldeLowRocketAuto()())
-            }
-        }
-        state(StartingPositions.CENTER) {
-            stateCommandGroup(autoMode) {
-                state(Mode.DO_NOTHING, sequential {})
-            }
-        }
-    }
+//            }
+//        }
+//        state(StartingPositions.CENTER) {
+//            stateCommandGroup(autoMode) {
+//                state(Mode.DO_NOTHING, sequential {})
+//            }
+//        }
+//    }
 
     @Suppress("LocalVariableName")
     private val IT = ""

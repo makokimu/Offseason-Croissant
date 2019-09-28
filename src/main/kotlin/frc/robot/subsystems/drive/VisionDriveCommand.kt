@@ -29,7 +29,8 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
     override fun initialize() {
         isActive = true
         referencePose = DriveSubsystem.robotPosition
-        LEDs.setVisionMode(true)
+//        LEDs.setVisionMode(/*true*/)
+        LEDs.wantedState = LEDs.State.Off
     }
 
     override fun execute() {
@@ -61,7 +62,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
             // so y = -1.6x + 8.4
             val frequency = -1.6 * distance + 8.4
 //            LEDs.blinkFreq = 1.second / frequency
-            LEDs.wantedState = LEDs.State.Blink((1.0/frequency).second, Color.GREEN)
+//            LEDs.wantedState = LEDs.State.Blink((1.0/frequency).second, Color.red)
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)

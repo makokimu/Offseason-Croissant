@@ -136,7 +136,7 @@ object ClimbSubsystem: FalconSubsystem() {
         override fun execute() {
             if(Elevator.currentState.position < 18.inch + hab2Offset && Elevator.currentState.position > 13.inch + hab2Offset) Proximal.wantedState = WantedState.Position((-37).degree)
             else if(Elevator.currentState.position < 12.5.inch + hab2Offset) {
-                Proximal.wantedState = WantedState.Position((-45).degree)
+                Proximal.wantedState = WantedState.Position((-43).degree)
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
 //            }
@@ -159,7 +159,7 @@ object ClimbSubsystem: FalconSubsystem() {
 //                setClimbProfile(targetState, yeetUpVelocity.velocity, (-4.5).inch)
 //            }
             stiltMotor.setPosition(12.inch - 4.5.inch + hab2Offset - 1.inch)
-            Elevator.wantedState = WantedState.Position(12.inch)
+            Elevator.wantedState = WantedState.Position(12.inch - 0.5.inch)
 
             var s3nd = yeetForwardSource() * -1.0
             if(s3nd < -0.1) s3nd = -0.2

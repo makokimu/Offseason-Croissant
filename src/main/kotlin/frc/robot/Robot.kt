@@ -2,9 +2,11 @@
 package frc.robot
 
 import com.ctre.phoenix.CANifier
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.auto.Autonomous
+import frc.robot.auto.routines.YeOldeLowRocketAuto
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.Intake
@@ -21,6 +23,10 @@ import org.ghrobotics.lib.mathematics.units.inch
 import org.team5940.pantry.lib.FishyRobot
 import setLEDOutput
 import java.awt.Color
+import edu.wpi.first.wpilibj.networktables.NetworkTable.getTable
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.getNumber
+
+
 
 object Robot : FishyRobot() {
 
@@ -46,12 +52,21 @@ object Robot : FishyRobot() {
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2)
+
         super.robotInit()
     }
 
     override fun robotPeriodic() {
         super.robotPeriodic()
     }
+
+//    val auto = YeOldeLowRocketAuto()()
+    override fun autonomousInit() {
+//        auto.schedule()
+        super.autonomousInit()
+    }
+
 }
 
 fun main() {

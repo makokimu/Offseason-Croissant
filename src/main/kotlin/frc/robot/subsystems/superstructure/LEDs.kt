@@ -23,7 +23,7 @@ object LEDs: FalconSubsystem() {
 
     fun setVisionMode(wantsVision: Boolean) {
         this.wantedState = if(wantsVision) {
-            State.Blink((1.0/8.0).second, Color.green)
+            State.Blink((1.0/8.0).second, Color.red)
         } else {
             State.Default
         }

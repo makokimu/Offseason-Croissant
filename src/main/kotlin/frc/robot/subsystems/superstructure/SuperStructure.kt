@@ -25,14 +25,14 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     }
 
     val kStowed
-            get() = everythingMoveTo(29.5.inch, (-70).degree, 40.degree)
+            get() = everythingMoveTo(30.25.inch, (-70).degree, 40.degree)
 
     val kBackHatchFromLoadingStation
             get() = SyncedMove.frontToBack
     val kHatchLow
             get() = everythingMoveTo(19.inch, 0.degree, 4.degree)
     val kHatchMid get() = everythingMoveTo(43.inch, 0.degree, 4.degree)
-    val kHatchHigh get() = everythingMoveTo(66.inch, 0.degree, 4.degree)
+    val kHatchHigh get() = everythingMoveTo(67.inch, 0.degree, 4.degree)
 
     val kCargoIntake get() = everythingMoveTo(25.5.inch, (-44).degree, (-20).degree)
     val kCargoShip get() = everythingMoveTo(47.5.inch, (-5).degree, (-50).degree)

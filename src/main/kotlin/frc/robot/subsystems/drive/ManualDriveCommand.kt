@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive
 
+import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
@@ -15,6 +16,20 @@ import kotlin.math.pow
 
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
+    override fun initialize() {
+//        DriveSubsystem.setNeutralMode(NeutralMode.Brake)
+//        Drive.configClosedloopRamp(0.16)
+//        DriveTrain.getInstance().getRight().getMaster().configClosedloopRamp(0.16)
+//        DriveTrain.getInstance().getLeft().getMaster().configOpenloopRamp(0.16)
+//        DriveTrain.getInstance().getRight().getMaster().configOpenloopRamp(0.16)
+        DriveSubsystem.run {
+            listOf(leftMotor.master, rightMotor.master).forEach {
+                it.brakeMode = true
+                it.talonSRX.configOpenloopRamp(0.16)
+            }
+        }
+    }
+
     override fun execute() {
         val curvature = rotationSource()
         val linear = -speedSource()
@@ -23,14 +38,23 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 //        println("Drive motor power $linear")
 
         DriveSubsystem.curvatureDrive(
-                linear,
-                curvature,
-                quickTurnSource())
+                linear * linear.absoluteValue * 0.9,
+                curvature * curvature.absoluteValue * 0.8,
+                quickTurnSource() || linear.absoluteValue < 0.1)
 
 //        curvatureDrive(
 //                linear,
 //                driveCubicDeadband,
 //                quickTurnSource())
+    }
+
+    override fun end(interrupted: Boolean) {
+        DriveSubsystem.run {
+            listOf(leftMotor.master, rightMotor.master).forEach {
+                it.brakeMode = true
+                it.talonSRX.configOpenloopRamp(0.16)
+            }
+        }
     }
 
     /**
