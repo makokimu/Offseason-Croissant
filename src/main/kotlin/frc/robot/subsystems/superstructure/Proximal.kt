@@ -76,12 +76,19 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
             master.outputInverted = Ports.SuperStructurePorts.ProximalPorts.TALON_INVERTED
             master.feedbackSensor = Ports.SuperStructurePorts.ProximalPorts.SENSOR
             master.talonSRX.setSensorPhase(Ports.SuperStructurePorts.ProximalPorts.TALON_SENSOR_PHASE)
+            master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
+            master.talonSRX.configPeakOutputForward(1.0)
+            master.talonSRX.configPeakOutputReverse(-1.0)
 
             followers.forEachIndexed {
                 index, followerMotor ->
 
                 followerMotor.follow(master)
                 followers[index].talonSRX.setInverted(Ports.SuperStructurePorts.ProximalPorts.FOLLOWER_INVERSION[index])
+
+                master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
+                master.talonSRX.configPeakOutputForward(1.0)
+                master.talonSRX.configPeakOutputReverse(-1.0)
             }
             setClosedLoopGains()
 

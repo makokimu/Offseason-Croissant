@@ -40,7 +40,7 @@ object Robot : FishyRobot() {
         LimeLightManager
         VisionProcessing
         +Controls
-        +Autonomous
+//        +Autonomous
         +LEDs
 
         SmartDashboard.putData(CommandScheduler.getInstance())

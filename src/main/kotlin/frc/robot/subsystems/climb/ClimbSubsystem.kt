@@ -287,6 +287,7 @@ object ClimbSubsystem: FalconSubsystem() {
             +SuperstructurePlanner.everythingMoveTo(35.inch, (-5).degree, 80.degree) // TODO check preset
             +SuperstructurePlanner.everythingMoveTo(25.inch, (-5).degree, 95.degree) // TODO check preset
         })
+        SmartDashboard.putData("hab 3", hab3prepMove)
 
 //        SmartDashboard.putData("closed loop climb", fullS3ndClimbCommand)
 //

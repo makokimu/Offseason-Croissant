@@ -36,7 +36,7 @@ object Controls : Updatable {
 
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
-        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+//        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
         pov(90).changeOn(ClimbSubsystem.hab3prepMove)
         pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
@@ -49,7 +49,7 @@ object Controls : Updatable {
 
             // Shifting
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
-            button(kB).changeOn(ClimbSubsystem.prepMove)
+//            button(kB).changeOn(ClimbSubsystem.prepMove)
         }
 
     }
@@ -66,7 +66,9 @@ object Controls : Updatable {
 
         state({ !isClimbing }) {
 
-            // elevator jogging
+            // climbing
+            button(4).changeOn(ClimbSubsystem.prepMove)
+            button(12).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
             // cargo presets
 //            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
