@@ -1,4 +1,4 @@
-package frc.robot.subsystems.superstructure
+    package frc.robot.subsystems.superstructure
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -38,7 +38,7 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     val kCargoShip get() = everythingMoveTo(47.5.inch, (-5).degree, (-50).degree)
     val kCargoLow get() = everythingMoveTo(20.5.inch, 6.degree, 16.degree)
     val kCargoMid get() = everythingMoveTo(45.5.inch, 6.degree, 16.degree)
-    val kCargoHigh get() = everythingMoveTo(65.5.inch, 9.degree, 20.degree)
+    val kCargoHigh get() = everythingMoveTo(65.5.inch, 7.degree, 20.degree)
 
     fun everythingMoveTo(elevator: Length, proximal: SIUnit<Radian>, wrist: SIUnit<Radian>) = everythingMoveTo(State.Position(elevator, proximal, wrist))
 
