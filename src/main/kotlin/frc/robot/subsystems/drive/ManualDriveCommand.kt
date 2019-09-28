@@ -20,7 +20,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         val linear = -speedSource()
         val driveCubicDeadband = ((cubicPrecision * (linear pow 3) + (1.0 - cubicPrecision) * curvature) - (abs(curvature) / curvature) * (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband)) / (1.0 - (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband))
 
-        println("Drive motor power $linear")
+//        println("Drive motor power $linear")
 
         DriveSubsystem.curvatureDrive(
                 linear,
