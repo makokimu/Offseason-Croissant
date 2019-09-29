@@ -33,14 +33,14 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     override fun execute() {
         val curvature = rotationSource()
         val linear = -speedSource()
-        val driveCubicDeadband = ((cubicPrecision * (linear pow 3) + (1.0 - cubicPrecision) * curvature) - (abs(curvature) / curvature) * (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband)) / (1.0 - (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband))
-
+//        val driveCubicDeadband = ((cubicPrecision * (linear pow 3) + (1.0 - cubicPrecision) * curvature) - (abs(curvature) / curvature) * (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband)) / (1.0 - (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband))
+        val isQuickTurn = quickTurnSource() || linear.absoluteValue < 0.25
 //        println("Drive motor power $linear")
 
         DriveSubsystem.curvatureDrive(
                 linear * linear.absoluteValue * 0.9,
-                curvature * curvature.absoluteValue * 0.8,
-                quickTurnSource() || linear.absoluteValue < 0.25)
+                curvature * curvature.absoluteValue * 0.8 * if(isQuickTurn) 0.7 else 1.0,
+                isQuickTurn)
 
 //        curvatureDrive(
 //                linear,
