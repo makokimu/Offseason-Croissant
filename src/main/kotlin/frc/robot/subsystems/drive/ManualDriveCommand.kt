@@ -1,6 +1,7 @@
 package frc.robot.subsystems.drive
 
 import com.ctre.phoenix.motorcontrol.NeutralMode
+import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
@@ -17,15 +18,11 @@ import kotlin.math.pow
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
     override fun initialize() {
-//        DriveSubsystem.setNeutralMode(NeutralMode.Brake)
-//        Drive.configClosedloopRamp(0.16)
-//        DriveTrain.getInstance().getRight().getMaster().configClosedloopRamp(0.16)
-//        DriveTrain.getInstance().getLeft().getMaster().configOpenloopRamp(0.16)
-//        DriveTrain.getInstance().getRight().getMaster().configOpenloopRamp(0.16)
         DriveSubsystem.run {
             listOf(leftMotor.master, rightMotor.master).forEach {
                 it.brakeMode = true
                 it.talonSRX.configOpenloopRamp(0.0)
+                it.talonSRX.configClosedloopRamp(0.02)
             }
         }
     }
@@ -33,7 +30,6 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     override fun execute() {
         val curvature = rotationSource()
         val linear = -speedSource()
-//        val driveCubicDeadband = ((cubicPrecision * (linear pow 3) + (1.0 - cubicPrecision) * curvature) - (abs(curvature) / curvature) * (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband)) / (1.0 - (cubicPrecision * (kDeadband pow 3) + (1.0 - cubicPrecision) * kDeadband))
         val isQuickTurn = quickTurnSource() || linear.absoluteValue < 0.25
 //        println("Drive motor power $linear")
 
@@ -58,73 +54,6 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     }
 
     /**
-     * Curvature or cheezy drive control
-     */
-    @Suppress("ComplexMethod")
-    private fun curvatureDrive(
-        linearPercent: Double,
-        curvaturePercent: Double,
-        isQuickTurn: Boolean
-    ) {
-        val angularPower: Double
-        val overPower: Boolean
-
-        if (isQuickTurn) {
-            if (linearPercent.absoluteValue < TankDriveSubsystem.kQuickStopThreshold) {
-                quickStopAccumulator = (1 - TankDriveSubsystem.kQuickStopAlpha) * quickStopAccumulator +
-                        TankDriveSubsystem.kQuickStopAlpha * curvaturePercent.coerceIn(-1.0, 1.0) * 2.0
-            }
-            overPower = true
-            angularPower = curvaturePercent
-        } else {
-            overPower = false
-            angularPower = linearPercent.absoluteValue * curvaturePercent - quickStopAccumulator
-
-            when {
-                quickStopAccumulator > 1 -> quickStopAccumulator -= 1.0
-                quickStopAccumulator < -1 -> quickStopAccumulator += 1.0
-                else -> quickStopAccumulator = 0.0
-            }
-        }
-
-        var leftMotorOutput = linearPercent + angularPower
-        var rightMotorOutput = linearPercent - angularPower
-
-        // If rotation is overpowered, reduce both outputs to within acceptable range
-        if (overPower) {
-            when {
-                leftMotorOutput > 1.0 -> {
-                    rightMotorOutput -= leftMotorOutput - 1.0
-                    leftMotorOutput = 1.0
-                }
-                rightMotorOutput > 1.0 -> {
-                    leftMotorOutput -= rightMotorOutput - 1.0
-                    rightMotorOutput = 1.0
-                }
-                leftMotorOutput < -1.0 -> {
-                    rightMotorOutput -= leftMotorOutput + 1.0
-                    leftMotorOutput = -1.0
-                }
-                rightMotorOutput < -1.0 -> {
-                    leftMotorOutput -= rightMotorOutput + 1.0
-                    rightMotorOutput = -1.0
-                }
-            }
-        }
-
-        // Normalize the wheel speeds
-        val maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
-        if (maxMagnitude > 1.0) {
-            leftMotorOutput /= maxMagnitude
-            rightMotorOutput /= maxMagnitude
-        }
-
-        print(" left motor $leftMotorOutput right $rightMotorOutput")
-
-        tankDrive(leftMotorOutput, rightMotorOutput)
-    }
-
-    /**
      * Tank drive control
      */
     private fun tankDrive(
@@ -136,16 +65,77 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     }
 
     companion object {
-        private var kLockVelocityTolerance = 0.5.feet.velocity
+        /**
+         * Curvature or cheezy drive control
+         */
+        @Suppress("ComplexMethod")
+        internal fun curvatureDrive(
+                linearPercent: Double,
+                curvaturePercent: Double,
+                isQuickTurn: Boolean
+        ): DifferentialDrive.WheelState {
+            val angularPower: Double
+            val overPower: Boolean
+
+            if (isQuickTurn) {
+                if (linearPercent.absoluteValue < TankDriveSubsystem.kQuickStopThreshold) {
+                    quickStopAccumulator = (1 - TankDriveSubsystem.kQuickStopAlpha) * quickStopAccumulator +
+                            TankDriveSubsystem.kQuickStopAlpha * curvaturePercent.coerceIn(-1.0, 1.0) * 2.0
+                }
+                overPower = true
+                angularPower = curvaturePercent
+            } else {
+                overPower = false
+                angularPower = linearPercent.absoluteValue * curvaturePercent - quickStopAccumulator
+
+                when {
+                    quickStopAccumulator > 1 -> quickStopAccumulator -= 1.0
+                    quickStopAccumulator < -1 -> quickStopAccumulator += 1.0
+                    else -> quickStopAccumulator = 0.0
+                }
+            }
+
+            var leftMotorOutput = linearPercent + angularPower
+            var rightMotorOutput = linearPercent - angularPower
+
+            // If rotation is overpowered, reduce both outputs to within acceptable range
+            if (overPower) {
+                when {
+                    leftMotorOutput > 1.0 -> {
+                        rightMotorOutput -= leftMotorOutput - 1.0
+                        leftMotorOutput = 1.0
+                    }
+                    rightMotorOutput > 1.0 -> {
+                        leftMotorOutput -= rightMotorOutput - 1.0
+                        rightMotorOutput = 1.0
+                    }
+                    leftMotorOutput < -1.0 -> {
+                        rightMotorOutput -= leftMotorOutput + 1.0
+                        leftMotorOutput = -1.0
+                    }
+                    rightMotorOutput < -1.0 -> {
+                        leftMotorOutput -= rightMotorOutput + 1.0
+                        rightMotorOutput = -1.0
+                    }
+                }
+            }
+
+            // Normalize the wheel speeds
+            val maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
+            if (maxMagnitude > 1.0) {
+                leftMotorOutput /= maxMagnitude
+                rightMotorOutput /= maxMagnitude
+            }
+
+            return DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
+        }
+
         private var quickStopAccumulator = 0.0
         private const val kQuickStopThreshold = TankDriveSubsystem.kQuickStopThreshold
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         const val kDeadband = 0.05
-        private const val cubicPrecision = 0.1
-        val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft) }
-        private val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight) }
-        private val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kBumperRight)/*.getRawButton(kX)8*/ }
+        val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
+        val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband) }
+        val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kBumperRight)/*.getRawButton(kX)8*/ }
     }
 }
-
-private infix fun Number.pow(i: Number): Double = toDouble().pow(i.toDouble())
