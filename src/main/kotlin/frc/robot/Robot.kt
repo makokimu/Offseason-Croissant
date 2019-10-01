@@ -52,6 +52,7 @@ object Robot : FishyRobot() {
         Superstructure.zero.schedule()
 
         NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
 
         super.robotInit()
     }

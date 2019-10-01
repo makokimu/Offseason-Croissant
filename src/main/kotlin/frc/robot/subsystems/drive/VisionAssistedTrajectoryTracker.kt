@@ -112,7 +112,7 @@ class VisionAssistedTrajectoryTracker(
             }
 
             // update if our timer is done
-            this.visionFinished = inTheEndgame && endgameTimer.hasPeriodPassed(kLinearEndTimeout.second)
+            this.visionFinished = DriveSubsystem.trajectoryTracker.isFinished// inTheEndgame && endgameTimer.hasPeriodPassed(kLinearEndTimeout.second)
 
             DriveSubsystem.setOutput(
                     TrajectoryTrackerOutput(

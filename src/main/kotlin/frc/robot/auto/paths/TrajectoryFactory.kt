@@ -18,14 +18,14 @@ object TrajectoryFactory {
 
     /** Constraints **/
 
-    val kMaxVelocity = 12.feet.velocity
+    val kMaxVelocity = 4.feet.velocity
     val kMaxAcceleration = 6.feet.acceleration
 
-    private val kMaxHabitatVelocity = 3.feet.velocity
+    private val kMaxHabitatVelocity = 2.5.feet.velocity
 
     private val kFirstPathMaxAcceleration = 6.feet.acceleration
 
-    private val kVelocityRadiusConstraintRadius = 3.feet
+    private val kVelocityRadiusConstraintRadius = 4.5.feet
     private val kVelocityRadiusConstraintVelocity = 3.feet.velocity
 
     private val kMaxCentripetalAccelerationElevatorUp = 6.feet.acceleration
@@ -74,7 +74,7 @@ object TrajectoryFactory {
     )
     val rocketNAdjusted = TrajectoryWaypoints.Waypoint(
             trueLocation = TrajectoryWaypoints.kRocketN,
-            transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(4.inch, 0.inch))
+            transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(4.inch, 3.inch))
     )
 
     /** Trajectories **/

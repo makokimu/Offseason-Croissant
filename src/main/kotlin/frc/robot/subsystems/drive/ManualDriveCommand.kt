@@ -30,12 +30,12 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
     override fun execute() {
         val curvature = rotationSource()
         val linear = -speedSource()
-        val isQuickTurn = quickTurnSource() || linear.absoluteValue < 0.25
-//        println("Drive motor power $linear")
+        val speedMultiplier = reduceSpeedSource() // 0 to 1
+        val isQuickTurn = quickTurnSource() || linear.absoluteValue < 0.25 || speedMultiplier > 0.5
 
         DriveSubsystem.curvatureDrive(
-                linear * linear.absoluteValue * 0.9,
-                curvature * curvature.absoluteValue * 0.8 * if(isQuickTurn) 0.7 else 1.0,
+                linear * linear.absoluteValue * 0.9 * (1 - speedMultiplier * 0.3),
+                curvature * curvature.absoluteValue * 0.8 * (1 - speedMultiplier * 0.35) * if(isQuickTurn) 0.7 else 1.0,
                 isQuickTurn)
 
 //        curvatureDrive(
@@ -137,5 +137,6 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
         val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband) }
         val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kBumperRight)/*.getRawButton(kX)8*/ }
+        val reduceSpeedSource by lazy { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
     }
 }
