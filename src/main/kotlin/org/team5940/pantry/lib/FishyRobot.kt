@@ -14,6 +14,8 @@ abstract class FishyRobot : FalconTimedRobot() {
     val isEnabled
             get() = wrappedValue.isEnabled
 
+    val isAuto get() = wrappedValue.isAutonomous
+
     private suspend fun periodicUpdate() {
 
         SmartDashboard.putNumber("lastTry", Timer.getFPGATimestamp())

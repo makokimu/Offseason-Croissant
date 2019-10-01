@@ -6,7 +6,6 @@ import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.auto.Autonomous
-import frc.robot.auto.routines.YeOldeLowRocketAuto
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.Intake
@@ -46,7 +45,7 @@ object Robot : FishyRobot() {
         LimeLightManager
         VisionProcessing
         +Controls
-//        +Autonomous
+        +Autonomous
         +LEDs
 
         SmartDashboard.putData(CommandScheduler.getInstance())
@@ -61,9 +60,7 @@ object Robot : FishyRobot() {
         super.robotPeriodic()
     }
 
-//    val auto = YeOldeLowRocketAuto()()
     override fun autonomousInit() {
-//        auto.schedule()
         super.autonomousInit()
     }
 

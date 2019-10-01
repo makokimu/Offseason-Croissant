@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("edu.wpi.first.GradleRIO") version "2019.4" +
             ".1"
-    id("org.jetbrains.kotlin.jvm") version "1.3.41"
+    id("org.jetbrains.kotlin.jvm") version "1.3.50"
     id("idea")
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
 }

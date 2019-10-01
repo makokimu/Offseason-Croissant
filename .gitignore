@@ -166,3 +166,4 @@ bin/
 
 !*.xml
 *.xml
+.idea

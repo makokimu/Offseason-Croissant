@@ -36,10 +36,10 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
     }.raceWith(WaitUntilCommand { Robot.emergencyActive })
 
     fun followVisionAssistedTrajectory(
-        originalTrajectory: TimedTrajectory<Pose2dWithCurvature>,
-        pathMirrored: BooleanSource,
-        radiusFromEnd: Length,
-        useAbsoluteVision: Boolean = false
+            originalTrajectory: TimedTrajectory<Pose2dWithCurvature>,
+            pathMirrored: BooleanSource,
+            radiusFromEnd: Length,
+            useAbsoluteVision: Boolean = false
     ) = VisionAssistedTrajectoryTracker(
             pathMirrored.map(originalTrajectory.mirror(), originalTrajectory),
             radiusFromEnd,

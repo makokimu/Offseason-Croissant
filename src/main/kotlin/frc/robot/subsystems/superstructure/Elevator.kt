@@ -40,6 +40,10 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             0.0 // totally a guess
     )
 
+    /**
+     * If the elevator should be in low gear right now.
+     * On change, the elevator will shift the shifter and set either position closed loop or motion magic gains.
+     */
     var wantsLowGear by Delegates.observable(false) {
         _, _, wantsLow ->
         shifter.state = if(wantsLow) FalconSolenoid.State.Forward else  FalconSolenoid.State.Reverse
