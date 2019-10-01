@@ -136,11 +136,10 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private const val kQuickStopThreshold = TankDriveSubsystem.kQuickStopThreshold
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         const val kDeadband = 0.05
-        val speedSource: () -> Double by lazy {
+        val speedSource: () -> Double =
             if(Constants.kIsRocketLeague) { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight)
-            - Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
+                - Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
             else Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
-        }
 
         val rotationSource by lazy {
             if(Constants.kIsRocketLeague) Controls.driverFalconXbox.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband)

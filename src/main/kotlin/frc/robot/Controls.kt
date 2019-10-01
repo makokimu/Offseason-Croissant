@@ -49,6 +49,8 @@ object Controls : Updatable {
 
             // Shifting
             if(Constants.kIsRocketLeague) {
+                button(kBumperRight).change(VisionDriveCommand(true))
+            } else {
                 triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
             }
 
