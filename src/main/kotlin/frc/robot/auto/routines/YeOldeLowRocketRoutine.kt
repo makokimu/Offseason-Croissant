@@ -1,6 +1,5 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.frc2.command.Command
 import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.RunCommand
 import edu.wpi.first.wpilibj.frc2.command.WaitCommand
@@ -15,11 +14,13 @@ import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.commands.parallel
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
+import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.VelocityLimitRadiusConstraint
 import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.utils.withEquals
 
 class YeOldeLowRocketAuto : AutoRoutine() {
@@ -35,14 +36,6 @@ class YeOldeLowRocketAuto : AutoRoutine() {
             TrajectoryFactory.rocketNAdjusted
     )
 
-    val path = TrajectoryFactory.generateTrajectory(
-            false,
-            waypoints,
-            listOf(),
-            kMaxVelocity,
-            kMaxAcceleration,
-            kMaxVoltage
-    )
 
     override val routine = sequential {
         +InstantCommand(Runnable {
@@ -62,6 +55,22 @@ class YeOldeLowRocketAuto : AutoRoutine() {
             +IntakeHatchCommand(true).withTimeout(1.0)
             +RunCommand(Runnable{DriveSubsystem.tankDrive(-0.5, -0.5)}).whenFinished {DriveSubsystem.setNeutral()}.withTimeout(1.0)
         }
+    }
+
+    companion object {
+        private var waypoints = listOf(
+                TrajectoryWaypoints.kSideStart.asWaypoint(),
+                TrajectoryFactory.rocketNAdjusted
+        )
+
+        val path = TrajectoryFactory.generateTrajectory(
+                false,
+                waypoints,
+                listOf(VelocityLimitRadiusConstraint(waypoints.first().position.translation, 4.feet, 3.feet.velocity)),
+                kMaxVelocity,
+                kMaxAcceleration,
+                kMaxVoltage
+        )
     }
 
 }
