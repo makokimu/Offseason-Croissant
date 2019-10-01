@@ -19,7 +19,10 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.Meter
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.velocity
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.feet
+import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
@@ -28,6 +31,7 @@ import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.MultiMotorTransmission
+import kotlin.math.PI
 import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
@@ -94,8 +98,8 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override fun lateInit() {
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = 0.degree)
-        defaultCommand = ManualDriveCommand() // set default command
-//         defaultCommand = ClosedLoopChezyDriveCommand()
+//        defaultCommand = ManualDriveCommand() // set default command
+         defaultCommand = ClosedLoopChezyDriveCommand()
         super.lateInit()
     }
 
@@ -108,5 +112,13 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
     override fun updateState() {
 //        localization.update()
+    }
+
+    fun setWheelVelocities(wheelSpeeds: DifferentialDrive.WheelState) {
+        val left = wheelSpeeds.left / differentialDrive.wheelRadius // rad per sec
+        val right = wheelSpeeds.right / differentialDrive.wheelRadius // rad per sec
+        val ff = differentialDrive.getVoltagesFromkV(DifferentialDrive.WheelState(left, right))
+        leftMotor.setVelocity(wheelSpeeds.left.meter.velocity, ff.left.volt)
+        rightMotor.setVelocity(wheelSpeeds.right.meter.velocity, ff.right.volt)
     }
 }

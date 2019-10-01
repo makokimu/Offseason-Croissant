@@ -12,6 +12,8 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 
 object Constants {
 
+    const val kIsRocketLeague = true
+
     object DriveConstants {
         const val kBeta = 2.0
         const val kZeta = 0.7

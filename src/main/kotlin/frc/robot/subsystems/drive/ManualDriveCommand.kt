@@ -3,11 +3,13 @@ package frc.robot.subsystems.drive
 import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.GenericHID
+import frc.robot.Constants
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
+import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import kotlin.math.abs
@@ -134,9 +136,20 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private const val kQuickStopThreshold = TankDriveSubsystem.kQuickStopThreshold
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         const val kDeadband = 0.05
-        val speedSource by lazy { Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband) }
-        val rotationSource by lazy { Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband) }
-        val quickTurnSource by lazy { Controls.driverFalconXbox.getRawButton(kBumperRight)/*.getRawButton(kX)8*/ }
+        val speedSource: () -> Double by lazy {
+            if(Constants.kIsRocketLeague) { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight)
+            - Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
+            else Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
+        }
+
+        val rotationSource by lazy {
+            if(Constants.kIsRocketLeague) Controls.driverFalconXbox.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband)
+            else Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband)
+        }
+        val quickTurnSource by lazy {
+            if(Constants.kIsRocketLeague) Controls.driverFalconXbox.getRawButton(kA)
+            else Controls.driverFalconXbox.getRawButton(kBumperRight)
+        }
         val reduceSpeedSource by lazy { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
     }
 }

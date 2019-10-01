@@ -36,18 +36,22 @@ object Controls : Updatable {
 
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
-//        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
         pov(90).changeOn(ClimbSubsystem.hab3prepMove)
         pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
 
         state({ !isClimbing }) {
             // Vision align
-            triggerAxisButton(GenericHID.Hand.kRight).change(
-                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
-                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
+//            triggerAxisButton(GenericHID.Hand.kRight).change(
+//                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
+//                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
 
             // Shifting
+            if(Constants.kIsRocketLeague) {
+                triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
+            }
+
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
 //            button(kB).changeOn(ClimbSubsystem.prepMove)
         }
