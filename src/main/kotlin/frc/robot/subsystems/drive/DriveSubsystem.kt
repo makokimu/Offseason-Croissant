@@ -95,6 +95,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = 0.degree)
         defaultCommand = ManualDriveCommand() // set default command
+//         defaultCommand = ClosedLoopChezyDriveCommand()
         super.lateInit()
     }
 

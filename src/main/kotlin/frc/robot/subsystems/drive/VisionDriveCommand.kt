@@ -2,6 +2,7 @@
 
 package frc.robot.subsystems.drive
 
+import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
 import frc.robot.subsystems.superstructure.LEDs
@@ -31,14 +32,10 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
         referencePose = DriveSubsystem.robotPosition
 //        LEDs.setVisionMode(/*true*/)
         LEDs.wantedState = LEDs.State.Off
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
     }
 
     override fun execute() {
-
-//        val isFront = !Superstructure.getInstance().isPassedThrough
-//        val isFront = 
-
-        println("IS FRONT? $isFront")
 
         val newTarget = TargetTracker.getBestTargetUsingReference(referencePose, isFront)
 
@@ -89,6 +86,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 //        ElevatorSubsystem.wantedVisionMode = false
         isActive = false
         LEDs.setVisionMode(false)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
     }
 
     override fun initSendable(builder: SendableBuilder) {
