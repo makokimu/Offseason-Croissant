@@ -36,7 +36,6 @@ class YeOldeLowRocketAuto : AutoRoutine() {
             TrajectoryFactory.rocketNAdjusted
     )
 
-
     override val routine = sequential {
         +InstantCommand(Runnable {
             DriveSubsystem.localization.reset((path.firstState.state.pose)) })
@@ -53,7 +52,7 @@ class YeOldeLowRocketAuto : AutoRoutine() {
         }
         +parallel {
             +IntakeHatchCommand(true).withTimeout(1.0)
-            +RunCommand(Runnable{DriveSubsystem.tankDrive(-0.5, -0.5)}).whenFinished {DriveSubsystem.setNeutral()}.withTimeout(1.0)
+            +RunCommand(Runnable { DriveSubsystem.tankDrive(-0.5, -0.5) }).whenFinished { DriveSubsystem.setNeutral() }.withTimeout(1.0)
         }
     }
 
@@ -72,5 +71,4 @@ class YeOldeLowRocketAuto : AutoRoutine() {
                 kMaxVoltage
         )
     }
-
 }

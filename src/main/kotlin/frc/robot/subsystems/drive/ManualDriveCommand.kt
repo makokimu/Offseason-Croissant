@@ -1,19 +1,14 @@
 package frc.robot.subsystems.drive
 
-import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.mathematics.units.derived.velocity
-import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max
-import kotlin.math.pow
 
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
@@ -35,7 +30,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
         DriveSubsystem.curvatureDrive(
                 linear * linear.absoluteValue * 0.9 * (1 - speedMultiplier * 0.3),
-                curvature * curvature.absoluteValue * 0.8 * (1 - speedMultiplier * 0.35) * if(isQuickTurn) 0.7 else 1.0,
+                curvature * curvature.absoluteValue * 0.8 * (1 - speedMultiplier * 0.35) * if (isQuickTurn) 0.7 else 1.0,
                 isQuickTurn)
 
 //        curvatureDrive(
@@ -70,9 +65,9 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
          */
         @Suppress("ComplexMethod")
         internal fun curvatureDrive(
-                linearPercent: Double,
-                curvaturePercent: Double,
-                isQuickTurn: Boolean
+            linearPercent: Double,
+            curvaturePercent: Double,
+            isQuickTurn: Boolean
         ): DifferentialDrive.WheelState {
             val angularPower: Double
             val overPower: Boolean

@@ -6,7 +6,10 @@ import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.ManualDriveCommand
+import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.drive.times
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.kFeetToMeter
@@ -19,6 +22,7 @@ import org.ghrobotics.lib.wrappers.hid.getRawButton
 import org.ghrobotics.lib.wrappers.hid.getX
 import org.ghrobotics.lib.wrappers.hid.getY
 import org.ghrobotics.lib.wrappers.hid.kBumperRight
+import org.knowm.xchart.style.markers.TriangleUp
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.pow
@@ -151,15 +155,29 @@ object ManualDriveCommand {
 }
 
 fun main() {
+    val prevError = 35.degree.radian
+    val angleError = 30.degree
+    val error = angleError.radian
+    val turn = VisionDriveCommand.kCorrectionKp * error + VisionDriveCommand.kCorrectionKd * (error - prevError)
+    println("turn voltage ${turn * 12.0}")
 
-    val curvature = 1.0
-    val linear = 1.0
-    val isQuickTurn = false
+    // at 30 degrees we should be turning at 6 volts
+    val linear = 0.0
+    val turn2 = 58 * error + 500 * (error - prevError)    //val wheelSpeeds = DifferentialDrive.WheelState(linear + angular, linear - angular)
 
+    val wheelSpeeds = DifferentialDrive.WheelState(linear + turn2, linear - turn2)
     val differentialDrive = DriveConstants.kHighGearDifferentialDrive
-    val wheelSpeeds = ManualDriveCommand.curvatureDrive(linear, curvature, isQuickTurn).times(
-            if(false) 8.0 * kFeetToMeter else 12.0 * kFeetToMeter
-    )
     val feedForwards = differentialDrive.getVoltagesFromkV(wheelSpeeds)
-    println("velocities ${wheelSpeeds.left.meter.feet}/${wheelSpeeds.right.meter.feet} voltages ${feedForwards.left}/${feedForwards.right}")
+    println("new voltages ${feedForwards.left}")
+
+//    val curvature = 1.0
+//    val linear = 1.0
+//    val isQuickTurn = false
+//
+//    val differentialDrive = DriveConstants.kHighGearDifferentialDrive
+//    val wheelSpeeds = ManualDriveCommand.curvatureDrive(linear, curvature, isQuickTurn).times(
+//            if(false) 8.0 * kFeetToMeter else 12.0 * kFeetToMeter
+//    )
+//    val feedForwards = differentialDrive.getVoltagesFromkV(wheelSpeeds)
+//    println("velocities ${wheelSpeeds.left.meter.feet}/${wheelSpeeds.right.meter.feet} voltages ${feedForwards.left}/${feedForwards.right}")
 }

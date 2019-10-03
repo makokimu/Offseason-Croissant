@@ -1,39 +1,32 @@
 package frc.robot.subsystems.superstructure
 
 import com.ctre.phoenix.CANifier
-import edu.wpi.first.wpilibj.Timer
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
-import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.Second
 import org.ghrobotics.lib.mathematics.units.millisecond
 import org.ghrobotics.lib.mathematics.units.second
-import org.team5940.pantry.lib.FishyRobot
 import java.awt.Color
 
-object LEDs: FalconSubsystem() {
+object LEDs : FalconSubsystem() {
 
     override fun lateInit() {
         updateThread.start()
     }
 
     fun setVisionMode(wantsVision: Boolean) {
-        this.wantedState = if(wantsVision) {
-            State.Blink((1.0/8.0).second, Color.red)
+        this.wantedState = if (wantsVision) {
+            State.Blink((1.0 / 8.0).second, Color.red)
         } else {
             State.Default
         }
     }
 
     sealed class State(open val color: Color) {
-        open class Solid(override val color: Color): State(color)
-        object Default: Solid(Color.red)
-        object Off: Solid(Color.black)
-        class Blink(val blinkTime: SIUnit<Second>, override val color: Color): State(color)
+        open class Solid(override val color: Color) : State(color)
+        object Default : Solid(Color.red)
+        object Off : Solid(Color.black)
+        class Blink(val blinkTime: SIUnit<Second>, override val color: Color) : State(color)
 //        class Fade(val fadeTime: SIUnit<Second>, override val color: Color): State(color)
     }
 
@@ -46,8 +39,8 @@ object LEDs: FalconSubsystem() {
 //        @Synchronized set
 
     private val updateThread = Thread {
-        while(true) {
-            when(val wantedState = this@LEDs.wantedState) {
+        while (true) {
+            when (val wantedState = this@LEDs.wantedState) {
                 is State.Solid -> { setColor(wantedState.color); Thread.sleep(250) }
                 is State.Blink -> {
                     setColor(wantedState.color)

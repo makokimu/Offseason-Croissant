@@ -1,26 +1,26 @@
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import edu.wpi.first.wpilibj.frc2.command.WaitCommand
-//import frc.robot.auto.Autonomous
-//import frc.robot.auto.paths.TrajectoryFactory
-//import frc.robot.auto.paths.TrajectoryWaypoints
-//import frc.robot.subsystems.drive.DriveSubsystem
-//import frc.robot.subsystems.intake.IntakeCloseCommand
-//import frc.robot.subsystems.intake.IntakeHatchCommand
-//import frc.robot.subsystems.superstructure.Superstructure
-//import org.ghrobotics.lib.commands.FalconCommand
-//import org.ghrobotics.lib.commands.parallel
-//import org.ghrobotics.lib.commands.sequential
-//import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.units.SIUnit
-//import org.ghrobotics.lib.mathematics.units.Second
-//import org.ghrobotics.lib.mathematics.units.feet
-//import org.ghrobotics.lib.mathematics.units.second
-//import org.ghrobotics.lib.utils.withEquals
+// import edu.wpi.first.wpilibj.frc2.command.WaitCommand
+// import frc.robot.auto.Autonomous
+// import frc.robot.auto.paths.TrajectoryFactory
+// import frc.robot.auto.paths.TrajectoryWaypoints
+// import frc.robot.subsystems.drive.DriveSubsystem
+// import frc.robot.subsystems.intake.IntakeCloseCommand
+// import frc.robot.subsystems.intake.IntakeHatchCommand
+// import frc.robot.subsystems.superstructure.Superstructure
+// import org.ghrobotics.lib.commands.FalconCommand
+// import org.ghrobotics.lib.commands.parallel
+// import org.ghrobotics.lib.commands.sequential
+// import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.units.SIUnit
+// import org.ghrobotics.lib.mathematics.units.Second
+// import org.ghrobotics.lib.mathematics.units.feet
+// import org.ghrobotics.lib.mathematics.units.second
+// import org.ghrobotics.lib.utils.withEquals
 //
-//class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() {
+// class CargoShipRoutine(private val mode: CargoShipRoutine.Mode) : AutoRoutine() {
 //
 //    enum class Mode(
 //        val path1: TimedTrajectory<Pose2dWithCurvature>,
@@ -74,7 +74,7 @@
 //                +IntakeHatchCommand(false).withTimeout(0.75.second)
 //                +followVisionAssistedTrajectory(mode.path3, pathMirrored, 4.feet, true)
 //                +sequential {
-////                    +executeFor(2.second, Superstructure.kStowedPosition)
+// //                    +executeFor(2.second, Superstructure.kStowedPosition)
 //                    +WaitCommand(1.0)
 //                    +Superstructure.kHatchLow.withTimeout(4.second)
 //                }
@@ -93,4 +93,4 @@
 //                }.withTimeout(1.second)
 //            }
 //        }
-//}
+// }

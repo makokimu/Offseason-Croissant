@@ -1,21 +1,21 @@
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-//import frc.robot.auto.Autonomous
-//import frc.robot.auto.paths.TrajectoryFactory
-//import frc.robot.auto.paths.TrajectoryWaypoints
-//import frc.robot.subsystems.drive.DriveSubsystem
-//import frc.robot.subsystems.intake.Intake
-//import frc.robot.subsystems.intake.IntakeHatchCommand
-//import frc.robot.subsystems.superstructure.Superstructure
-//import org.ghrobotics.lib.commands.parallel
-//import org.ghrobotics.lib.commands.sequential
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.units.feet
-//import org.ghrobotics.lib.mathematics.units.second
-//import org.ghrobotics.lib.utils.withEquals
+// import edu.wpi.first.wpilibj.frc2.command.InstantCommand
+// import frc.robot.auto.Autonomous
+// import frc.robot.auto.paths.TrajectoryFactory
+// import frc.robot.auto.paths.TrajectoryWaypoints
+// import frc.robot.subsystems.drive.DriveSubsystem
+// import frc.robot.subsystems.intake.Intake
+// import frc.robot.subsystems.intake.IntakeHatchCommand
+// import frc.robot.subsystems.superstructure.Superstructure
+// import org.ghrobotics.lib.commands.parallel
+// import org.ghrobotics.lib.commands.sequential
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.units.feet
+// import org.ghrobotics.lib.mathematics.units.second
+// import org.ghrobotics.lib.utils.withEquals
 //
-//class BottomRocketRoutine : AutoRoutine() {
+// class BottomRocketRoutine : AutoRoutine() {
 //
 //    // First path goes to the far side of the rocket
 //    private val path1 = TrajectoryFactory.sideStartToRocketF
@@ -69,7 +69,7 @@
 //                +sequential {
 //                    // Place hatch panel.
 //                    +IntakeHatchCommand(true).withTimeout(0.5.second)
-////                    +IntakeCloseCommand()
+// //                    +IntakeCloseCommand()
 //                    +Superstructure.kBackHatchFromLoadingStation.withTimeout(3.second)
 //                    +IntakeHatchCommand(false).withExit { path2.isFinished }
 //                }
@@ -112,4 +112,4 @@
 //                }
 //            }
 //        }
-//}
+// }

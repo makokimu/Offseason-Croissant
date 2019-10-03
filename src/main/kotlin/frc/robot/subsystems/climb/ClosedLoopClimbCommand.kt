@@ -1,19 +1,16 @@
 package frc.robot.subsystems.climb
 
 import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.RunCommand
 import frc.robot.auto.routines.AutoRoutine
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.*
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.second
-import org.team5940.pantry.lib.WantedState
 
-class ClosedLoopClimbCommand: AutoRoutine() {
+class ClosedLoopClimbCommand : AutoRoutine() {
 
     override val duration = 8.second
 
@@ -42,5 +39,4 @@ class ClosedLoopClimbCommand: AutoRoutine() {
         +ClosedLoopWristMove(45.degree)
         +ClosedLoopProximalMove((-60).degree)
     }
-
 }

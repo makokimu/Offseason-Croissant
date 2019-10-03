@@ -1,10 +1,8 @@
 package frc.robot.subsystems.superstructure
 
 import com.ctre.phoenix.CANifier
-import com.ctre.phoenix.ErrorCode
 import com.ctre.phoenix.motorcontrol.RemoteFeedbackDevice
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource
-import edu.wpi.first.wpilibj.DriverStation
 import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kProximalCos
 import frc.robot.Constants.SuperStructureConstants.kProximalStatic
@@ -15,14 +13,10 @@ import org.ghrobotics.lib.mathematics.units.derived.AngularVelocity
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.nativeunit.*
-import org.ghrobotics.lib.motors.AbstractFalconEncoder
-import org.ghrobotics.lib.motors.ctre.FalconCTREEncoder
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.withSign
-import kotlin.properties.Delegates
 
 object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 

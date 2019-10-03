@@ -63,8 +63,6 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
         return (goal - currentState.position).absoluteValue < tolerance
     }
 
-
-
     /**
      * Calculate the arbitrary feed forward given the [currentState] in Volts
      */

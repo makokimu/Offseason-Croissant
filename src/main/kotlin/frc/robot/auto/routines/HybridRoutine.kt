@@ -1,15 +1,15 @@
-//package frc.robot.auto.routines
+// package frc.robot.auto.routines
 //
-//import frc.robot.auto.paths.TrajectoryFactory
-//import org.ghrobotics.lib.commands.sequential
-//import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
-//import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
-//import org.ghrobotics.lib.mathematics.units.SIUnit
-//import org.ghrobotics.lib.mathematics.units.Second
+// import frc.robot.auto.paths.TrajectoryFactory
+// import org.ghrobotics.lib.commands.sequential
+// import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
+// import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
+// import org.ghrobotics.lib.mathematics.units.SIUnit
+// import org.ghrobotics.lib.mathematics.units.Second
 //
-//class HybridRoutine(private val mode: Mode) : AutoRoutine() {
+// class HybridRoutine(private val mode: Mode) : AutoRoutine() {
 //
 //    enum class Mode(
 //        val path1: TimedTrajectory<Pose2dWithCurvature>,
@@ -38,4 +38,4 @@
 //        get() = sequential {
 //            TODO("not yet implemented")
 //        }
-//}
+// }

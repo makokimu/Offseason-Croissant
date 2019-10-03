@@ -10,7 +10,7 @@ import org.team5940.pantry.lib.WantedState
 
 class ClosedLoopElevatorMove(private val target: Source<Length>) : FalconCommand(Elevator) {
 
-    constructor(target: Length): this({ target })
+    constructor(target: Length) : this({ target })
 
     override fun initialize() {
         Elevator.wantedState = WantedState.Position(target())

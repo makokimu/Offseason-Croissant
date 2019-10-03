@@ -220,8 +220,11 @@ object SuperstructurePlanner {
         return min(currentState.elevator, goalState.elevator) + worstArmTranslation.y
     }
 
-    fun everythingMoveTo(elevator: Length, proximal: SIUnit<Radian>,
-                         wrist: SIUnit<Radian>) = everythingMoveTo(
+    fun everythingMoveTo(
+        elevator: Length,
+        proximal: SIUnit<Radian>,
+        wrist: SIUnit<Radian>
+    ) = everythingMoveTo(
             SuperstructureState(elevator, proximal, wrist))
 
     fun everythingMoveTo(goalState: SuperstructureState): SendableCommandBase =

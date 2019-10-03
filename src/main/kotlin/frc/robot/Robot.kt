@@ -1,7 +1,6 @@
 
 package frc.robot
 
-import com.ctre.phoenix.CANifier
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
@@ -18,14 +17,8 @@ import frc.robot.vision.LimeLightManager
 import frc.robot.vision.TargetTracker
 import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
-import org.ghrobotics.lib.mathematics.units.inch
 import org.team5940.pantry.lib.FishyRobot
-import setLEDOutput
-import java.awt.Color
 import edu.wpi.first.wpilibj.networktables.NetworkTable.getTable
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard.getNumber
-
-
 
 object Robot : FishyRobot() {
 
@@ -64,7 +57,6 @@ object Robot : FishyRobot() {
     override fun autonomousInit() {
         super.autonomousInit()
     }
-
 }
 
 fun main() {

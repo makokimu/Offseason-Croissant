@@ -1,8 +1,5 @@
-// implementation from Team 5190 Green Hope Robotics
-
 package frc.robot.subsystems.drive
 
-import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
 import frc.robot.subsystems.superstructure.LEDs
@@ -16,7 +13,7 @@ import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
 import kotlin.math.absoluteValue
 
-class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
+class ClosedLoopVisionDriveCommand : ManualDriveCommand() {
 
     override fun isFinished() = false
 
@@ -28,14 +25,11 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
     override fun initialize() {
         isActive = true
         referencePose = DriveSubsystem.robotPosition
-//        LEDs.setVisionMode(/*true*/)
         LEDs.wantedState = LEDs.State.Off
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
     }
 
     override fun execute() {
-
-        val newTarget = TargetTracker.getBestTargetUsingReference(referencePose, isFront)
+        val newTarget = TargetTracker.getBestTargetUsingReference(referencePose, true)
 
         val newPose = newTarget?.averagedPose2d
         if (newTarget?.isAlive == true && newPose != null) lastKnownTargetPose = newPose
@@ -52,17 +46,11 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
             val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
             val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
             val distance = transform.translation.norm.feet
-            // so when we're 4ft away we want a blink freq of like 2x/sec
-            // and when we're 1.5ft away like 6x per sec
-            // so y = -1.6x + 8.4
-            val frequency = -1.6 * distance + 8.4
-//            LEDs.blinkFreq = 1.second / frequency
-//            LEDs.wantedState = LEDs.State.Blink((1.0/frequency).second, Color.red)
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
 
-            val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
+            val angleError = angle + if (true) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
 
             if (angleError.degree.absoluteValue > 45) {
                 // plz no disable us when going to loading station, kthx
@@ -81,22 +69,20 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
     override fun end(interrupted: Boolean) {
         Network.visionDriveActive.setBoolean(false)
         this.lastKnownTargetPose = null
-//        ElevatorSubsystem.wantedVisionMode = false
         isActive = false
         LEDs.setVisionMode(false)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
     }
 
     override fun initSendable(builder: SendableBuilder) {
 
-//        builder.addDoubleProperty("forwardKp", { kCorrectionKp }, { newP -> kCorrectionKp = newP })
-//        builder.addDoubleProperty("forwardKd", { kCorrectionKd }, { newD -> kCorrectionKd = newD })
+        builder.addDoubleProperty("forwardKp", { kCorrectionKp }, { newP -> kCorrectionKp = newP })
+        builder.addDoubleProperty("forwardKd", { kCorrectionKd }, { newD -> kCorrectionKd = newD })
 
         super.initSendable(builder)
     }
 
     companion object {
-        var kCorrectionKp = 0.8 * 1.2
+        var kCorrectionKp = 58.0
         var kCorrectionKd = 8.0
         var isActive = false
             private set
