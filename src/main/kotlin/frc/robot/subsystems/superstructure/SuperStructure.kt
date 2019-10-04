@@ -4,6 +4,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import org.ghrobotics.lib.commands.FalconSubsystem
+import org.ghrobotics.lib.commands.parallel
+import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.Radian
@@ -25,12 +27,17 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     }
 
     val kStowed
-            get() = everythingMoveTo(30.25.inch, (-70).degree, 40.degree)
-
-    val kBackHatchFromLoadingStation
-            get() = SyncedMove.frontToBack
-    val kHatchLow
-            get() = everythingMoveTo(19.inch, 0.degree, 4.degree)
+        get() = everythingMoveTo(30.25.inch, (-70).degree, 40.degree)
+    val kMatchStartToStowed get() = sequential {
+        +parallel {
+            +ClosedLoopProximalMove((-70).degree)
+            +ClosedLoopWristMove(40.degree)
+        }
+        +ClosedLoopElevatorMove(30.25.inch)
+        +kStowed
+    }
+    val kBackHatchFromLoadingStation get() = SyncedMove.frontToBack
+    val kHatchLow get() = everythingMoveTo(19.inch, 0.degree, 4.degree)
     val kHatchMid get() = everythingMoveTo(43.inch, 0.degree, 4.degree)
     val kHatchHigh get() = everythingMoveTo(67.inch, 0.degree, 4.degree)
 

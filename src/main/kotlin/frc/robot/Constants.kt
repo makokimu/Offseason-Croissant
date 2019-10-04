@@ -27,13 +27,13 @@ object Constants {
 
         val kDriveLengthModel = NativeUnitLengthModel(4096.nativeUnits, kWheelRadius)
 
-        private val kVDriveLeftLow = 0.274 * 1.0 // Volts per radians per second - Calculated emperically
-        private val kADriveLeftLow = 0.032 * 1.0 // Volts per radians per second per second TODO tune
-        private val kVInterceptLeftLow = 1.05 * 1.0 // Volts - tuned!
+        private val kVDriveLeftLow = 0.274 * 1.0 // Volts per radians per second
+        private val kADriveLeftLow = 0.032 * 1.0 // Volts per radians per second per second
+        private val kVInterceptLeftLow = 1.05 * 1.0 // Volts
 
-        private val kVDriveRightLow = 0.265 * 1.0 // Volts per radians per second - Calculated emperically
-        private val kADriveRightLow = 0.031 * 1.0 // Volts per radians per second per second TODO tune
-        private val kVInterceptRightLow = 1.02 * 1.0 // Volts - tuned!
+        private val kVDriveRightLow = 0.265 * 1.0 // Volts per radians per second
+        private val kADriveRightLow = 0.031 * 1.0 // Volts per radians per second per second
+        private val kVInterceptRightLow = 1.02 * 1.0 // Volts
 
         private val kLeftTransmissionModelLowGear = DCMotorTransmission(1 / kVDriveLeftLow,
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveLeftLow),
@@ -43,13 +43,13 @@ object Constants {
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveRightLow),
                 kVInterceptRightLow)
 
-        private val kVDriveLeftHigh = 0.143 * 1.0 // Volts per radians per second - Calculated emperically
+        private val kVDriveLeftHigh = 0.143 * 1.0 // Volts per radians per second
         private val kADriveLeftHigh = 0.043 * 1.0 // Volts per radians per second per second
-        private val kVInterceptLeftHigh = 1.33 * 1.0 // 4 * 0.4d; // Volts - tuned!
+        private val kVInterceptLeftHigh = 1.33 * 1.0 // 4 * 0.4d; // Volts
 
-        private val kVDriveRightHigh = 0.14 * 1.0 // Volts per radians per second - Calculated emperically
+        private val kVDriveRightHigh = 0.14 * 1.0 // Volts per radians per second
         private val kADriveRightHigh = 0.043 * 1.0 // Volts per radians per second per second
-        private val kVInterceptRightHigh = 1.34 * 1.0 // 4 * 0.4d; // Volts - tuned!
+        private val kVInterceptRightHigh = 1.34 * 1.0 // 4 * 0.4d; // Volts
 
         private val kLeftTransmissionModelHighGear = DCMotorTransmission(1 / kVDriveLeftHigh,
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveLeftHigh),

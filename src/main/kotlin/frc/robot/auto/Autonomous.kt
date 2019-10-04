@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
 import frc.robot.Network
 import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
+import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.S3ND
@@ -64,7 +65,8 @@ object Autonomous : Updatable {
                     Mode.DO_NOTHING to sequential {  }
             ),
             StartingPositions.LEFT_REVERSED to hashMapOf(
-                    Mode.DO_NOTHING to sequential {  }
+                    Mode.DO_NOTHING to sequential {  },
+                    Mode.BOTTOMROCKETREVERSED to BottomRocketRoutine2()
             ),
             StartingPositions.RIGHT_REVERSED to hashMapOf(
                     Mode.DO_NOTHING to sequential {  }
@@ -90,5 +92,9 @@ object Autonomous : Updatable {
     }
 
     @Suppress("unused")
-    enum class Mode { YEOLDEROUTINE, DO_NOTHING }
+    enum class Mode {
+        YEOLDEROUTINE,
+        DO_NOTHING,
+        BOTTOMROCKETREVERSED
+    }
 }

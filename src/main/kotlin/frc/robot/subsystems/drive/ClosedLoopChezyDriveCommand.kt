@@ -10,6 +10,10 @@ import kotlin.math.pow
 
 class ClosedLoopChezyDriveCommand: ManualDriveCommand() {
 
+    override fun initialize() {
+        DriveSubsystem.leftMotor.master.talonSRX.configClosedloopRamp(0.1)
+    }
+
     override fun execute() {
         val curvature = rotationSource()
         val linear = -speedSource()
