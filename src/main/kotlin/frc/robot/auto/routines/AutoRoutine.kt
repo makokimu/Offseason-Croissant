@@ -1,6 +1,6 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.frc2.command.*
+import edu.wpi.first.wpilibj.frc2.command.* // ktlint-disable no-wildcard-imports
 import frc.robot.Constants
 import frc.robot.Robot
 import frc.robot.auto.Autonomous

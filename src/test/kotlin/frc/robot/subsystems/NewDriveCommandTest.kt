@@ -4,11 +4,8 @@ import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
-import frc.robot.subsystems.drive.ManualDriveCommand
 import frc.robot.subsystems.drive.times
-import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.mathematics.units.kFeetToMeter
 import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
@@ -18,6 +15,7 @@ import org.ghrobotics.lib.wrappers.hid.getRawButton
 import org.ghrobotics.lib.wrappers.hid.getX
 import org.ghrobotics.lib.wrappers.hid.getY
 import org.ghrobotics.lib.wrappers.hid.kBumperRight
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -79,9 +77,9 @@ object ManualDriveCommand {
      */
     @Suppress("ComplexMethod")
     internal fun curvatureDrive(
-            linearPercent: Double,
-            curvaturePercent: Double,
-            isQuickTurn: Boolean
+        linearPercent: Double,
+        curvaturePercent: Double,
+        isQuickTurn: Boolean
     ): DifferentialDrive.WheelState {
         val angularPower: Double
         val overPower: Boolean
@@ -150,14 +148,19 @@ object ManualDriveCommand {
 
 fun main() {
 
-    val curvature = 1.0
-    val linear = 1.0
-    val isQuickTurn = false
+//    val curvature = 1.0
+//    val linear = 1.0
+//    val isQuickTurn = false
+//
+//    val differentialDrive = DriveConstants.kHighGearDifferentialDrive
+//    val wheelSpeeds = ManualDriveCommand.curvatureDrive(linear, curvature, isQuickTurn).times(
+//            if(false) 8.0 * kFeetToMeter else 12.0 * kFeetToMeter
+//    )
+//    val feedForwards = differentialDrive.getVoltagesFromkV(wheelSpeeds)
+//    println("velocities ${wheelSpeeds.left.meter.feet}/${wheelSpeeds.right.meter.feet} voltages ${feedForwards.left}/${feedForwards.right}")
 
-    val differentialDrive = DriveConstants.kHighGearDifferentialDrive
-    val wheelSpeeds = ManualDriveCommand.curvatureDrive(linear, curvature, isQuickTurn).times(
-            if(false) 8.0 * kFeetToMeter else 12.0 * kFeetToMeter
-    )
-    val feedForwards = differentialDrive.getVoltagesFromkV(wheelSpeeds)
-    println("velocities ${wheelSpeeds.left.meter.feet}/${wheelSpeeds.right.meter.feet} voltages ${feedForwards.left}/${feedForwards.right}")
+    // KISS rate function
+    fun kscalc(rcCommand: Double, rate: Double, rcCurve: Double, rcRate: Double): Double {
+        return ((2000.0 * (1.0 / (1 - abs(((rcCommand * ((rcCommand * 1000) * (rcCommand * 1000) / 1000000)) * rcCurve + rcCommand * (1 - rcCurve)) * (rcRate / 10)) * rate))) * ((rcCommand * ((rcCommand * 1000) * (rcCommand * 1000) / 1000000)) * rcCurve + rcCommand * (1 - rcCurve)) * (rcRate / 10))
+    }
 }

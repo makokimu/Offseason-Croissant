@@ -12,7 +12,7 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.AngularVelocity
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.nativeunit.*
+import org.ghrobotics.lib.mathematics.units.nativeunit.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
 import kotlin.math.cos

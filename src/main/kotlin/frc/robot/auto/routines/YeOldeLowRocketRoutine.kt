@@ -19,11 +19,11 @@ import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.VelocityLimitRadiusConstraint
-import org.ghrobotics.lib.mathematics.units.*
+import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.utils.withEquals
 
-class YeOldeLowRocketAuto : AutoRoutine() {
+class YeOldeLowRocketRoutine : AutoRoutine() {
 
     override val duration: SIUnit<Second>
         get() = 0.second

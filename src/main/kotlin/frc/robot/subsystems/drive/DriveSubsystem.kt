@@ -36,8 +36,6 @@ import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
 
-    var isHigh = false
-
     override val leftMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
         override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
@@ -109,7 +107,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         // set the robot pose to a sane position
         robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = 0.degree)
 //        defaultCommand = ManualDriveCommand() // set default command
-         defaultCommand = ClosedLoopChezyDriveCommand()
+        defaultCommand = ClosedLoopChezyDriveCommand()
         super.lateInit()
     }
 
