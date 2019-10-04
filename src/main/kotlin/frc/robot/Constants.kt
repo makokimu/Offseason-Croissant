@@ -28,7 +28,6 @@ object Constants {
 
         val kDriveLengthModel = NativeUnitLengthModel(4096.nativeUnits, kWheelRadius)
 
-
         private val kVDriveLeftLow = 0.274 // Volts per radians per second
         private val kADriveLeftLow = 0.032 // Volts per radians per second per second
         private val kVInterceptLeftLow = 1.05 // Volts

@@ -2,19 +2,14 @@
 
 package frc.robot.auto
 
-import edu.wpi.first.wpilibj.frc2.command.Command
 import edu.wpi.first.wpilibj.frc2.command.CommandGroupBase
-import edu.wpi.first.wpilibj.frc2.command.ConditionalCommand
-import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
 import frc.robot.Network
 import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.drive.DriveSubsystem
-import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.commands.stateCommandGroup
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.monitor
@@ -56,27 +51,27 @@ object Autonomous : Updatable {
 
     private val masterGroup = hashMapOf(
             StartingPositions.CENTER to hashMapOf(
-                    Mode.DO_NOTHING to sequential {  }
+                    Mode.DO_NOTHING to sequential { }
             ),
             StartingPositions.LEFT to hashMapOf(
-                    Mode.DO_NOTHING to sequential {  }
+                    Mode.DO_NOTHING to sequential { }
             ),
             StartingPositions.RIGHT to hashMapOf(
-                    Mode.DO_NOTHING to sequential {  }
+                    Mode.DO_NOTHING to sequential { }
             ),
             StartingPositions.LEFT_REVERSED to hashMapOf(
-                    Mode.DO_NOTHING to sequential {  },
+                    Mode.DO_NOTHING to sequential { },
                     Mode.BOTTOMROCKETREVERSED to BottomRocketRoutine2()
             ),
             StartingPositions.RIGHT_REVERSED to hashMapOf(
-                    Mode.DO_NOTHING to sequential {  }
+                    Mode.DO_NOTHING to sequential { }
             )
     )
 
     private val configValid = masterGroup[startingPosition()] == null && masterGroup[startingPosition()]?.get(autoMode()) != null
 
     private val JUST: CommandGroupBase
-        get() = masterGroup[startingPosition()]?.get(autoMode()) ?: sequential {  }
+        get() = masterGroup[startingPosition()]?.get(autoMode()) ?: sequential { }
 
     private val startingPositionMonitor = startingPosition.monitor
     private val isReadyMonitor = isReady.monitor

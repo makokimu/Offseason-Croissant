@@ -2,7 +2,6 @@
 
 package frc.robot.subsystems.drive
 
-import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
 import frc.robot.subsystems.superstructure.LEDs
@@ -14,8 +13,6 @@ import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
-import org.ghrobotics.lib.mathematics.units.second
-import java.awt.Color
 import kotlin.math.absoluteValue
 
 class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {

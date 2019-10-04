@@ -31,7 +31,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
     const val motorCount = 4.0
     private const val internalKv = 164.3 // volts per meter per sec
     private const val internalKt = 0.0212 // volts per meter per sec squared
-    private const val metersKa = (R * radius * m)/(G * internalKt)
+    private const val metersKa = (R * radius * m) / (G * internalKt)
     private const val metersKv = (G * G * internalKt * metersKa) / (R * radius * radius * m * internalKv)
 
     private val lowGearTransmissionHAB = DCMotorTransmission(
@@ -46,8 +46,8 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
      */
     var wantsLowGear by Delegates.observable(false) {
         _, _, wantsLow ->
-        shifter.state = if(wantsLow) FalconSolenoid.State.Forward else  FalconSolenoid.State.Reverse
-        if(wantsLow) setLowSpeedPositionGains() else setMotionMagicMode()
+        shifter.state = if (wantsLow) FalconSolenoid.State.Forward else FalconSolenoid.State.Reverse
+        if (wantsLow) setLowSpeedPositionGains() else setMotionMagicMode()
     }
 
     private fun setLowSpeedPositionGains() {
@@ -55,7 +55,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
         motor.setClosedLoopGains(0.15, 0.0)
     }
 
-    private val shifter = FalconDoubleSolenoid(2,3, Ports.kPCMID).apply {
+    private val shifter = FalconDoubleSolenoid(2, 3, Ports.kPCMID).apply {
         state = FalconSolenoid.State.Reverse
     }
 

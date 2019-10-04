@@ -54,7 +54,7 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
             followers?.forEach {
                 ret += it.drawnCurrent
             }
-            return ret /// (1 + (followers?.size ?: 0))
+            return ret // / (1 + (followers?.size ?: 0))
         }
 
     override fun follow(motor: FalconMotor<*>): Boolean {
@@ -109,7 +109,7 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
     abstract fun setClosedLoopGains()
 
     fun lateInit() {
-        followers?.forEach{ it.follow(master) }
+        followers?.forEach { it.follow(master) }
     }
 
     val outputCurrent: Double
@@ -189,7 +189,7 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
         when (wantedState) {
             is WantedState.Nothing -> setNeutral()
             is WantedState.Position<*> -> {
-                val ff = if(wantedState.ignoreDefaultFF) wantedState.feedForward else arbitraryFeedForward
+                val ff = if (wantedState.ignoreDefaultFF) wantedState.feedForward else arbitraryFeedForward
                 setPosition(SIUnit(wantedState.targetPosition.value), ff)
             }
             is WantedState.Velocity<*> -> setVelocity(SIUnit(wantedState.targetVelocity.value), arbitraryFeedForward)

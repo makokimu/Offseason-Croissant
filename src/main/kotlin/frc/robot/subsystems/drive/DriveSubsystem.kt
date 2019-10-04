@@ -32,12 +32,11 @@ import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.MultiMotorTransmission
-import kotlin.math.PI
 import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
 
-    var isHigh = false;
+    var isHigh = false
 
     override val leftMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
@@ -46,7 +45,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         init {
             outputInverted = true
-            followers.forEach{ it.follow(master) }
+            followers.forEach { it.follow(master) }
             lateInit()
         }
 
@@ -64,7 +63,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
 
         init {
-            followers.forEach{ it.follow(master) }
+            followers.forEach { it.follow(master) }
             lateInit()
         }
 
@@ -97,7 +96,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         leftMotor.setClosedLoopGains()
         rightMotor.setClosedLoopGains()
     }
-    class SetGearCommand(wantsLow: Boolean): InstantCommand(Runnable{lowGear = wantsLow}, this)
+    class SetGearCommand(wantsLow: Boolean) : InstantCommand(Runnable { lowGear = wantsLow }, this)
 
     private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(

@@ -40,7 +40,6 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
 
         val limitTriggered = Elevator.limitSwitchTriggered
 
-
         SmartDashboard.putString("Zeroing state", mCurrentState.name)
         SmartDashboard.putBoolean("Elevator limit switch", limitTriggered)
 

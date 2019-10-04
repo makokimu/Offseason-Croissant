@@ -30,7 +30,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
         DriveSubsystem.curvatureDrive(
                 linear * linear.absoluteValue * 0.9 * (1 - speedMultiplier * 0.3),
-                curvature * curvature.absoluteValue * 0.8 * (1 - speedMultiplier * 0.35) * if(isQuickTurn) 0.7 else 1.0,
+                curvature * curvature.absoluteValue * 0.8 * (1 - speedMultiplier * 0.35) * if (isQuickTurn) 0.7 else 1.0,
                 isQuickTurn)
 
 //        curvatureDrive(
@@ -65,9 +65,9 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
          */
         @Suppress("ComplexMethod")
         internal fun curvatureDrive(
-                linearPercent: Double,
-                curvaturePercent: Double,
-                isQuickTurn: Boolean
+            linearPercent: Double,
+            curvaturePercent: Double,
+            isQuickTurn: Boolean
         ): DifferentialDrive.WheelState {
             val angularPower: Double
             val overPower: Boolean
@@ -124,10 +124,10 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
                 rightMotorOutput /= maxMagnitude
             }
 
-            return if(!DriveSubsystem.isHigh) {
+            return if (!DriveSubsystem.isHigh) {
                 DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
             } else {
-                maxAllowableSpeed = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue),0.18)
+                maxAllowableSpeed = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue), 0.18)
 
                 leftMotorOutput = min(maxAllowableSpeed, leftMotorOutput.absoluteValue).withSign(leftMotorOutput)
                 rightMotorOutput = min(maxAllowableSpeed, rightMotorOutput.absoluteValue).withSign(rightMotorOutput)
@@ -141,12 +141,12 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         const val kDeadband = 0.05
         val speedSource: () -> Double by lazy {
-            if(Constants.kIsRocketLeague) {
-                return@lazy { val toRet = Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight) - Controls.
-                        driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft)
+            if (Constants.kIsRocketLeague) {
+                return@lazy { val toRet = Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight) - Controls
+                        .driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft)
 //                    println("speed $toRet")
                     val compensated = toRet * -1.0
-                    ((compensated.absoluteValue - kDeadband/1.8) / (1.0 - kDeadband/1.8)) * compensated.sign
+                    ((compensated.absoluteValue - kDeadband / 1.8) / (1.0 - kDeadband / 1.8)) * compensated.sign
                 }
             } else {
                 return@lazy Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
@@ -157,11 +157,11 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 //            else Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
 
         val rotationSource by lazy {
-            if(Constants.kIsRocketLeague) Controls.driverFalconXbox.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband)
+            if (Constants.kIsRocketLeague) Controls.driverFalconXbox.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband)
             else Controls.driverFalconXbox.getX(GenericHID.Hand.kRight).withDeadband(kDeadband)
         }
         val quickTurnSource by lazy {
-            if(Constants.kIsRocketLeague) Controls.driverFalconXbox.getRawButton(kA)
+            if (Constants.kIsRocketLeague) Controls.driverFalconXbox.getRawButton(kA)
             else Controls.driverFalconXbox.getRawButton(kBumperRight)
         }
         val reduceSpeedSource by lazy { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }

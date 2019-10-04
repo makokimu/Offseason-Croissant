@@ -10,7 +10,6 @@ import frc.robot.Ports
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.mathematics.units.nativeunit.toNativeUnitPosition
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
@@ -42,12 +41,12 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
 
             var errorCode = configRemoteFeedbackFilter(canifier.deviceID, RemoteSensorSource.CANifier_Quadrature, 0, 100)
 
-            if(errorCode != ErrorCode.OK)
+            if (errorCode != ErrorCode.OK)
                 DriverStation.reportError("Could not set proximal remote sensor!!:  $errorCode", false)
 
             errorCode = configSelectedFeedbackSensor(RemoteFeedbackDevice.RemoteSensor0, 0, 100)
 
-            if(errorCode != ErrorCode.OK)
+            if (errorCode != ErrorCode.OK)
                 DriverStation.reportError("Could not set proximal remote feedback sensor!! $errorCode", false)
         } }
 

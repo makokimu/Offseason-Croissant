@@ -14,11 +14,9 @@ import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
-import java.util.function.DoubleConsumer
-import java.util.function.DoubleSupplier
 import kotlin.math.absoluteValue
 
-class ClosedLoopVisionDriveCommand(private val isFront: Boolean): FalconCommand(DriveSubsystem) {
+class ClosedLoopVisionDriveCommand(private val isFront: Boolean) : FalconCommand(DriveSubsystem) {
 
     override fun isFinished() = false
 
@@ -96,5 +94,4 @@ class ClosedLoopVisionDriveCommand(private val isFront: Boolean): FalconCommand(
     init {
         SmartDashboard.putData(this)
     }
-
 }

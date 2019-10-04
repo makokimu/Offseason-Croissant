@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Controls
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.drive.ManualDriveCommand
 import frc.robot.subsystems.superstructure.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -29,7 +28,6 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.NativeUnitLengthModel
 import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.motors.rev.FalconMAX
-import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.getY
 import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
@@ -37,7 +35,7 @@ import java.awt.Color
 import kotlin.math.PI
 import kotlin.math.withSign
 
-object ClimbSubsystem: FalconSubsystem() {
+object ClimbSubsystem : FalconSubsystem() {
 
     val stiltMotor: FalconMAX<Meter> = FalconMAX(9, CANSparkMaxLowLevel.MotorType.kBrushless,
             // the encoder is attached behind a 1:9 versaplanetary and a 1:2 pulley thing
@@ -84,7 +82,7 @@ object ClimbSubsystem: FalconSubsystem() {
         val move = SuperstructurePlanner.everythingMoveTo(25.inch - 10.inch /* hab 2 */, (-5).degree, 93.degree) // TODO check preset
         +parallel {
             +move
-            +(RunCommand(Runnable{ intakeWheels.setDutyCycle(0.3)}, ClimbSubsystem).withExit { !move.isScheduled }.whenFinished { intakeWheels.setNeutral()})
+            +(RunCommand(Runnable { intakeWheels.setDutyCycle(0.3) }, ClimbSubsystem).withExit { !move.isScheduled }.whenFinished { intakeWheels.setNeutral() })
         }
     }
 
@@ -94,7 +92,7 @@ object ClimbSubsystem: FalconSubsystem() {
         val move = SuperstructurePlanner.everythingMoveTo(25.inch, (-5).degree, 93.degree) // TODO check preset
         +parallel {
             +move
-            +(RunCommand(Runnable{ intakeWheels.setDutyCycle(0.3)}, ClimbSubsystem).withExit { !move.isScheduled }.whenFinished { intakeWheels.setNeutral()})
+            +(RunCommand(Runnable { intakeWheels.setDutyCycle(0.3) }, ClimbSubsystem).withExit { !move.isScheduled }.whenFinished { intakeWheels.setNeutral() })
         }
     }
 
@@ -134,24 +132,24 @@ object ClimbSubsystem: FalconSubsystem() {
             LEDs.wantedState = LEDs.State.Blink(0.15.second, Color(130, 24, 30))
         }
         override fun execute() {
-            if(Elevator.currentState.position < 18.inch + hab2Offset && Elevator.currentState.position > 13.inch + hab2Offset) Proximal.wantedState = WantedState.Position((-37).degree)
-            else if(Elevator.currentState.position < 12.5.inch + hab2Offset) {
+            if (Elevator.currentState.position < 18.inch + hab2Offset && Elevator.currentState.position > 13.inch + hab2Offset) Proximal.wantedState = WantedState.Position((-37).degree)
+            else if (Elevator.currentState.position < 12.5.inch + hab2Offset) {
                 Proximal.wantedState = WantedState.Position((-47).degree)
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
 //            }
-            if(!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch + hab2Offset
-            if(!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch + hab2Offset
+            if (!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch + hab2Offset
+            if (!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch + hab2Offset
             val now = Timer.getFPGATimestamp()
             val elapsedTime = now - startTime
 
             println("elevator current ${Elevator.motor.drawnCurrent}, stilt current ${stiltMotor.drawnCurrent}")
 
 //            if(elevatorInPosition || Elevator.currentState.position < 12.5.inch + hab2Offset) Elevator.wantedState = WantedState.Position(12.inch + hab2Offset) else {
-////                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
-////                Elevator.wantedState = WantedState.Velocity(yeetUpVelocity.velocity)
-////                voltageArray.add(Elevator.motor.voltageOutput.value)
-////                Elevator.wantedState = WantedState.Position(12.inch) // just keep yeeting
+// //                Elevator.setClimbProfile(targetState, yeetUpVelocity.velocity)
+// //                Elevator.wantedState = WantedState.Velocity(yeetUpVelocity.velocity)
+// //                voltageArray.add(Elevator.motor.voltageOutput.value)
+// //                Elevator.wantedState = WantedState.Position(12.inch) // just keep yeeting
 //                Elevator.wantedState = WantedState.Voltage((-0.2 - elevatorSource()).volt * 12)
 //            }
             println("average elevator voltage ${voltageArray.average()}")
@@ -162,9 +160,9 @@ object ClimbSubsystem: FalconSubsystem() {
             Elevator.wantedState = WantedState.Position(12.inch - 0.5.inch)
 
             var s3nd = yeetForwardSource() * -1.0
-            if(s3nd < -0.1) s3nd = -0.2
+            if (s3nd < -0.1) s3nd = -0.2
 
-            val wantedIntake = if(Timer.getFPGATimestamp() < startTime + 2.0) 1.0 else if(s3nd > 0.0) s3nd + 0.35 else s3nd
+            val wantedIntake = if (Timer.getFPGATimestamp() < startTime + 2.0) 1.0 else if (s3nd > 0.0) s3nd + 0.35 else s3nd
 
             intakeWheels.setDutyCycle(wantedIntake)
             DriveSubsystem.lowGear = true
@@ -184,7 +182,7 @@ object ClimbSubsystem: FalconSubsystem() {
             stiltMotor.setPosition(25.inch)
             Controls.isClimbing = false
 
-            if(stiltsInPosition && elevatorInPosition) {
+            if (stiltsInPosition && elevatorInPosition) {
                 Elevator.wantedState = WantedState.Position(24.inch)
                 Proximal.wantedState = WantedState.Position((-20).degree)
                 LEDs.wantedState = LEDs.State.Solid(Color.GREEN)
@@ -228,14 +226,14 @@ object ClimbSubsystem: FalconSubsystem() {
             LEDs.wantedState = LEDs.State.Blink(0.15.second, Color(130, 24, 30))
         }
         override fun execute() {
-            if(Elevator.currentState.position < 18.inch && Elevator.currentState.position > 13.inch) Proximal.wantedState = WantedState.Position((-37).degree)
-            else if(Elevator.currentState.position < 12.5.inch) {
+            if (Elevator.currentState.position < 18.inch && Elevator.currentState.position > 13.inch) Proximal.wantedState = WantedState.Position((-37).degree)
+            else if (Elevator.currentState.position < 12.5.inch) {
                 Proximal.wantedState = WantedState.Position((-47).degree)
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
 //            }
-            if(!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch
-            if(!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
+            if (!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch
+            if (!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
             val now = Timer.getFPGATimestamp()
             val elapsedTime = now - startTime
 
@@ -245,9 +243,9 @@ object ClimbSubsystem: FalconSubsystem() {
             Elevator.wantedState = WantedState.Position(12.inch)
 
             var s3nd = yeetForwardSource() * -1.0
-            if(s3nd < -0.1) s3nd = -0.2
+            if (s3nd < -0.1) s3nd = -0.2
 
-            val wantedIntake = if(Timer.getFPGATimestamp() < startTime + 2.0) 1.0 else if(s3nd > 0.0) s3nd + 0.35 else s3nd
+            val wantedIntake = if (Timer.getFPGATimestamp() < startTime + 2.0) 1.0 else if (s3nd > 0.0) s3nd + 0.35 else s3nd
 
             intakeWheels.setDutyCycle(wantedIntake)
             DriveSubsystem.lowGear = true
@@ -267,7 +265,7 @@ object ClimbSubsystem: FalconSubsystem() {
             stiltMotor.setPosition(25.inch)
             Controls.isClimbing = false
 
-            if(stiltsInPosition && elevatorInPosition) {
+            if (stiltsInPosition && elevatorInPosition) {
                 Elevator.wantedState = WantedState.Position(24.inch)
                 Proximal.wantedState = WantedState.Position((-20).degree)
                 LEDs.wantedState = LEDs.State.Solid(Color.GREEN)
@@ -317,10 +315,9 @@ object ClimbSubsystem: FalconSubsystem() {
 //
 //        return abs(state.targetPosition.value - currentState.position.value) < tolerance.value
 //    }
-
 }
 
-fun <K: SIKey> FalconMAX<K>.setPIDGains(p: Double, d: Double, ff: Double = 0.0) {
+fun <K : SIKey> FalconMAX<K>.setPIDGains(p: Double, d: Double, ff: Double = 0.0) {
     controller.p = p
     controller.d = d
     controller.ff = ff
