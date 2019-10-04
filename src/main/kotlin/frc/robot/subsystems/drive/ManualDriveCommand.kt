@@ -1,18 +1,13 @@
 package frc.robot.subsystems.drive
 
-import com.ctre.phoenix.motorcontrol.NeutralMode
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Constants
 import frc.robot.Controls
 import org.ghrobotics.lib.commands.FalconCommand
-import org.ghrobotics.lib.mathematics.units.derived.velocity
-import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
-import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
-import javax.print.attribute.HashDocAttributeSet
 import kotlin.math.*
 
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
@@ -122,24 +117,23 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
             // Normalize the wheel speeds
             var maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
-            var maxNyoom: Double
-            if(DriveSubsystem.isHigh){
-//                System.out.println(DriveSubsystem.isHigh)
-                maxNyoom = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue),0.18)
-//                System.out.println(maxNyoom)
-            }else{
-                maxNyoom = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
-            }
+            var maxAllowableSpeed: Double
+
             if (maxMagnitude > 1.0) {
                 leftMotorOutput /= maxMagnitude
                 rightMotorOutput /= maxMagnitude
             }
 
-            leftMotorOutput = min(maxNyoom.absoluteValue, leftMotorOutput.absoluteValue) * (leftMotorOutput/leftMotorOutput.absoluteValue)
-            rightMotorOutput = min(maxNyoom.absoluteValue, rightMotorOutput.absoluteValue) * (rightMotorOutput/rightMotorOutput.absoluteValue)
+            return if(!DriveSubsystem.isHigh) {
+                DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
+            } else {
+                maxAllowableSpeed = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue),0.18)
 
+                leftMotorOutput = min(maxAllowableSpeed, leftMotorOutput.absoluteValue).withSign(leftMotorOutput)
+                rightMotorOutput = min(maxAllowableSpeed, rightMotorOutput.absoluteValue).withSign(rightMotorOutput)
 
-            return DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
+                DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
+            }
         }
 
         private var quickStopAccumulator = 0.0
