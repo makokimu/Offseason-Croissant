@@ -29,11 +29,11 @@ object Constants {
         val kDriveLengthModel = NativeUnitLengthModel(4096.nativeUnits, kWheelRadius)
 
         private val kVDriveLeftLow = 0.274 * 1.0 // Volts per radians per second - Calculated emperically
-        private val kADriveLeftLow = 0.032 * 0.25 //FIXME it'd be real nice if this could be changed. ever.// Volts per radians per second per second TODO tune
+        private val kADriveLeftLow = 0.032 * 1.0 // Volts per radians per second per second TODO tune
         private val kVInterceptLeftLow = 1.05 * 1.0 // Volts - tuned!
 
         private val kVDriveRightLow = 0.265 * 1.0 // Volts per radians per second - Calculated emperically
-        private val kADriveRightLow = 0.031 * 0.25 // Volts per radians per second per second TODO tune
+        private val kADriveRightLow = 0.031 * 1.0 // Volts per radians per second per second TODO tune
         private val kVInterceptRightLow = 1.02 * 1.0 // Volts - tuned!
 
         private val kLeftTransmissionModelLowGear = DCMotorTransmission(1 / kVDriveLeftLow,

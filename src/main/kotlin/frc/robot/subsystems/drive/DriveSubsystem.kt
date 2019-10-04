@@ -36,6 +36,8 @@ import kotlin.properties.Delegates
 
 object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
 
+    var isHigh = false;
+
     override val leftMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
         override val master = FalconSRX(LEFT_PORTS[0], kDriveLengthModel)
