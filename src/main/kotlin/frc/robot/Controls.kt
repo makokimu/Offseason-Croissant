@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.frc2.command.*
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.climb.ClimbSubsystem
+import frc.robot.subsystems.drive.ClosedLoopVisionDriveCommand
 //import frc.robot.subsystems.climb.SketchyTest
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
@@ -36,7 +37,7 @@ object Controls : Updatable {
 
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
-        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+//        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
         pov(90).changeOn(ClimbSubsystem.hab3prepMove)
         pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
@@ -50,8 +51,10 @@ object Controls : Updatable {
             // Shifting
             if(Constants.kIsRocketLeague) {
                 button(kBumperRight).change(VisionDriveCommand(true))
+//                button(kBumperRight).change(ClosedLoopVisionDriveCommand(true))
             } else {
                 triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
+//                triggerAxisButton(GenericHID.Hand.kRight).change(ClosedLoopVisionDriveCommand(true))
             }
 
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }

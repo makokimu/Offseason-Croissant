@@ -12,7 +12,8 @@ import org.ghrobotics.lib.mathematics.units.nativeunit.nativeUnits
 
 object Constants {
 
-    const val kIsRocketLeague = true
+    const val kIsRocketLeague =
+            true
 
     object DriveConstants {
         const val kBeta = 2.0
@@ -27,13 +28,13 @@ object Constants {
 
         val kDriveLengthModel = NativeUnitLengthModel(4096.nativeUnits, kWheelRadius)
 
-        private val kVDriveLeftLow = 0.274 * 1.0 // Volts per radians per second
-        private val kADriveLeftLow = 0.032 * 1.0 // Volts per radians per second per second
-        private val kVInterceptLeftLow = 1.05 * 1.0 // Volts
+        private val kVDriveLeftLow = 0.274 // Volts per radians per second
+        private val kADriveLeftLow = 0.032 // Volts per radians per second per second
+        private val kVInterceptLeftLow = 1.05 // Volts
 
-        private val kVDriveRightLow = 0.265 * 1.0 // Volts per radians per second
-        private val kADriveRightLow = 0.031 * 1.0 // Volts per radians per second per second
-        private val kVInterceptRightLow = 1.02 * 1.0 // Volts
+        private val kVDriveRightLow = 0.265 // Volts per radians per second
+        private val kADriveRightLow = 0.031 // Volts per radians per second per second
+        private val kVInterceptRightLow = 1.02 // Volts
 
         private val kLeftTransmissionModelLowGear = DCMotorTransmission(1 / kVDriveLeftLow,
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveLeftLow),

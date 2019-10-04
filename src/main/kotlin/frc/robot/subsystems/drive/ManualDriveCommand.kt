@@ -12,10 +12,8 @@ import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.DoubleSource
 import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
-import kotlin.math.abs
-import kotlin.math.absoluteValue
-import kotlin.math.max
-import kotlin.math.pow
+import javax.print.attribute.HashDocAttributeSet
+import kotlin.math.*
 
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
@@ -136,10 +134,21 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         private const val kQuickStopThreshold = TankDriveSubsystem.kQuickStopThreshold
         private const val kQuickStopAlpha = TankDriveSubsystem.kQuickStopAlpha
         const val kDeadband = 0.05
-        val speedSource: () -> Double =
-            if(Constants.kIsRocketLeague) { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight)
-                - Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
-            else Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
+        val speedSource: () -> Double by lazy {
+            if(Constants.kIsRocketLeague) {
+                return@lazy { val toRet = Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight) - Controls.
+                        driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft)
+//                    println("speed $toRet")
+                    val compensated = toRet * -1.0
+                    ((compensated.absoluteValue - kDeadband/1.8) / (1.0 - kDeadband/1.8)) * compensated.sign
+                }
+            } else {
+                return@lazy Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
+            }
+        }
+//            if(Constants.kIsRocketLeague) { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight)
+//                - Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
+//            else Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)
 
         val rotationSource by lazy {
             if(Constants.kIsRocketLeague) Controls.driverFalconXbox.getX(GenericHID.Hand.kLeft).withDeadband(kDeadband)

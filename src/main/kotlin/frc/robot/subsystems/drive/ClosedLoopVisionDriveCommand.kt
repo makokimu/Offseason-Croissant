@@ -1,12 +1,12 @@
-// implementation from Team 5190 Green Hope Robotics
-
 package frc.robot.subsystems.drive
 
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Network
 import frc.robot.subsystems.superstructure.LEDs
 import frc.robot.vision.TargetTracker
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
@@ -14,11 +14,11 @@ import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.meter
-import org.ghrobotics.lib.mathematics.units.second
-import java.awt.Color
+import java.util.function.DoubleConsumer
+import java.util.function.DoubleSupplier
 import kotlin.math.absoluteValue
 
-class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
+class ClosedLoopVisionDriveCommand(private val isFront: Boolean): FalconCommand(DriveSubsystem) {
 
     override fun isFinished() = false
 
@@ -30,14 +30,12 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
     override fun initialize() {
         isActive = true
         referencePose = DriveSubsystem.robotPosition
-//        LEDs.setVisionMode(/*true*/)
         LEDs.wantedState = LEDs.State.Off
-//        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
-//        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
     }
 
     override fun execute() {
-
         val newTarget = TargetTracker.getBestTargetUsingReference(referencePose, isFront)
 
         val newPose = newTarget?.averagedPose2d
@@ -45,22 +43,14 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
         val lastKnownTargetPose = this.lastKnownTargetPose
 
-        val source = -speedSource()
+        val source = -ManualDriveCommand.speedSource()
 
         if (lastKnownTargetPose == null) {
-//            ElevatorSubsystem.wantedVisionMode = true
             super.execute()
         } else {
-//            ElevatorSubsystem.wantedVisionMode = false
             val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
             val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
             val distance = transform.translation.norm.feet
-            // so when we're 4ft away we want a blink freq of like 2x/sec
-            // and when we're 1.5ft away like 6x per sec
-            // so y = -1.6x + 8.4
-            val frequency = -1.6 * distance + 8.4
-//            LEDs.blinkFreq = 1.second / frequency
-//            LEDs.wantedState = LEDs.State.Blink((1.0/frequency).second, Color.red)
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
@@ -87,22 +77,24 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 //        ElevatorSubsystem.wantedVisionMode = false
         isActive = false
         LEDs.setVisionMode(false)
-//        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
-//        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
     }
 
     override fun initSendable(builder: SendableBuilder) {
-
-//        builder.addDoubleProperty("forwardKp", { kCorrectionKp }, { newP -> kCorrectionKp = newP })
-//        builder.addDoubleProperty("forwardKd", { kCorrectionKd }, { newD -> kCorrectionKd = newD })
-
-        super.initSendable(builder)
+//        builder.addDoubleProperty("Kp", {kCorrectionKd}, { value -> kCorrectionKp = value})
+//        builder.addDoubleProperty("Kd", {kCorrectionKd}, { value -> kCorrectionKd = value})
     }
 
     companion object {
-        var kCorrectionKp = 0.8 * 1.2 * 1.5
-        var kCorrectionKd = 8.0
+        var kCorrectionKp = 12.0
+        var kCorrectionKd = 0.0
         var isActive = false
             private set
     }
+
+    init {
+        SmartDashboard.putData(this)
+    }
+
 }

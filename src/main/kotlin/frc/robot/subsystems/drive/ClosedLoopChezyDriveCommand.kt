@@ -11,14 +11,15 @@ import kotlin.math.pow
 class ClosedLoopChezyDriveCommand: ManualDriveCommand() {
 
     override fun initialize() {
-        DriveSubsystem.leftMotor.master.talonSRX.configClosedloopRamp(0.1)
+        DriveSubsystem.leftMotor.master.talonSRX.configClosedloopRamp(0.12)
+        DriveSubsystem.rightMotor.master.talonSRX.configClosedloopRamp(0.12)
     }
 
     override fun execute() {
         val curvature = rotationSource()
         val linear = -speedSource()
         val isQuickTurn = quickTurnSource()
-        val multiplier = if(DriveSubsystem.lowGear) 8.0 * kFeetToMeter else 12.0 * kFeetToMeter
+        val multiplier = if(DriveSubsystem.lowGear) 8.0 * kFeetToMeter else 11.0 * kFeetToMeter
         var wheelSpeeds = curvatureDrive(linear, curvature, isQuickTurn)
         wheelSpeeds = DifferentialDrive.WheelState(wheelSpeeds.left * multiplier, wheelSpeeds.right * multiplier)
         DriveSubsystem.setWheelVelocities(wheelSpeeds)
