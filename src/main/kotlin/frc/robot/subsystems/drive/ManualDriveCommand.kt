@@ -21,8 +21,8 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         DriveSubsystem.run {
             listOf(leftMotor.master, rightMotor.master).forEach {
                 it.brakeMode = true
-                it.talonSRX.configOpenloopRamp(0.0)
-                it.talonSRX.configClosedloopRamp(0.02)
+                it.talonSRX.configOpenloopRamp(0.16)
+                it.talonSRX.configClosedloopRamp(0.00)
             }
         }
     }
@@ -48,7 +48,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
         DriveSubsystem.run {
             listOf(leftMotor.master, rightMotor.master).forEach {
                 it.brakeMode = true
-                it.talonSRX.configOpenloopRamp(0.16)
+                it.talonSRX.configOpenloopRamp(0.0)
             }
         }
     }
