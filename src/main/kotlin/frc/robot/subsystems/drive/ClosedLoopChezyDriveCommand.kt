@@ -6,9 +6,16 @@ import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.kFeetToMeter
 import org.ghrobotics.lib.mathematics.units.meter
+import kotlin.math.absoluteValue
+import kotlin.math.max
 import kotlin.math.pow
 
 class ClosedLoopChezyDriveCommand: ManualDriveCommand() {
+
+    companion object {
+        val kMaxLinearAcceleration = 10.0 * kFeetToMeter
+        var lastLinearVelocity = 0.0
+    }
 
     override fun initialize() {
         super.initialize()
@@ -18,12 +25,19 @@ class ClosedLoopChezyDriveCommand: ManualDriveCommand() {
 
     override fun execute() {
         val curvature = rotationSource()
-        val linear = -speedSource()
+        var linear = -speedSource()
         val isQuickTurn = quickTurnSource()
+
+        // limit linear acceleration
+        if(lastLinearVelocity + kMaxLinearAcceleration * 0.020 < linear) linear = lastLinearVelocity + kMaxLinearAcceleration * 0.020
+        if(lastLinearVelocity - kMaxLinearAcceleration * 0.020 > linear) linear = lastLinearVelocity - kMaxLinearAcceleration * 0.020
+
         val multiplier = if(DriveSubsystem.lowGear) 8.0 * kFeetToMeter else 11.0 * kFeetToMeter
         var wheelSpeeds = curvatureDrive(linear, curvature, isQuickTurn)
         wheelSpeeds = DifferentialDrive.WheelState(wheelSpeeds.left * multiplier, wheelSpeeds.right * multiplier)
         DriveSubsystem.setWheelVelocities(wheelSpeeds)
+
+        lastLinearVelocity = linear
     }
 
     override fun end(interrupted: Boolean) {
