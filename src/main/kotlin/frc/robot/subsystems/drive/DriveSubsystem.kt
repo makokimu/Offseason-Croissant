@@ -4,6 +4,7 @@ import asSource
 import com.kauailabs.navx.frc.AHRS
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.SPI
+import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
 import frc.robot.Constants
 import frc.robot.Constants.DriveConstants.kDriveLengthModel
@@ -96,6 +97,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         leftMotor.setClosedLoopGains()
         rightMotor.setClosedLoopGains()
     }
+    class SetGearCommand(wantsLow: Boolean): InstantCommand(Runnable{lowGear = wantsLow}, this)
 
     private val ahrs = AHRS(SPI.Port.kMXP)
     override val localization = TankEncoderLocalization(

@@ -11,6 +11,7 @@ import kotlin.math.pow
 class ClosedLoopChezyDriveCommand: ManualDriveCommand() {
 
     override fun initialize() {
+        super.initialize()
         DriveSubsystem.leftMotor.master.talonSRX.configClosedloopRamp(0.12)
         DriveSubsystem.rightMotor.master.talonSRX.configClosedloopRamp(0.12)
     }
@@ -23,6 +24,12 @@ class ClosedLoopChezyDriveCommand: ManualDriveCommand() {
         var wheelSpeeds = curvatureDrive(linear, curvature, isQuickTurn)
         wheelSpeeds = DifferentialDrive.WheelState(wheelSpeeds.left * multiplier, wheelSpeeds.right * multiplier)
         DriveSubsystem.setWheelVelocities(wheelSpeeds)
+    }
+
+    override fun end(interrupted: Boolean) {
+        super.end(interrupted)
+        DriveSubsystem.leftMotor.master.talonSRX.configClosedloopRamp(0.0)
+        DriveSubsystem.rightMotor.master.talonSRX.configClosedloopRamp(0.0)
     }
 
 }

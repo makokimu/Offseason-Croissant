@@ -33,6 +33,7 @@ object TrajectoryWaypoints {
 
     // Loading Station
     val kLoadingStation = Pose2d(0.inch, 25.72.inch, 0.degree)
+    val kLoadingStationReversed = Pose2d(0.inch, 25.72.inch, 180.degree)
 
     // Depot
     val kDepotBRCorner = Pose2d(47.inch, 78.396.inch, (-25).degree)
