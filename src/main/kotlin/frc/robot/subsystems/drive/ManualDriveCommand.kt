@@ -121,11 +121,23 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
             }
 
             // Normalize the wheel speeds
-            val maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
+            var maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
+            var maxNyoom: Double
+            if(DriveSubsystem.isHigh){
+//                System.out.println(DriveSubsystem.isHigh)
+                maxNyoom = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue),0.18)
+//                System.out.println(maxNyoom)
+            }else{
+                maxNyoom = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
+            }
             if (maxMagnitude > 1.0) {
                 leftMotorOutput /= maxMagnitude
                 rightMotorOutput /= maxMagnitude
             }
+
+            leftMotorOutput = min(maxNyoom.absoluteValue, leftMotorOutput.absoluteValue) * (leftMotorOutput/leftMotorOutput.absoluteValue)
+            rightMotorOutput = min(maxNyoom.absoluteValue, rightMotorOutput.absoluteValue) * (rightMotorOutput/rightMotorOutput.absoluteValue)
+
 
             return DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
         }
