@@ -53,6 +53,7 @@ object Robot : FishyRobot() {
 
         NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2)
         NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
 
         super.robotInit()
     }
@@ -61,8 +62,20 @@ object Robot : FishyRobot() {
         super.robotPeriodic()
     }
 
+    override fun disabledInit() {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
+    }
+
     override fun autonomousInit() {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
         super.autonomousInit()
+    }
+
+    override fun teleopInit() {
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
+        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
     }
 
 }

@@ -43,6 +43,8 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         init {
             outputInverted = true
+            followers.forEach{ it.follow(master) }
+            lateInit()
         }
 
         override fun setClosedLoopGains() {
@@ -57,6 +59,11 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         override val master = FalconSRX(RIGHT_PORTS[0], kDriveLengthModel)
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
+
+        init {
+            followers.forEach{ it.follow(master) }
+            lateInit()
+        }
 
         override fun setClosedLoopGains() {
             // LQR gains

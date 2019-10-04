@@ -108,6 +108,10 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
 
     abstract fun setClosedLoopGains()
 
+    fun lateInit() {
+        followers?.forEach{ it.follow(master) }
+    }
+
     val outputCurrent: Double
         get() {
             val master_: FalconMotor<T> = master

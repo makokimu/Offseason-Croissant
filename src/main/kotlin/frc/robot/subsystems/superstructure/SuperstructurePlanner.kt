@@ -3,11 +3,13 @@ package frc.robot.subsystems.superstructure
 import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
 import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
+import frc.robot.Constants
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.auto.routines.withExit
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.apache.commons.math3.analysis.function.Constant
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
