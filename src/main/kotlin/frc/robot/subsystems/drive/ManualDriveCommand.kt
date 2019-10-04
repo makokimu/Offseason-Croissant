@@ -65,9 +65,10 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
          */
         @Suppress("ComplexMethod")
         internal fun curvatureDrive(
-            linearPercent: Double,
-            curvaturePercent: Double,
-            isQuickTurn: Boolean
+                linearPercent: Double,
+                curvaturePercent: Double,
+                isQuickTurn: Boolean,
+                maxWheelVelocity: Double = 1.0
         ): DifferentialDrive.WheelState {
             val angularPower: Double
             val overPower: Boolean
@@ -127,7 +128,7 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
             return if (!DriveSubsystem.isHigh) {
                 DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
             } else {
-                maxAllowableSpeed = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue), 0.18)
+                maxAllowableSpeed = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue), maxWheelVelocity)
 
                 leftMotorOutput = min(maxAllowableSpeed, leftMotorOutput.absoluteValue).withSign(leftMotorOutput)
                 rightMotorOutput = min(maxAllowableSpeed, rightMotorOutput.absoluteValue).withSign(rightMotorOutput)

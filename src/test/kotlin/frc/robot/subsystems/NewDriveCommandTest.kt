@@ -4,7 +4,6 @@ import com.team254.lib.physics.DCMotorTransmission
 import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.GenericHID
 import frc.robot.Controls
-import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.ManualDriveCommand
 import frc.robot.subsystems.drive.times
 import org.ghrobotics.lib.mathematics.units.feet
@@ -21,7 +20,6 @@ import org.ghrobotics.lib.wrappers.hid.getY
 import org.ghrobotics.lib.wrappers.hid.kBumperRight
 import kotlin.math.absoluteValue
 import kotlin.math.max
-import kotlin.math.pow
 
 object DriveConstants {
     const val kBeta = 2.0
