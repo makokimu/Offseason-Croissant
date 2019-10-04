@@ -4,6 +4,7 @@ package frc.robot.subsystems.drive
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
+import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.LEDs
 import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
@@ -12,6 +13,7 @@ import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
+import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import kotlin.math.absoluteValue
 
@@ -42,7 +44,14 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
         val lastKnownTargetPose = this.lastKnownTargetPose
 
-        val source = -speedSource()
+        var source = -speedSource()
+
+        // limit linear speed based on elevator height, linear function with height above stowed
+        val elevator = Elevator.currentState.position
+        if (elevator > 32.inch) {
+            // y = mx + b, see https://www.desmos.com/calculator/quelminicu
+            source = -0.0216 * elevator.inch + 1.643
+        }
 
         if (lastKnownTargetPose == null) {
 //            ElevatorSubsystem.wantedVisionMode = true
@@ -51,23 +60,21 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 //            ElevatorSubsystem.wantedVisionMode = false
             val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
             val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
-            val distance = transform.translation.norm.feet
-            // so when we're 4ft away we want a blink freq of like 2x/sec
-            // and when we're 1.5ft away like 6x per sec
-            // so y = -1.6x + 8.4
-            val frequency = -1.6 * distance + 8.4
-//            LEDs.blinkFreq = 1.second / frequency
-//            LEDs.wantedState = LEDs.State.Blink((1.0/frequency).second, Color.red)
+            val distance = transform.translation.norm.feet.absoluteValue
+
+            if (distance < 4) {
+                source -= (/* rise over run */ (-0.5) / 3.0) * (4 - distance)
+            }
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
 
             val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
 
-            if (angleError.degree.absoluteValue > 45) {
-                // plz no disable us when going to loading station, kthx
-                this.lastKnownTargetPose = null
-            }
+//            if (angleError.degree.absoluteValue > 45) {
+//                // plz no disable us when going to loading station, kthx
+//                this.lastKnownTargetPose = null
+//            }
 
             val error = angleError.radian
 

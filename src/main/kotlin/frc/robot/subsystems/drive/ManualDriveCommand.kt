@@ -8,7 +8,7 @@ import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.withDeadband
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
-import kotlin.math.*
+import kotlin.math.* // ktlint-disable no-wildcard-imports
 
 open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
 
@@ -65,10 +65,10 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
          */
         @Suppress("ComplexMethod")
         internal fun curvatureDrive(
-                linearPercent: Double,
-                curvaturePercent: Double,
-                isQuickTurn: Boolean,
-                maxWheelVelocity: Double = 1.0
+            linearPercent: Double,
+            curvaturePercent: Double,
+            isQuickTurn: Boolean,
+            maxWheelVelocity: Double = 1.0
         ): DifferentialDrive.WheelState {
             val angularPower: Double
             val overPower: Boolean
@@ -117,24 +117,23 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
             }
 
             // Normalize the wheel speeds
-            var maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
-            var maxAllowableSpeed: Double
+            val maxMagnitude = max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue)
 
             if (maxMagnitude > 1.0) {
                 leftMotorOutput /= maxMagnitude
                 rightMotorOutput /= maxMagnitude
             }
 
-            return if (!DriveSubsystem.isHigh) {
-                DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
-            } else {
-                maxAllowableSpeed = min(max(leftMotorOutput.absoluteValue, rightMotorOutput.absoluteValue), maxWheelVelocity)
+            return DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
+        }
 
-                leftMotorOutput = min(maxAllowableSpeed, leftMotorOutput.absoluteValue).withSign(leftMotorOutput)
-                rightMotorOutput = min(maxAllowableSpeed, rightMotorOutput.absoluteValue).withSign(rightMotorOutput)
-
-                DifferentialDrive.WheelState(leftMotorOutput, rightMotorOutput)
-            }
+        // KISS rate function
+        fun kisscalc(rcCommand: Double, rate: Double, rcCurve: Double, rcRate: Double): Double {
+            val kissRpyUseRates = 1 - Math.abs(rcCommand) * rate
+            val kissRxRaw = rcCommand * 1000
+            val kissTempCurve = (kissRxRaw * kissRxRaw / 1000000)
+            val rcCommand_ = ((rcCommand * kissTempCurve) * rcCurve + rcCommand * (1 - rcCurve)) * (rcRate / 10)
+            return ((2000.0 * (1.0 / kissRpyUseRates)) * rcCommand_)
         }
 
         private var quickStopAccumulator = 0.0
@@ -147,7 +146,10 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
                         .driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft)
 //                    println("speed $toRet")
                     val compensated = toRet * -1.0
-                    ((compensated.absoluteValue - kDeadband / 1.8) / (1.0 - kDeadband / 1.8)) * compensated.sign
+                    val deadbanded = ((compensated.absoluteValue - kDeadband / 1.8) / (1.0 - kDeadband / 1.8)) * compensated.sign
+
+                    // throttle curve should be between [-1. 1] or so.
+                    kisscalc(deadbanded, 0.77, 0.0, 0.00116)
                 }
             } else {
                 return@lazy Controls.driverFalconXbox.getY(GenericHID.Hand.kLeft).withDeadband(kDeadband)

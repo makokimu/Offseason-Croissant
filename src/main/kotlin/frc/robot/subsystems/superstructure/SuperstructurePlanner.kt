@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
 import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.auto.routines.withExit
-import frc.robot.subsystems.drive.DriveSubsystem
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -30,9 +29,6 @@ object SuperstructurePlanner {
 //    val kProximalLen = 32.inch.meter
 
     private fun planPath(currentState: SuperstructureState, goalState: SuperstructureState) = sequential {
-
-        DriveSubsystem.isHigh = (goalState.elevator >= 1.inch)
-        System.out.println(DriveSubsystem.isHigh)
 
         // first check passthrough -- remember, if we do pass through, our "current state" will change!
         val needsPassthrough = !currentState.isPassedThrough and goalState.isPassedThrough
@@ -241,9 +237,6 @@ object SuperstructurePlanner {
                 var pathStarted = false
 
                 override fun initialize() {
-//                    path = planPath(Superstructure.currentState, goalState)
-                    DriveSubsystem.isHigh = (goalState.elevator >= 64.inch)
-                    System.out.println(DriveSubsystem.isHigh)
                     path = planOldPath(currentState = Superstructure.currentState, goalState = goalState)
                     path!!.initialize()
                     pathStarted = true
