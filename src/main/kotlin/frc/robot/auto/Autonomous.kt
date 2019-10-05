@@ -9,7 +9,7 @@ import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.utils.*
+import org.ghrobotics.lib.utils.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
 
 /**
