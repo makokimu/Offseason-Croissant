@@ -3,7 +3,6 @@ package frc.robot
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
-import edu.wpi.first.wpilibj.frc2.command.* // ktlint-disable no-wildcard-imports
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
@@ -12,7 +11,9 @@ import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
 
@@ -84,8 +85,8 @@ object Controls : Updatable {
             // Stow (for now like this coz i dont wanna break anything
             button(10).changeOn(Superstructure.kStowed)
 
-            button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inch })
-            button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
+            button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inches })
+            button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inches })
 
             // that one passthrough preset that doesnt snap back to normal
 //            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
@@ -97,7 +98,7 @@ object Controls : Updatable {
             // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
             // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
             val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
-            lessThanAxisButton(0).changeOff { (sequential { +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
+            lessThanAxisButton(0).changeOff { (sequential { +ClosedLoopWristMove(40.degrees) ; +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
             greaterThanAxisButton(0).changeOff { }.change(IntakeCargoCommand(true))
         }
     }

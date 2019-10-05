@@ -1,6 +1,7 @@
 package frc.robot.vision
 
 import com.google.gson.JsonObject
+import edu.wpi.first.wpilibj.geometry.Pose2d
 import frc.robot.Constants.kCenterToBackCamera
 import frc.robot.Constants.kCenterToFrontCamera
 import frc.robot.Constants.kRobotLength
@@ -13,8 +14,10 @@ import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.mathematics.units.second
 import kotlin.math.absoluteValue
 
@@ -40,7 +43,7 @@ object VisionProcessing {
                 }
                 .filter { // make sure that the vision target Pose2d is outside the robot
                     // We cannot be the vision target :)
-                    it.translation.x.absoluteValue > (kRobotLength / 2.0 - 5.inch) ||
+                    it.translation.x.absoluteValue > (kRobotLength / 2.0 - 5.inches) ||
                             it.translation.y.absoluteValue > (kRobotWidth / 2.0)
                 }
                 .map { robotPose + it } // sum the robotpose and the targetpose to get a global pose
@@ -53,10 +56,8 @@ object VisionProcessing {
 
     private fun processReflectiveTape(data: JsonObject, transform: Pose2d): Pose2d? {
         val angle = data["angle"].asDouble.degree
-        val rotation = -data["rotation"].asDouble.degree + angle + 180.degree
-        val distance = data["distance"].asDouble.inch
-
-//        println("${distance.inch}, ${angle.degree}")
+        val rotation = -data["rotation"].asDouble.degree + angle + 180.degrees
+        val distance = data["distance"].asDouble.inches
 
         return transform + Pose2d(Translation2d(distance, angle.toRotation2d()), rotation.toRotation2d())
     }

@@ -139,10 +139,10 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
     const val reduction = 14.66
     fun setClimbProfile(position: SIUnit<Meter>, velocity: SIUnit<Velocity<Meter>>) {
         // meters per second div meters per rotation is rotations per second
-        val rotPerSec = velocity.value / (PI * 1.5.inch.meter)
+        val rotPerSec = velocity.value / (PI * 1.5.inches.inMeters())
         val radPerSec = rotPerSec * PI * 2
 
-        val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inch.meter
+        val torque = 35.0 /* kg */ * 9.8 /* g */ * 0.75.inches.inMeters()
 
         val stallTorque = reduction * 0.71 * 4
         val freeYeet = 1961 /* rad per sec */ / reduction
@@ -171,7 +171,7 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
     // Set the elevator height to a sane-ish number by default
     override fun lateInit() {
-        motor.encoder.resetPosition(35.0.inch)
+        motor.encoder.resetPosition(35.0.inches)
         wantsLowGear = false
     }
 
@@ -189,5 +189,5 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
 
     /** Calculate the arbitrary feed forward given a [currentState] */
     override fun calculateFeedForward(currentState: MultiMotorTransmission.State<Meter>) =
-            if (currentState.position > 33.0.inch) 1.2.volt else (-0.72).volt // volts
+            if (currentState.position > 33.0.inches) 1.2.volts else (-0.72).volts // volts
 }

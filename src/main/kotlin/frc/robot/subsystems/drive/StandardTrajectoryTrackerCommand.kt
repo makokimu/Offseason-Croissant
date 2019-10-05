@@ -63,7 +63,7 @@ class StandardTrajectoryTrackerCommand(
      * Make sure that the drivetrain is stopped at the end of the command.
      */
     override fun end(interrupted: Boolean) {
-//        notifier.cancel()
+//        notifier. cancel()
         DriveSubsystem.zeroOutputs()
         LiveDashboard.isFollowingPath = false
     }

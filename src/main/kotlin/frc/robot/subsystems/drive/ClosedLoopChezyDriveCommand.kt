@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive
 import com.team254.lib.physics.DifferentialDrive
 import frc.robot.subsystems.superstructure.Elevator
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.mathematics.units.kFeetToMeter
 
 class ClosedLoopChezyDriveCommand : ManualDriveCommand() {
@@ -25,7 +26,7 @@ class ClosedLoopChezyDriveCommand : ManualDriveCommand() {
 
         // limit linear speed based on elevator height, linear function with height above stowed
         val elevator = Elevator.currentState.position
-        if (elevator > 32.inch) {
+        if (elevator > 32.inches) {
             // y = mx + b, see https://www.desmos.com/calculator/quelminicu
             linear *= (-0.0208108 * elevator.inch + 1.66696)
         }

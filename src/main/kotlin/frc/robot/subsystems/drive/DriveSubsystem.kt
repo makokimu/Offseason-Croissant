@@ -1,37 +1,38 @@
 package frc.robot.subsystems.drive
 
-import asSource
 import com.kauailabs.navx.frc.AHRS
-import com.team254.lib.physics.DifferentialDrive
 import edu.wpi.first.wpilibj.SPI
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
+import edu.wpi.first.wpilibj.controller.RamseteController
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds
+import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics
+import edu.wpi.first.wpilibj.trajectory.Trajectory
+import edu.wpi.first.wpilibj2.command.CommandBase
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.robot.Constants
 import frc.robot.Constants.DriveConstants.kDriveLengthModel
 import frc.robot.Ports.DrivePorts.LEFT_PORTS
 import frc.robot.Ports.DrivePorts.RIGHT_PORTS
 import frc.robot.Ports.DrivePorts.SHIFTER_PORTS
 import frc.robot.Ports.kPCMID
-import io.github.oblarg.oblog.Loggable
+import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.localization.TankEncoderLocalization
-import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
-import org.ghrobotics.lib.mathematics.twodim.trajectory.types.Trajectory
-import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
 import org.ghrobotics.lib.mathematics.units.*
-import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.derived.velocity
-import org.ghrobotics.lib.mathematics.units.derived.volt
+import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
+import org.ghrobotics.lib.physics.MotorCharacterization
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
-import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
+import org.ghrobotics.lib.subsystems.drive.FalconWestCoastDrivetrain
 import org.ghrobotics.lib.utils.BooleanSource
 import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.lib.utils.asSource
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
@@ -39,7 +40,7 @@ import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
 import org.team5940.pantry.lib.MultiMotorTransmission
 import kotlin.properties.Delegates
 
-object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
+object DriveSubsystem : FalconWestCoastDrivetrain(), EmergencyHandleable, ConcurrentlyUpdatingComponent {
 
     override val leftMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 
@@ -78,15 +79,22 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
     }
 
+    override val leftCharacterization: MotorCharacterization<Meter>
+        get() = if(lowGear) Constants.DriveConstants.kLeftCharacterizationLow else Constants.DriveConstants.kLeftCharacterizationHigh
+
+
+    override val rightCharacterization: MotorCharacterization<Meter>
+        get() = if(lowGear) Constants.DriveConstants.kRightCharacterizationLow else Constants.DriveConstants.kRightCharacterizationHigh
+
     override fun setNeutral() {
         leftMotor.setNeutral(); rightMotor.setNeutral()
         super.setNeutral()
     }
 
-    override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
+    override fun activateEmergency() = run { setNeutral(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
 
     override fun recoverFromEmergency() = run { leftMotor.setClosedLoopGains(); rightMotor.setClosedLoopGains() }
-    fun notWithinRegion(region: Rectangle2d) =
+    fun notWithinRegion(region: Rectangle2d): CommandBase =
             WaitUntilCommand { !region.contains(robotPosition.translation) }
 
     // Shift up and down
@@ -99,48 +107,33 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         leftMotor.setClosedLoopGains()
         rightMotor.setClosedLoopGains()
     }
-    class SetGearCommand(wantsLow: Boolean) : InstantCommand(Runnable { lowGear = wantsLow }, this)
+
+    // the "differential drive" model, with a custom getter which changes based on the current gear
+    override val kinematics = DifferentialDriveKinematics(Constants.DriveConstants.kTrackWidth.inMeters())
 
     private val ahrs = AHRS(SPI.Port.kMXP)
-    override val localization = TankEncoderLocalization(
-            ahrs.asSource(),
-            { leftMotor.encoder.position },
-            { rightMotor.encoder.position })
+    override val odometry = DifferentialDriveOdometry(kinematics)
+//            ahrs.asSource(),
+//            { leftMotor.encoder.position },
+//            { rightMotor.encoder.position })
 
     // init localization stuff
     override fun lateInit() {
         // set the robot pose to a sane position
-        robotPosition = Pose2d(translation = Translation2d(20.feet, 20.feet), rotation = 0.degree)
+        robotPosition = Pose2d(20.feet, 20.feet, 0.degrees.toRotation2d())
 //        defaultCommand = ManualDriveCommand() // set default command
         defaultCommand = ClosedLoopChezyDriveCommand()
         super.lateInit()
     }
 
     // Ramsete gang is the only true gang
-    override var trajectoryTracker = RamseteTracker(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
+    override var controller = RamseteController(Constants.DriveConstants.kBeta, Constants.DriveConstants.kZeta)
 
-    // the "differential drive" model, with a custom getter which changes based on the current gear
-    override val differentialDrive: DifferentialDrive
-        get() = if (lowGear) Constants.DriveConstants.kLowGearDifferentialDrive else Constants.DriveConstants.kHighGearDifferentialDrive
+    fun setWheelVelocities(wheelSpeeds: DifferentialDriveWheelSpeeds) {
+        val leftFF = leftCharacterization.getVoltage(wheelSpeeds.leftMetersPerSecond.meters.velocity, 0.meters.acceleration)
+        val rightFF = leftCharacterization.getVoltage(wheelSpeeds.rightMetersPerSecond.meters.velocity, 0.meters.acceleration)
 
-    override fun updateState() {
-//        localization.update()
-    }
-
-    fun driveTrajectory(
-        trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
-        pathMirrored: BooleanSource
-    ) = StandardTrajectoryTrackerCommand(pathMirrored.map(trajectory.mirror(), trajectory))
-
-    fun driveTrajectory(
-        trajectory: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
-    ) = StandardTrajectoryTrackerCommand(trajectory)
-
-    fun setWheelVelocities(wheelSpeeds: DifferentialDrive.WheelState) {
-        val left = wheelSpeeds.left / differentialDrive.wheelRadius // rad per sec
-        val right = wheelSpeeds.right / differentialDrive.wheelRadius // rad per sec
-        val ff = differentialDrive.getVoltagesFromkV(DifferentialDrive.WheelState(left, right))
-        leftMotor.setVelocity(wheelSpeeds.left.meter.velocity, ff.left.volt)
-        rightMotor.setVelocity(wheelSpeeds.right.meter.velocity, ff.right.volt)
+        leftMotor.setVelocity(wheelSpeeds.leftMetersPerSecond.meters.velocity, leftFF)
+        rightMotor.setVelocity(wheelSpeeds.rightMetersPerSecond.meters.velocity, rightFF)
     }
 }

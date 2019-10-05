@@ -10,6 +10,7 @@ import frc.robot.Ports
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.nativeunit.toNativeUnitPosition
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.ConcurrentFalconJoint
@@ -30,7 +31,7 @@ object Wrist : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
     }
 
     private val canifier = CANifier(35)
-    val absoluteEncoder = Proximal.canifier.asPWMSource(1336.4 to (-45).degree, 2004.0 to 90.degree,
+    val absoluteEncoder = Proximal.canifier.asPWMSource(1336.4 to (-45).degrees, 2004.0 to 90.degrees,
             CANifier.PWMChannel.PWMChannel1)
 
     fun zero() = resetPosition(absoluteEncoder())

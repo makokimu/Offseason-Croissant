@@ -6,6 +6,7 @@ import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.mathematics.units.SIKey
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.volt
+import org.ghrobotics.lib.mathematics.units.derived.volts
 import org.ghrobotics.lib.motors.FalconMotor
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import kotlin.math.abs
@@ -66,7 +67,7 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
     /**
      * Calculate the arbitrary feed forward given the [currentState] in Volts
      */
-    open fun calculateFeedForward(currentState: MultiMotorTransmission.State<T>) = 0.0.volt
+    open fun calculateFeedForward(currentState: MultiMotorTransmission.State<T>) = 0.0.volts
 
     open fun customizeWantedState(wantedState: WantedState) = wantedState
 

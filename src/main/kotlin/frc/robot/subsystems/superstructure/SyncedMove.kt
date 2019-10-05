@@ -20,7 +20,7 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
         Superstructure, Proximal, Wrist
 ) {
 
-    private val goal = goalAngle + if (isFrontToBack) (-30).degree else 0.degree
+    private val goal = goalAngle + if (isFrontToBack) (-30).degrees else 0.degrees
 //    private val goalRotation2d = (goal)
     private val goalWristRotation2d = (goalAngle).radian
     private var lastCommandedProximal: SIUnit<Radian>? = null
@@ -62,11 +62,11 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
         }
 
         if (nextProximal!!.degree < -205) {
-            nextProximal = (-205).degree
+            nextProximal = (-205).degrees
             moveIteratorFinished = true
             println("SETTING MOVE ITERATOR TO TRUE 1")
         } else if (nextProximal.degree > 5) {
-            nextProximal = (5).degree
+            nextProximal = (5).degrees
             moveIteratorFinished = true
             println("SETTING MOVE ITERATOR TO TRUE 2")
         }
@@ -130,31 +130,31 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
             get() = sequential {
                 +PrintCommand("passing thru front to back")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(36.inch)
-                +SyncedMove((-160).degree, true)
+                +ClosedLoopElevatorMove(36.inches)
+                +SyncedMove((-160).degrees, true)
                 +parallel {
                     +ClosedLoopProximalMove((-193.0).degree)
                     +ClosedLoopWristMove((-112.0).degree)
                 }
-                +ClosedLoopElevatorMove(19.5.inch)
+                +ClosedLoopElevatorMove(19.5.inches)
             }
 
         val backToFront
             get() = sequential {
                 +PrintCommand("passiing thru back to front")
                 +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
-                +ClosedLoopElevatorMove(36.inch)
+                +ClosedLoopElevatorMove(36.inches)
                 +SyncedMove(0.0.degree, false)
                 +parallel {
                     +ClosedLoopProximalMove(0.0.degree)
                     +ClosedLoopWristMove(0.0.degree)
-                    +ClosedLoopElevatorMove(26.0.inch)
+                    +ClosedLoopElevatorMove(26.0.inches)
                 }
             }
 
         val shortPassthrough
             get() = sequential {
-                +ClosedLoopElevatorMove(36.inch)
+                +ClosedLoopElevatorMove(36.inches)
                 +SyncedMove(0.0.degree, false) }
     }
 }

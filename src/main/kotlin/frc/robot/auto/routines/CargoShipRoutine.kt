@@ -23,9 +23,9 @@ import org.ghrobotics.lib.utils.withEquals
 class CargoShipRoutine(private val mode: Mode) : AutoRoutine() {
 
     enum class Mode(
-        val path1: TimedTrajectory<Pose2dWithCurvature>,
-        val path2: TimedTrajectory<Pose2dWithCurvature>,
-        val path3: TimedTrajectory<Pose2dWithCurvature>
+        val path1: Trajectory,
+        val path2: Trajectory,
+        val path3: Trajectory
     ) {
         SIDE(
             TrajectoryFactory.sideStartToCargoShipS1,

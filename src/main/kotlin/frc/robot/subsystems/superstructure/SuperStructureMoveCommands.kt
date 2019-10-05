@@ -5,6 +5,7 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.utils.Source
 import org.team5940.pantry.lib.WantedState
 
@@ -23,7 +24,7 @@ class ClosedLoopElevatorMove(private val target: Source<Length>) : FalconCommand
         }
     }
 
-    override fun isFinished() = Elevator.isWithTolerance(1.inch)
+    override fun isFinished() = Elevator.isWithTolerance(1.inches)
 
     // : Boolean {
 //        val error = abs(target - Elevator.currentState.position) / SILengthConstants.kInchToMeter

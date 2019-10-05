@@ -2,7 +2,6 @@
 package frc.robot
 
 import edu.wpi.first.networktables.NetworkTableInstance
-import edu.wpi.first.wpilibj.frc2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.auto.Autonomous
 import frc.robot.subsystems.climb.ClimbSubsystem
@@ -19,6 +18,7 @@ import frc.robot.vision.VisionProcessing
 import frc.robot.subsystems.superstructure.Wrist
 import org.team5940.pantry.lib.FishyRobot
 import edu.wpi.first.wpilibj.networktables.NetworkTable.getTable
+import edu.wpi.first.wpilibj2.command.CommandScheduler
 import frc.robot.auto.routines.BottomRocketRoutine2
 
 object Robot : FishyRobot() {

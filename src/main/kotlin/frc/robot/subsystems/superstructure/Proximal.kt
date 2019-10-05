@@ -12,6 +12,7 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.derived.AngularVelocity
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.nativeunit.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
@@ -36,7 +37,7 @@ object Proximal : ConcurrentFalconJoint<Radian, FalconSRX<Radian>>() {
     }
 
     val canifier = CANifier(34)
-    val absoluteEncoder = canifier.asPWMSource(1131.0 to (-90).degree, 677.0 to 0.degree,
+    val absoluteEncoder = canifier.asPWMSource(1131.0 to (-90).degrees, 677.0 to 0.degrees,
             CANifier.PWMChannel.PWMChannel0)
 
     fun zero() = resetPosition(absoluteEncoder())

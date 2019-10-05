@@ -5,8 +5,7 @@ import edu.wpi.first.toolchain.NativePlatforms
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("edu.wpi.first.GradleRIO") version "2019.4" +
-            ".1"
+    id("edu.wpi.first.GradleRIO") version "2019.4.1"
     id("org.jetbrains.kotlin.jvm") version "1.3.50"
     id("idea")
     id("org.jlleitschuh.gradle.ktlint") version "8.0.0"
@@ -53,15 +52,15 @@ repositories {
 dependencies {
     // Kotlin Standard Library and Coroutines
     compile(kotlin("stdlib"))
-    compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.0-RC")
+    compile("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.2")
 
     // FalconLibrary
-    compile("com.github.5190GreenHopeRobotics:FalconLibrary:c1ba9286f9")
+    compile("com.github.5190GreenHopeRobotics:FalconLibrary:01aae7bf67")
 
-    compile("com.fazecast:jSerialComm:2.4.1") // jserialcomm for jevois
+    compile("com.fazecast:jSerialComm:2.5.2") // jserialcomm for jevois
     compile("com.github.salomonbrys.kotson", "kotson", "2.5.0") // gson
 
-    implementation("org.mockito:mockito-core:2.23.+")
+//    implementation("org.mockito:mockito-core:2.23.+")
 
     // WPILib and Vendors
     wpi.deps.wpilib().forEach { compile(it) }
@@ -69,7 +68,7 @@ dependencies {
     wpi.deps.vendor.jni(NativePlatforms.roborio).forEach { nativeZip(it) }
     wpi.deps.vendor.jni(NativePlatforms.desktop).forEach { nativeDesktopZip(it) }
 
-    compile("com.github.Oblarg:Oblog:2.8.1")
+//    compile("com.github.Oblarg:Oblog:2.12.7")
 
     // XChart for Simulations and Tests
     compile("org.knowm.xchart", "xchart", "3.2.2")

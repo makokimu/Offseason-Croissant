@@ -20,6 +20,7 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.constraints.VelocityLimitRadiusConstraint
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.utils.withEquals
 
@@ -31,7 +32,7 @@ class YeOldeLowRocketRoutine : AutoRoutine() {
     var waypoints = listOf(
             TrajectoryWaypoints.kSideStart.asWaypoint(),
             Pose2d(TrajectoryWaypoints.kSideStart.translation + Translation2d(3.5.feet, 0.feet),
-                    (0).degree).asWaypoint(),
+                    (0).degrees).asWaypoint(),
             Pose2d(12.412.feet, 4.412.feet, -31.615.degree).asWaypoint(),
             TrajectoryFactory.rocketNAdjusted
     )
@@ -47,7 +48,7 @@ class YeOldeLowRocketRoutine : AutoRoutine() {
             +IntakeHatchCommand(false).withTimeout(1.5)
             +sequential {
                 +WaitCommand(1.0)
-                +Superstructure.everythingMoveTo(19.inch, 0.degree, 4.degree)
+                +Superstructure.everythingMoveTo(19.inches, 0.degrees, 4.degrees)
             }
         }
         +parallel {

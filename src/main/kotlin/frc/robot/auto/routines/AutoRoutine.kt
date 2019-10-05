@@ -36,7 +36,7 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
     }.raceWith(WaitUntilCommand { Robot.emergencyActive })
 
     fun followVisionAssistedTrajectory(
-        originalTrajectory: TimedTrajectory<Pose2dWithCurvature>,
+        originalTrajectory: Trajectory,
         pathMirrored: BooleanSource,
         radiusFromEnd: Length,
         useAbsoluteVision: Boolean = false

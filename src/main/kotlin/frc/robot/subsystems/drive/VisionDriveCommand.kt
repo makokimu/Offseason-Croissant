@@ -10,10 +10,12 @@ import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.mathematics.units.meter
 import kotlin.math.absoluteValue
 
@@ -57,7 +59,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
             // limit linear speed based on elevator height, linear function with height above stowed
             val elevator = Elevator.currentState.position
-            if (elevator > 32.inch) {
+            if (elevator > 32.inches) {
                 // y = mx + b, see https://www.desmos.com/calculator/quelminicu
                 source *= (-0.0216 * elevator.inch + 1.643)
             }
@@ -69,7 +71,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
 
-            val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
+            val angleError = angle + if (isFront) 0.degrees.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
 
 //            if (angleError.degree.absoluteValue > 45) {
 //                // plz no disable us when going to loading station, kthx

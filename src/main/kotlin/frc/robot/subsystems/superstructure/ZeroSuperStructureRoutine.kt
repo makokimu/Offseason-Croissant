@@ -9,7 +9,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.inches
 import org.ghrobotics.lib.mathematics.units.second
 import java.awt.Color
 
@@ -73,7 +75,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putBoolean("Proximal zeroed", true)
         SmartDashboard.putBoolean("Wrist zeroed", true)
 
-        val proxPos = Proximal.absoluteEncoder() - 4.degree //  (-90).degree
+        val proxPos = Proximal.absoluteEncoder() - 4.degrees //  (-90).degree
         val wristPos = Wrist.absoluteEncoder()
         Proximal.resetPosition(proxPos)
         Wrist.resetPosition(wristPos)
@@ -103,6 +105,6 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
     }
 
     companion object {
-        private val kZeroHeight = 35.inch // 21.5.inch, delta is 11.5in
+        private val kZeroHeight = 35.inches // 21.5.inch, delta is 11.5in
     }
 }

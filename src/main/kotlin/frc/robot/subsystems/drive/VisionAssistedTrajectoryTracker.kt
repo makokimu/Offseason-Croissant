@@ -117,7 +117,7 @@ class VisionAssistedTrajectoryTracker(
             DriveSubsystem.setOutput(
                     TrajectoryTrackerOutput(
                             min(linear, kMaxLinearVelocityVision),
-                            0.meter.acceleration,
+                            0.meters.acceleration,
                             turn.radian.velocity,
                             0.radian.acceleration
                     )
@@ -155,7 +155,7 @@ class VisionAssistedTrajectoryTracker(
         const val kCorrectionKd = 0.0
         const val kLinearKp = 0.6
         val kMaxLinearVelocityVision = 3.feet.velocity
-        val kLinearEndTolerance = 8.inch // how close we must be to the target to be in the the endgame
+        val kLinearEndTolerance = 8.inches // how close we must be to the target to be in the the endgame
         val kLinearEndTimeout = 0.5.second // how long to try once we are in the endgame
         var visionActive = false
     }

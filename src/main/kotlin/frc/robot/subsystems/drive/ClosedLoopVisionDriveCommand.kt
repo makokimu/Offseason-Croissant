@@ -10,6 +10,7 @@ import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
@@ -53,7 +54,7 @@ class ClosedLoopVisionDriveCommand(private val isFront: Boolean) : FalconCommand
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
 
-            val angleError = angle + if (isFront) 0.degree.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
+            val angleError = angle + if (isFront) 0.degrees.toRotation2d() else Math.PI.radian.toRotation2d() - 1.7.degree.toRotation2d()
 
             if (angleError.degree.absoluteValue > 45) {
                 // plz no disable us when going to loading station, kthx

@@ -10,6 +10,7 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.degrees
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.team5940.pantry.lib.* // ktlint-disable no-wildcard-imports
@@ -27,25 +28,25 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
     }
 
     val kStowed
-        get() = everythingMoveTo(30.25.inch, (-70).degree, 40.degree)
+        get() = everythingMoveTo(30.25.inches, (-70).degrees, 40.degrees)
     val kMatchStartToStowed get() = sequential {
         +parallel {
-            +ClosedLoopProximalMove((-70).degree)
-            +ClosedLoopWristMove(40.degree)
+            +ClosedLoopProximalMove((-70).degrees)
+            +ClosedLoopWristMove(40.degrees)
         }
-        +ClosedLoopElevatorMove(30.25.inch)
+        +ClosedLoopElevatorMove(30.25.inches)
         +kStowed
     }
     val kBackHatchFromLoadingStation get() = SyncedMove.frontToBack
-    val kHatchLow get() = everythingMoveTo(19.inch, 0.degree, 4.degree)
-    val kHatchMid get() = everythingMoveTo(45.inch, 0.degree, 4.degree)
-    val kHatchHigh get() = everythingMoveTo(67.inch, 0.degree, 4.degree)
+    val kHatchLow get() = everythingMoveTo(19.inches, 0.degrees, 4.degrees)
+    val kHatchMid get() = everythingMoveTo(45.inches, 0.degrees, 4.degrees)
+    val kHatchHigh get() = everythingMoveTo(67.inches, 0.degrees, 4.degrees)
 
-    val kCargoIntake get() = everythingMoveTo(25.5.inch, (-44).degree, (-20).degree)
-    val kCargoShip get() = everythingMoveTo(47.5.inch, (-5).degree, (-50).degree)
-    val kCargoLow get() = everythingMoveTo(20.5.inch, 6.degree, 16.degree)
-    val kCargoMid get() = everythingMoveTo(45.5.inch, 6.degree, 16.degree)
-    val kCargoHigh get() = everythingMoveTo(64.5.inch, 7.degree, 30.degree)
+    val kCargoIntake get() = everythingMoveTo(25.5.inches, (-44).degrees, (-20).degrees)
+    val kCargoShip get() = everythingMoveTo(47.5.inches, (-5).degrees, (-50).degrees)
+    val kCargoLow get() = everythingMoveTo(20.5.inches, 6.degrees, 16.degrees)
+    val kCargoMid get() = everythingMoveTo(45.5.inches, 6.degrees, 16.degrees)
+    val kCargoHigh get() = everythingMoveTo(64.5.inches, 7.degrees, 30.degrees)
 
     fun everythingMoveTo(elevator: Length, proximal: SIUnit<Radian>, wrist: SIUnit<Radian>) = everythingMoveTo(State.Position(elevator, proximal, wrist))
 
@@ -122,7 +123,7 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
 
     override fun initSendable(builder: SendableBuilder) {
         builder.addStringProperty("cState", { currentState.asString() }, { })
-        builder.addDoubleProperty("cProxTranslation", { currentState.proximalTranslation().y.inch }, { })
+        builder.addDoubleProperty("cProxTranslation", { currentState.proximalTranslation().y.inches }, { })
         super.initSendable(builder)
     }
 
@@ -131,17 +132,17 @@ object Superstructure : FalconSubsystem(), EmergencyHandleable, ConcurrentlyUpda
         object Nothing : State()
 
         data class Position(
-            val elevator: SIUnit<Meter>,
-            val proximal: SIUnit<Radian>,
-            val wrist: SIUnit<Radian>,
-            val isPassedThrough: Boolean = proximal < (-135).degree,
-            val isWristUnDumb: Boolean = false
+                val elevator: SIUnit<Meter>,
+                val proximal: SIUnit<Radian>,
+                val wrist: SIUnit<Radian>,
+                val isPassedThrough: Boolean = proximal < (-135).degrees,
+                val isWristUnDumb: Boolean = false
         ) : State() {
 
-            constructor() : this(20.inch, (-90).degree, (-45).degree) // semi-sane numbers?
+            constructor() : this(20.inches, (-90).degrees, (-45).degrees) // semi-sane numbers?
 
             fun proximalTranslation() =
-                    Translation2d(kProximalLen, proximal.toRotation2d()) + Translation2d(0.meter, elevator)
+                    Translation2d(kProximalLen, proximal.toRotation2d()) + Translation2d(0.meters, elevator)
 
             fun dumbState() = if (!isWristUnDumb) this else Position(elevator, proximal, getDumbWrist(wrist, proximal))
             fun trueState() = if (isWristUnDumb) this else Position(elevator, proximal, getUnDumbWrist(wrist, proximal))
