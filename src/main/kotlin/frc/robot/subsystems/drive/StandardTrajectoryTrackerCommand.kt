@@ -18,11 +18,11 @@ import org.ghrobotics.lib.utils.loopFrequency
  * @param driveSubsystem Instance of the drive subsystem to use
  * @param trajectorySource Source that contains the trajectory to follow.
  */
-class TrajectoryTrackerCommand(
+class StandardTrajectoryTrackerCommand(
     val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
 ) : FalconCommand(DriveSubsystem) {
 
-    lateinit var notifier: Job
+//    lateinit var notifier: Job
 
     /**
      * Reset the trajectory follower with the new trajectory.
@@ -30,20 +30,32 @@ class TrajectoryTrackerCommand(
     override fun initialize() {
         DriveSubsystem.trajectoryTracker.reset(trajectorySource())
         LiveDashboard.isFollowingPath = true
-        notifier = GlobalScope.launch {
-            loopFrequency(100) {
-                DriveSubsystem.setOutput(DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition))
-                "println"
-                val referencePoint = DriveSubsystem.trajectoryTracker.referencePoint
-                if (referencePoint != null) {
-                    val referencePose = referencePoint.state.state.pose
+//        notifier = GlobalScope.launch {
+//            loopFrequency(100) {
+//                DriveSubsystem.setOutput(DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition))
+//                val referencePoint = DriveSubsystem.trajectoryTracker.referencePoint
+//                if (referencePoint != null) {
+//                    val referencePose = referencePoint.state.state.pose
+//
+//                    // Update Current Path Location on Live Dashboard
+//                    LiveDashboard.pathX = referencePose.translation.x.feet
+//                    LiveDashboard.pathY = referencePose.translation.y.feet
+//                    LiveDashboard.pathHeading = referencePose.rotation.radian
+//                }
+//            }
+//        }
+    }
 
-                    // Update Current Path Location on Live Dashboard
-                    LiveDashboard.pathX = referencePose.translation.x.feet
-                    LiveDashboard.pathY = referencePose.translation.y.feet
-                    LiveDashboard.pathHeading = referencePose.rotation.radian
-                }
-            }
+    override fun execute() {
+        DriveSubsystem.setOutput(DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition))
+        val referencePoint = DriveSubsystem.trajectoryTracker.referencePoint
+        if (referencePoint != null) {
+            val referencePose = referencePoint.state.state.pose
+
+            // Update Current Path Location on Live Dashboard
+            LiveDashboard.pathX = referencePose.translation.x.feet
+            LiveDashboard.pathY = referencePose.translation.y.feet
+            LiveDashboard.pathHeading = referencePose.rotation.radian
         }
     }
 
@@ -51,7 +63,7 @@ class TrajectoryTrackerCommand(
      * Make sure that the drivetrain is stopped at the end of the command.
      */
     override fun end(interrupted: Boolean) {
-        notifier.cancel()
+//        notifier.cancel()
         DriveSubsystem.zeroOutputs()
         LiveDashboard.isFollowingPath = false
     }

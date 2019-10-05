@@ -31,6 +31,7 @@ import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.BooleanSource
+import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
@@ -126,16 +127,14 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 //        localization.update()
     }
 
-    /**
-     * Returns the follow trajectory command
-     *
-     * @param trajectory Source with the trajectory to follow
-     * @param pathMirrored Whether to mirror the path or not
-     */
     fun driveTrajectory(
         trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
         pathMirrored: BooleanSource
-    ) = TrajectoryTrackerCommand(pathMirrored.map(trajectory.mirror(), trajectory))
+    ) = StandardTrajectoryTrackerCommand(pathMirrored.map(trajectory.mirror(), trajectory))
+
+    fun driveTrajectory(
+        trajectory: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
+    ) = StandardTrajectoryTrackerCommand(trajectory)
 
     fun setWheelVelocities(wheelSpeeds: DifferentialDrive.WheelState) {
         val left = wheelSpeeds.left / differentialDrive.wheelRadius // rad per sec
