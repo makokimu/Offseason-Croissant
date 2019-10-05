@@ -1,23 +1,16 @@
 package frc.robot.subsystems.drive
 
-import edu.wpi.first.wpilibj.Notifier
-import org.ghrobotics.lib.subsystems.drive.TrajectoryTrackerDriveBase
-
-import edu.wpi.first.wpilibj.frc2.command.NotifierCommand
-import edu.wpi.first.wpilibj.frc2.command.Subsystem
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.debug.LiveDashboard
-import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.Trajectory
 import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.loopFrequency
-import org.ghrobotics.lib.wrappers.FalconNotifier
 
 /**
  * Command to follow a smooth trajectory using a trajectory following controller
@@ -26,8 +19,8 @@ import org.ghrobotics.lib.wrappers.FalconNotifier
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class TrajectoryTrackerCommand(
-        val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
-        ): FalconCommand(DriveSubsystem) {
+    val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
+) : FalconCommand(DriveSubsystem) {
 
     lateinit var notifier: Job
 

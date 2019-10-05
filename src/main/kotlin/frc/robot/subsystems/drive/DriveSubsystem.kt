@@ -31,7 +31,6 @@ import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
 import org.ghrobotics.lib.utils.BooleanSource
-import org.ghrobotics.lib.utils.Source
 import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
@@ -134,8 +133,8 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
      * @param pathMirrored Whether to mirror the path or not
      */
     fun driveTrajectory(
-            trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
-            pathMirrored: BooleanSource
+        trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
+        pathMirrored: BooleanSource
     ) = TrajectoryTrackerCommand(pathMirrored.map(trajectory.mirror(), trajectory))
 
     fun setWheelVelocities(wheelSpeeds: DifferentialDrive.WheelState) {

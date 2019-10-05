@@ -2,17 +2,14 @@
 
 package frc.robot.auto
 
-import edu.wpi.first.wpilibj.frc2.command.CommandGroupBase
 import frc.robot.Network
 import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.drive.DriveSubsystem
-import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.utils.*
-import org.team5940.pantry.lib.FishyRobot
 import org.team5940.pantry.lib.Updatable
 
 /**
