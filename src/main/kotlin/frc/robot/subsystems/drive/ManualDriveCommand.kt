@@ -65,10 +65,9 @@ open class ManualDriveCommand : FalconCommand(DriveSubsystem) {
          */
         @Suppress("ComplexMethod")
         internal fun curvatureDrive(
-            linearPercent: Double,
-            curvaturePercent: Double,
-            isQuickTurn: Boolean,
-            maxWheelVelocity: Double = 1.0
+                linearPercent: Double,
+                curvaturePercent: Double,
+                isQuickTurn: Boolean
         ): DifferentialDrive.WheelState {
             val angularPower: Double
             val overPower: Boolean

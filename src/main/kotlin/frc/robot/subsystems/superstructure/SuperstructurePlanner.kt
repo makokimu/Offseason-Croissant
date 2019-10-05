@@ -183,7 +183,7 @@ object SuperstructurePlanner {
             // choose between arm first or elevator first
             val proximalThresh = (-18).degree
             val startAboveSafe = goalState.elevator > 36.inch
-            val endAboveSafe = currentState.elevator > 36.inch
+//            val endAboveSafe = currentState.elevator > 36.inch
             val nowOutsideFrame = currentState.proximal > proximalThresh
             val willBeOutsideFrame = goalState.proximal > proximalThresh
 

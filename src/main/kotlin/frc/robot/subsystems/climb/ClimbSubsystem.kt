@@ -140,8 +140,6 @@ object ClimbSubsystem : FalconSubsystem() {
 //            }
             if (!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch + hab2Offset
             if (!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch + hab2Offset
-            val now = Timer.getFPGATimestamp()
-            val elapsedTime = now - startTime
 
             println("elevator current ${Elevator.motor.drawnCurrent}, stilt current ${stiltMotor.drawnCurrent}")
 
@@ -234,8 +232,6 @@ object ClimbSubsystem : FalconSubsystem() {
 //            }
             if (!elevatorInPosition) elevatorInPosition = Elevator.currentState.position < 13.inch
             if (!stiltsInPosition) stiltsInPosition = stiltMotor.encoder.position < 13.inch - 4.5.inch
-            val now = Timer.getFPGATimestamp()
-            val elapsedTime = now - startTime
 
             println("elevator current ${Elevator.motor.drawnCurrent}, stilt current ${stiltMotor.drawnCurrent}")
             println("average elevator voltage ${voltageArray.average()}")
