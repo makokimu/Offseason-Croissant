@@ -11,9 +11,7 @@ import frc.robot.subsystems.drive.DriveSubsystem
 import org.ghrobotics.lib.commands.S3ND
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.utils.Source
-import org.ghrobotics.lib.utils.monitor
-import org.ghrobotics.lib.utils.onChangeToTrue
+import org.ghrobotics.lib.utils.*
 import org.team5940.pantry.lib.FishyRobot
 import org.team5940.pantry.lib.Updatable
 
@@ -28,6 +26,10 @@ object Autonomous : Updatable {
     // Starting position of the robot
     val startingPosition: Source<StartingPositions> = { Network.startingPositionChooser.selected }
 
+    val isStartingOnLeft: Source<Boolean> =
+            startingPosition.withEquals(Autonomous.StartingPositions.LEFT) or
+                    startingPosition.withEquals(Autonomous.StartingPositions.LEFT_REVERSED)
+
     // Stores if we are ready to send it.
     private val isReady =
             { Robot.isAuto && Robot.isEnabled && configValid }
@@ -40,13 +42,13 @@ object Autonomous : Updatable {
         // Update localization.
         startingPositionMonitor.onChange { if (!Robot.isEnabled) DriveSubsystem.localization.reset(it.pose) }
 
-        modeMonitor.onChange { newValue ->
-            if (newValue != FishyRobot.Mode.AUTONOMOUS) JUST.end(true)
-        }
+//        modeMonitor.onChange { newValue ->
+//            if (newValue != FishyRobot.Mode.AUTONOMOUS) JUST.end(true)
+//        }
 
-        isReadyMonitor.onChangeToTrue {
-            JUST S3ND IT
-        }
+//        isReadyMonitor.onChangeToTrue {
+//            JUST S3ND IT
+//        }
     }
 
     private val masterGroup = hashMapOf(
@@ -61,17 +63,18 @@ object Autonomous : Updatable {
             ),
             StartingPositions.LEFT_REVERSED to hashMapOf(
                     Mode.DO_NOTHING to sequential { },
-                    Mode.BOTTOMROCKETREVERSED to BottomRocketRoutine2()
+                    Mode.BOTTOMROCKETREVERSED to BottomRocketRoutine2()()
             ),
             StartingPositions.RIGHT_REVERSED to hashMapOf(
-                    Mode.DO_NOTHING to sequential { }
+                    Mode.DO_NOTHING to sequential { },
+                    Mode.BOTTOMROCKETREVERSED to BottomRocketRoutine2()()
             )
     )
 
     private val configValid = masterGroup[startingPosition()] == null && masterGroup[startingPosition()]?.get(autoMode()) != null
 
-    private val JUST: CommandGroupBase
-        get() = masterGroup[startingPosition()]?.get(autoMode()) ?: sequential { }
+//    private val JUST: CommandGroupBase
+//        get() = masterGroup[startingPosition()]?.get(autoMode()) ?: sequential { }
 
     private val startingPositionMonitor = startingPosition.monitor
     private val isReadyMonitor = isReady.monitor

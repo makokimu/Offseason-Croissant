@@ -16,18 +16,23 @@ import io.github.oblarg.oblog.Loggable
 import org.ghrobotics.lib.localization.TankEncoderLocalization
 import org.ghrobotics.lib.mathematics.twodim.control.RamseteTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rectangle2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
-import org.ghrobotics.lib.mathematics.units.Meter
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.Trajectory
+import org.ghrobotics.lib.mathematics.twodim.trajectory.types.mirror
+import org.ghrobotics.lib.mathematics.units.*
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.derived.volt
-import org.ghrobotics.lib.mathematics.units.feet
-import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.mathematics.units.nativeunit.DefaultNativeUnitModel
 import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.subsystems.EmergencyHandleable
 import org.ghrobotics.lib.subsystems.drive.TankDriveSubsystem
+import org.ghrobotics.lib.utils.BooleanSource
+import org.ghrobotics.lib.utils.Source
+import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
@@ -121,6 +126,17 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
     override fun updateState() {
 //        localization.update()
     }
+
+    /**
+     * Returns the follow trajectory command
+     *
+     * @param trajectory Source with the trajectory to follow
+     * @param pathMirrored Whether to mirror the path or not
+     */
+    fun driveTrajectory(
+            trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
+            pathMirrored: BooleanSource
+    ) = TrajectoryTrackerCommand(pathMirrored.map(trajectory.mirror(), trajectory))
 
     fun setWheelVelocities(wheelSpeeds: DifferentialDrive.WheelState) {
         val left = wheelSpeeds.left / differentialDrive.wheelRadius // rad per sec

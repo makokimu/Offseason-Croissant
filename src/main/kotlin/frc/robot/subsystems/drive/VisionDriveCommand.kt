@@ -46,13 +46,6 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
         var source = -speedSource()
 
-        // limit linear speed based on elevator height, linear function with height above stowed
-        val elevator = Elevator.currentState.position
-        if (elevator > 32.inch) {
-            // y = mx + b, see https://www.desmos.com/calculator/quelminicu
-            source = -0.0216 * elevator.inch + 1.643
-        }
-
         if (lastKnownTargetPose == null) {
 //            ElevatorSubsystem.wantedVisionMode = true
             super.execute()
@@ -62,8 +55,15 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
             val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
             val distance = transform.translation.norm.feet.absoluteValue
 
-            if (distance < 4) {
-                source -= (/* rise over run */ (-0.5) / 3.0) * (4 - distance)
+            // limit linear speed based on elevator height, linear function with height above stowed
+            val elevator = Elevator.currentState.position
+            if (elevator > 32.inch) {
+                // y = mx + b, see https://www.desmos.com/calculator/quelminicu
+                source *= (-0.0216 * elevator.inch + 1.643)
+            }
+
+            if (distance < 6) {
+                source *= (distance + 1) / 6.0
             }
 
             Network.visionDriveAngle.setDouble(angle.degree)
