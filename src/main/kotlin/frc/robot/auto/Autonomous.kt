@@ -59,6 +59,8 @@ object Autonomous : Updatable {
         }
     }
 
+    fun s3nd() = JUST S3ND IT
+
     private val masterGroup = hashMapOf(
             StartingPositions.CENTER to hashMapOf(
                     Mode.DO_NOTHING to InstantCommand()

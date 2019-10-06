@@ -53,8 +53,11 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
 
         override fun setClosedLoopGains() {
+            master.configCurrentLimit(true, 50.amp, 1.second, 38.amp)
+            followers.forEach { configCurrentLimit(true, 50.amp, 1.second, 38.amp) }
+
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 0.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 8.0)
             // old gains
 //            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
@@ -71,6 +74,9 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         }
 
         override fun setClosedLoopGains() {
+            master.configCurrentLimit(true, 50.amp, 1.second, 38.amp)
+            followers.forEach { configCurrentLimit(true, 50.amp, 1.second, 38.amp) }
+
             // LQR gains
             if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 0.0)
             // Old gains

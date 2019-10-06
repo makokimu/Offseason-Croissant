@@ -38,7 +38,7 @@ object Robot : FishyRobot() {
         LimeLightManager
         VisionProcessing
         +Controls
-        +Autonomous
+//        +Autonomous
         +LEDs
 
         SmartDashboard.putData(CommandScheduler.getInstance())
@@ -62,9 +62,11 @@ object Robot : FishyRobot() {
     }
 
     override fun autonomousInit() {
+//        Autonomous.s3nd()
         NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
         NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
         super.autonomousInit()
+        BottomRocketRoutine2()().schedule()
     }
 
     override fun teleopInit() {

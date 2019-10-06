@@ -7,6 +7,7 @@ import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeCloseCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
@@ -14,6 +15,7 @@ import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.units.derived.volt
 
 class BottomRocketRoutine2 : AutoRoutine() {
 
@@ -25,7 +27,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
     private val path4 = TrajectoryFactory.rocketFPrepareToLoadingStation
 
     // Third path goes to the near side of the rocket
-    private val path5 = TrajectoryFactory.loadingStationToRocketN
+    private val path5 = TrajectoryFactory.loadingStationReversedToRocketNPrep
 
     override val duration: SIUnit<Second>
         get() = path4.duration + path5.duration + path1.duration + path2.duration
@@ -36,37 +38,33 @@ class BottomRocketRoutine2 : AutoRoutine() {
             +PrintCommand("Starting")
             +InstantCommand(Runnable { DriveSubsystem.lowGear = false })
 
-            +DriveSubsystem.followTrajectory(
-                    path1,
-                    Autonomous.isStartingOnLeft
-            )
-
             +parallel {
                 +DriveSubsystem.followTrajectory(
-                    path1,
-                    Autonomous.isStartingOnLeft
+                        path1,
+                        Autonomous.isStartingOnLeft
                 )
-               +(sequential {
+                +(sequential {
                     +DriveSubsystem.notWithinRegion(TrajectoryWaypoints.kHabitatL1Platform)
                     +WaitCommand(0.5)
                     +Superstructure.kMatchStartToStowed
-                }).raceWith(IntakeHatchCommand(false))
+                }).beforeStarting { Intake.hatchMotorOutput = 6.volt }.whenFinished { Intake.hatchMotorOutput = 0.volt }
             }
 
             +PrintCommand("path2")
 
             +super.followVisionAssistedTrajectory(
-                path2,
-                Autonomous.isStartingOnLeft,
-                4.feet,
-                true
+                    path2,
+                    Autonomous.isStartingOnLeft,
+                    4.feet,
+                    true
             )
 
             // Reorient position on field based on Vision alignment.
             +relocalize(
-                TrajectoryWaypoints.kRocketF,
-                true,
-                Autonomous.isStartingOnLeft
+                    TrajectoryWaypoints.kRocketF,
+                    true,
+                    Autonomous.isStartingOnLeft,
+                    isStowed = true
             )
 
             val spline3 = DriveSubsystem.followTrajectory(
@@ -75,8 +73,8 @@ class BottomRocketRoutine2 : AutoRoutine() {
             )
             val spline4 = super.followVisionAssistedTrajectory(
                     path4,
-                Autonomous.isStartingOnLeft,
-                4.feet, false
+                    Autonomous.isStartingOnLeft,
+                    4.feet, false
             )
 
             // Part 2: Place hatch and go to loading station.
@@ -97,9 +95,10 @@ class BottomRocketRoutine2 : AutoRoutine() {
 
             // Reorient position on field based on Vision alignment.
             +relocalize(
-                TrajectoryWaypoints.kLoadingStationReversed,
-                true,
-                Autonomous.isStartingOnLeft
+                    TrajectoryWaypoints.kLoadingStationReversed,
+                    true,
+                    Autonomous.isStartingOnLeft,
+                    isStowed = true
             )
 
             // Part 3: Pickup hatch and go to the near side of the rocket.
@@ -108,9 +107,9 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 +IntakeHatchCommand(false).withTimeout(0.5.second)
                 // Follow the trajectory with vision correction to the near side of the rocket.
                 +super.followVisionAssistedTrajectory(
-                    path5,
-                    Autonomous.isStartingOnLeft,
-                    6.feet, true
+                        path5,
+                        Autonomous.isStartingOnLeft,
+                        6.feet, true
                 )
                 // Take the superstructure to scoring height.
                 +Superstructure.kHatchLow.withTimeout(4.second)
@@ -121,12 +120,12 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 // Score hatch.
                 // Follow the trajectory to the loading station.
                 +DriveSubsystem.followTrajectory(
-                    TrajectoryFactory.rocketNToLoadingStation,
-                    Autonomous.isStartingOnLeft
+                        TrajectoryFactory.rocketNToLoadingStation,
+                        Autonomous.isStartingOnLeft
                 )
                 // Take the superstructure to a position to pick up the next hatch.
                 +sequential {
-//                    +IntakeHatchCommand(releasing = true).withTimeout(0.5.second)
+                    //                    +IntakeHatchCommand(releasing = true).withTimeout(0.5.second)
 //                    +IntakeCloseCommand()
 //                    +Superstructure.kHatchLow
                 }

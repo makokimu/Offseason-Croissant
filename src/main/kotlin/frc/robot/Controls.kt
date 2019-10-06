@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.frc2.command.* // ktlint-disable no-wildcard-imports
+import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
@@ -32,6 +33,8 @@ object Controls : Updatable {
 
         pov(90).changeOn(ClimbSubsystem.hab3prepMove)
         pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
+
+        button(kX).changeOn(BottomRocketRoutine2()())
 
         state({ !isClimbing }) {
             // Vision align
