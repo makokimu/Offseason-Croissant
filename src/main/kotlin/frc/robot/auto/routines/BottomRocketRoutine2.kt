@@ -36,7 +36,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
         get() = sequential {
 
             +PrintCommand("Starting")
-            +InstantCommand(Runnable { DriveSubsystem.lowGear = true })
+            +InstantCommand(Runnable { DriveSubsystem.lowGear = false })
 
             +parallel {
                 +DriveSubsystem.followTrajectory(

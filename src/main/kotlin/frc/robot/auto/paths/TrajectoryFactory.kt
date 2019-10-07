@@ -335,7 +335,7 @@ object TrajectoryFactory {
         optimizeCurvature: Boolean = true
     ): TimedTrajectory<Pose2dWithCurvature> {
 
-        val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kLowGearDifferentialDrive, maxVoltage)
+        val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kHighGearDifferentialDrive, maxVoltage)
         val allConstraints = ArrayList<TimingConstraint<Pose2dWithCurvature>>()
 
         allConstraints.add(driveDynamicsConstraint)
