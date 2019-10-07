@@ -35,11 +35,11 @@ import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 import org.team5940.pantry.lib.ConcurrentlyUpdatingComponent
+import org.team5940.pantry.lib.FishyTankDriveSubsystem
 import org.team5940.pantry.lib.MultiMotorTransmission
-import org.team5940.pantry.lib.TankDriveSubsystem
 import kotlin.properties.Delegates
 
-object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
+object DriveSubsystem : FishyTankDriveSubsystem(), EmergencyHandleable, ConcurrentlyUpdatingComponent, Loggable {
 
     override val leftMotor: MultiMotorTransmission<Meter, FalconSRX<Meter>> = object : MultiMotorTransmission<Meter, FalconSRX<Meter>>() {
 

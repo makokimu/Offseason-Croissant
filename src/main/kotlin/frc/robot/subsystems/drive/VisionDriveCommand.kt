@@ -57,7 +57,7 @@ class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
             // limit linear speed based on elevator height, linear function with height above stowed
             val elevator = Elevator.currentState.position
-            if (elevator > 32.inch) {
+            if (elevator > 32.inch && elevator < 54.inch) {
                 // y = mx + b, see https://www.desmos.com/calculator/quelminicu
                 source *= (-0.0216 * elevator.inch + 1.643)
             }

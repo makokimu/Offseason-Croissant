@@ -25,7 +25,7 @@ import kotlin.math.withSign
 /**
  * Represents a standard tank drive subsystem
  */
-abstract class TankDriveSubsystem : FalconSubsystem(),
+abstract class FishyTankDriveSubsystem : FalconSubsystem(),
         DifferentialTrackerDriveBase {
 
     private var quickStopAccumulator = 0.0
