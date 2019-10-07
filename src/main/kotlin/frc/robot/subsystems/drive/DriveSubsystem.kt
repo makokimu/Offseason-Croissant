@@ -50,16 +50,23 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
             outputInverted = true
             followers.forEach { it.follow(master) }
             lateInit()
+            master.talonSRX.configContinuousCurrentLimit(38)
+            master.talonSRX.configPeakCurrentDuration(500)
+            master.talonSRX.configPeakCurrentLimit(60)
+            followers[0].talonSRX.configContinuousCurrentLimit(38)
+            followers[0].talonSRX.configPeakCurrentDuration(500)
+            followers[0].talonSRX.configPeakCurrentLimit(60)
+            master.talonSRX.enableCurrentLimit(true)
+            followers[0].talonSRX.enableCurrentLimit(true)
         }
 
         override fun setClosedLoopGains() {
-            master.configCurrentLimit(true, 50.amp, 1.second, 38.amp)
-            followers.forEach { configCurrentLimit(true, 50.amp, 1.second, 38.amp) }
+//            followers.forEach { configCurrentLimit(true, FalconSRX.CurrentLimitConfig(50.amp, 1.second, 38.amp)) }
 
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 8.0)
+//            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 8.0)
             // old gains
-//            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
+            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
     }
 
@@ -71,16 +78,21 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         init {
             followers.forEach { it.follow(master) }
             lateInit()
+            master.talonSRX.configContinuousCurrentLimit(38)
+            master.talonSRX.configPeakCurrentDuration(500)
+            master.talonSRX.configPeakCurrentLimit(60)
+            followers[0].talonSRX.configContinuousCurrentLimit(38)
+            followers[0].talonSRX.configPeakCurrentDuration(500)
+            followers[0].talonSRX.configPeakCurrentLimit(60)
+            master.talonSRX.enableCurrentLimit(true)
+            followers[0].talonSRX.enableCurrentLimit(true)
         }
 
         override fun setClosedLoopGains() {
-            master.configCurrentLimit(true, 50.amp, 1.second, 38.amp)
-            followers.forEach { configCurrentLimit(true, 50.amp, 1.second, 38.amp) }
-
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 0.0)
+//            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 8.0)
             // Old gains
-//            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
+            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.2, 10.0)
         }
     }
 

@@ -31,13 +31,11 @@ object Controls : Updatable {
 //        button(kX).changeOn { isClimbing = false }
 //        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
-        pov(90).changeOn(ClimbSubsystem.hab3prepMove)
-        pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
+
 
         button(kX).changeOn(BottomRocketRoutine2()())
 
-        state({ !isClimbing }) {
-            // Vision align
+        // Vision align
 //            triggerAxisButton(GenericHID.Hand.kRight).change(
 //                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
 //                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
@@ -46,14 +44,17 @@ object Controls : Updatable {
             if (Constants.kIsRocketLeague) {
                 button(kBumperRight).change(VisionDriveCommand(true))
 //                button(kBumperRight).change(ClosedLoopVisionDriveCommand(true))
+                button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
             } else {
                 triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
 //                triggerAxisButton(GenericHID.Hand.kRight).change(ClosedLoopVisionDriveCommand(true))
+                button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
             }
-
-            button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
 //            button(kB).changeOn(ClimbSubsystem.prepMove)
+        state({ isClimbing }) {
+            pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
         }
+        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn{ isClimbing = true }
     }
 
 //    val auxXbox = XboxController(1)
@@ -66,11 +67,8 @@ object Controls : Updatable {
 
 //        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
-        state({ !isClimbing }) {
 
             // climbing
-            button(4).changeOn(ClimbSubsystem.prepMove)
-            button(12).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
 
             // cargo presets
 //            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
@@ -102,7 +100,12 @@ object Controls : Updatable {
             val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
             lessThanAxisButton(0).changeOff { (sequential { +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
             greaterThanAxisButton(0).changeOff { }.change(IntakeCargoCommand(true))
+        state({ isClimbing }) {
+            button(12).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
         }
+
+        button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true }
+
     }
 
     override fun update() {

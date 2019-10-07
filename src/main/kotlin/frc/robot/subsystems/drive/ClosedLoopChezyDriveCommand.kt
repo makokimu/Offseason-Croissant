@@ -27,6 +27,7 @@ class ClosedLoopChezyDriveCommand : ManualDriveCommand() {
         val elevator = Elevator.currentState.position
         if (elevator > 32.inch) {
             // y = mx + b, see https://www.desmos.com/calculator/quelminicu
+            // y=\left(\frac{0.35-1}{69-32}\right)\left(x-32\right)+1
             linear *= (-0.0208108 * elevator.inch + 1.66696)
         }
 

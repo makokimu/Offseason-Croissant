@@ -36,7 +36,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
         get() = sequential {
 
             +PrintCommand("Starting")
-            +InstantCommand(Runnable { DriveSubsystem.lowGear = false })
+            +InstantCommand(Runnable { DriveSubsystem.lowGear = true })
 
             +parallel {
                 +DriveSubsystem.followTrajectory(
@@ -88,8 +88,11 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 +sequential {
                     // Place hatch panel.
                     +IntakeHatchCommand(true).withTimeout(1.second)
-                    +WaitCommand(path3.duration.second + path4.duration.second - 3.0)
-                    +IntakeHatchCommand(false).withExit { spline4.isFinished }
+                    +WaitCommand(3.0)
+                    +parallel {
+//                        +Superstructure.kHatchLow
+                        +IntakeHatchCommand(false).withExit { spline4.isFinished }
+                    }
                 }
             }
 
@@ -104,15 +107,17 @@ class BottomRocketRoutine2 : AutoRoutine() {
             // Part 3: Pickup hatch and go to the near side of the rocket.
             +parallel {
                 // Make sure the intake is holding the hatch panel.
-                +IntakeHatchCommand(false).withTimeout(0.5.second)
+                +IntakeHatchCommand(false).withTimeout(3.0.second)
                 // Follow the trajectory with vision correction to the near side of the rocket.
                 +super.followVisionAssistedTrajectory(
                         path5,
                         Autonomous.isStartingOnLeft,
                         6.feet, true
                 )
+                +WaitCommand(1.0)
+                +Superstructure.kStowed
                 // Take the superstructure to scoring height.
-                +Superstructure.kHatchLow.withTimeout(4.second)
+//                +Superstructure.kHatchLow.withTimeout(4.second)
             }
 
             // Part 4: Score the hatch and go to the loading station for the end of the sandstorm period.
