@@ -73,7 +73,7 @@ class ZeroSuperStructureRoutine(private val mZeroHeight: Length = kZeroHeight) :
         SmartDashboard.putBoolean("Proximal zeroed", true)
         SmartDashboard.putBoolean("Wrist zeroed", true)
 
-        val proxPos = Proximal.absoluteEncoder() - 4.degree //  (-90).degree
+        val proxPos = Proximal.absoluteEncoder() - 6.degree //  (-90).degree
         val wristPos = Wrist.absoluteEncoder()
         Proximal.resetPosition(proxPos)
         Wrist.resetPosition(wristPos)

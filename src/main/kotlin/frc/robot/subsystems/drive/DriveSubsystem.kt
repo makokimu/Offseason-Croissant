@@ -101,9 +101,13 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         super.setNeutral()
     }
 
-    override fun activateEmergency() = run { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains() }
+    override fun activateEmergency() { zeroOutputs(); leftMotor.zeroClosedLoopGains(); rightMotor.zeroClosedLoopGains()
+        defaultCommand = ManualDriveCommand()
+    }
 
-    override fun recoverFromEmergency() = run { leftMotor.setClosedLoopGains(); rightMotor.setClosedLoopGains() }
+    override fun recoverFromEmergency() { leftMotor.setClosedLoopGains(); rightMotor.setClosedLoopGains()
+        defaultCommand = ClosedLoopChezyDriveCommand()
+    }
     fun notWithinRegion(region: Rectangle2d) =
             WaitUntilCommand { !region.contains(robotPosition.translation) }
 

@@ -306,7 +306,7 @@ object TrajectoryFactory {
                     Pose2d(20.82.feet, 4.849.feet, 145.651.degree).asWaypoint(),
                     rocketFPrepare
             ),
-            getConstraints(false, Pose2d()), kMaxVelocity, 7.feet.acceleration, kMaxVoltage
+            getConstraints(false, Pose2d()), 9.feet.velocity, 7.feet.acceleration * 1.5, 9.volt
     ) }
 
     val testTrajectory by lazy {

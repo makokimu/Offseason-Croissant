@@ -4,18 +4,22 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.frc2.command.* // ktlint-disable no-wildcard-imports
+import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.auto.routines.TestRoutine
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.CharacterizationCommand
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.drive.TurnInPlaceCommand
 import frc.robot.subsystems.drive.VisionDriveCommand
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.sequential
+import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
+import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
 
@@ -37,6 +41,11 @@ object Controls : Updatable {
 
         button(kX).changeOn(BottomRocketRoutine2()())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
+        button(kA).changeOn(TurnInPlaceCommand(90.degree))
+        button(kY).changeOn(TurnInPlaceCommand {
+            val error = (TrajectoryWaypoints.kRocketN.translation - DriveSubsystem.robotPosition.translation)
+            Rotation2d(error.x.meter, error.y.meter, true)
+        })
 
         // Vision align
 //            triggerAxisButton(GenericHID.Hand.kRight).change(

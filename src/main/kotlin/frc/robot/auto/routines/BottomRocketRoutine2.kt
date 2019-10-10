@@ -114,10 +114,8 @@ class BottomRocketRoutine2 : AutoRoutine() {
                         Autonomous.isStartingOnLeft,
                         6.feet, true
                 )
-                +WaitCommand(1.0)
+                +WaitCommand(0.5)
                 +Superstructure.kStowed
-                // Take the superstructure to scoring height.
-//                +Superstructure.kHatchLow.withTimeout(4.second)
             }
 
             // Part 4: Score the hatch and go to the loading station for the end of the sandstorm period.
