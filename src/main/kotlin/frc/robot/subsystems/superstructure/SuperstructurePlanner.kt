@@ -151,13 +151,13 @@ object SuperstructurePlanner {
     private fun planOldPath(currentState: SuperstructureState, goalState: SuperstructureState) = sequential {
 
         // check passthrough
-        val needsPassthrough = currentState.proximal < (-100).degree
+        val needsPassthrough = currentState.proximal < (-140).degree
         if (needsPassthrough) {
             +SyncedMove.shortPassthrough
         }
 
         // choose between everything at the same time, elevator first or arm first
-        val proximalThreshold = (-68).degree
+        val proximalThreshold = (-72).degree
         val nowOutsideCrossbar = currentState.proximal > proximalThreshold
         val willBeOutsideCrossbar = goalState.proximal > proximalThreshold
         var mightHitElectronics = (goalState.elevator < 26.inch && goalState.proximal > proximalThreshold) || (goalState.elevator < 31.inch && goalState.proximal < proximalThreshold) // TODO check angles?
