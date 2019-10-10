@@ -27,20 +27,19 @@ import org.ghrobotics.lib.utils.Source
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class VisionAssistedTrajectoryTracker(
-    val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
-    val radiusFromEnd: Length,
-    val useAbsoluteVision: Boolean = false
+        val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
+        private val radiusFromEnd: Length,
+        private val useAbsoluteVision: Boolean = false
 ) : FalconCommand(DriveSubsystem) {
 
-//    private var trajectoryFinished = false
-    private var visionFinished = false
+//    private var visionFinished = false
 
     private var prevError = 0.0
 
     @Suppress("LateinitUsage")
     private lateinit var trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>
 
-    override fun isFinished() = visionFinished
+    override fun isFinished() = DriveSubsystem.trajectoryTracker.isFinished//visionFinished
 
     /**
      * Reset the trajectory follower with the new trajectory.
@@ -48,16 +47,12 @@ class VisionAssistedTrajectoryTracker(
     override fun initialize() {
         trajectory = trajectorySource()
         DriveSubsystem.trajectoryTracker.reset(trajectory)
-//        trajectoryFinished = false
         LiveDashboard.isFollowingPath = true
-        inTheEndgame = false
-        endgameTimer.reset()
-        visionFinished = false
+//        visionFinished = false
+        println("VISION INIT")
     }
 
     private var lastKnownTargetPose: Pose2d? = null
-    private var inTheEndgame: Boolean = false
-    private var endgameTimer = Timer()
 
     override fun execute() {
         val robotPositionWithIntakeOffset = DriveSubsystem.robotPosition // IntakeSubsystem.robotPositionWithIntakeOffset
@@ -102,17 +97,8 @@ class VisionAssistedTrajectoryTracker(
             val distance = transform.translation.norm
             val linear = (distance * kLinearKp).velocity
 
-            val shouldUseForwardCamera = !trajectory.reversed
-
-            // check if within radius to start counting the timeout up from
-            if ((shouldUseForwardCamera && distance.absoluteValue < (Constants.kForwardIntakeToCenter.translation.norm.absoluteValue + kLinearEndTolerance).absoluteValue) ||
-                    (!shouldUseForwardCamera && distance.absoluteValue < (Constants.kBackwardIntakeToCenter.translation.norm.absoluteValue + kLinearEndTolerance).absoluteValue)) {
-                if (!this.inTheEndgame) { endgameTimer.reset() }
-                this.inTheEndgame = true
-            }
-
             // update if our timer is done
-            this.visionFinished = DriveSubsystem.trajectoryTracker.isFinished // inTheEndgame && endgameTimer.hasPeriodPassed(kLinearEndTimeout.second)
+//            this.visionFinished = DriveSubsystem.trajectoryTracker.isFinished // inTheEndgame && endgameTimer.hasPeriodPassed(kLinearEndTimeout.second)
 
             DriveSubsystem.setOutput(
                     TrajectoryTrackerOutput(
@@ -125,6 +111,7 @@ class VisionAssistedTrajectoryTracker(
 
             prevError = error
         } else {
+            println("DONT SEE VISION")
             DriveSubsystem.setOutput(nextState)
         }
 
@@ -151,12 +138,10 @@ class VisionAssistedTrajectoryTracker(
     }
 
     companion object {
-        const val kCorrectionKp = 5.5
+        const val kCorrectionKp = 5.5 * 1.5
         const val kCorrectionKd = 0.0
         const val kLinearKp = 0.6
-        val kMaxLinearVelocityVision = 3.feet.velocity
-        val kLinearEndTolerance = 8.inch // how close we must be to the target to be in the the endgame
-        val kLinearEndTimeout = 0.5.second // how long to try once we are in the endgame
+        val kMaxLinearVelocityVision = 2.5.feet.velocity
         var visionActive = false
     }
 }

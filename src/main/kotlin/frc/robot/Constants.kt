@@ -16,8 +16,8 @@ object Constants {
             true
 
     object DriveConstants {
-        const val kBeta = 2.0
-        const val kZeta = 0.7
+        const val kBeta = 2.0 * 1.2
+        const val kZeta = 0.6
 
         val kRobotMass = (50.0 /* Robot, kg */ + 5.0 /* Battery, kg */ + 2.0 /* Bumpers, kg */).toDouble()
         private val kRobotMomentOfInertia = 10.0 // kg m^2 // TODO Tune
@@ -44,13 +44,13 @@ object Constants {
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveRightLow),
                 kVInterceptRightLow)
 
-        private val kVDriveLeftHigh = 0.143 * 1.0 // Volts per radians per second
+        private val kVDriveLeftHigh = 0.115 * 1.0 // Volts per radians per second
         private val kADriveLeftHigh = 0.043 * 1.0 // Volts per radians per second per second
-        private val kVInterceptLeftHigh = 1.33 * 1.0 // 4 * 0.4d; // Volts
+        private val kVInterceptLeftHigh = 1.8 * 1.0 // 4 * 0.4d; // Volts
 
-        private val kVDriveRightHigh = 0.14 * 1.0 // Volts per radians per second
+        private val kVDriveRightHigh = 0.11 * 1.0 // Volts per radians per second
         private val kADriveRightHigh = 0.043 * 1.0 // Volts per radians per second per second
-        private val kVInterceptRightHigh = 1.34 * 1.0 // 4 * 0.4d; // Volts
+        private val kVInterceptRightHigh = 1.75 * 1.0 // 4 * 0.4d; // Volts
 
         private val kLeftTransmissionModelHighGear = DCMotorTransmission(1 / kVDriveLeftHigh,
                 kWheelRadius.meter * kWheelRadius.meter * kRobotMass / (2.0 * kADriveLeftHigh),

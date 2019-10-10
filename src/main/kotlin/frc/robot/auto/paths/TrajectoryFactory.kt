@@ -29,7 +29,7 @@ object TrajectoryFactory {
     private val kVelocityRadiusConstraintVelocity = 3.feet.velocity
 
     private val kMaxCentripetalAccelerationElevatorUp = 6.feet.acceleration
-    private val kMaxCentripetalAccelerationElevatorDown = 9.feet.acceleration
+    private val kMaxCentripetalAccelerationElevatorDown = 7.5.feet.acceleration
 
     val kMaxVoltage = 10.volt
 
@@ -213,11 +213,11 @@ object TrajectoryFactory {
     val rocketFPrepareToRocketF by lazy { generateTrajectory(
             false,
             listOf(
-                    Pose2d(24.4.feet, 4.feet, -143.degree).asWaypoint(),
+                    rocketFPrepare,
 //                    rocketFAdjusted
                     Pose2d(22.312.feet, 2.82.feet, (-151.25).degree).transformBy(Pose2d(10.inch, 0.inch, 0.degree)).asWaypoint()
             ),
-            getConstraints(false, Pose2d()), 2.5.feet.velocity, kMaxAcceleration, kMaxVoltage
+            getConstraints(false, Pose2d()), 2.feet.velocity, kMaxAcceleration, kMaxVoltage
     ) }
 
     val rocketFToRocketFPrepare by lazy { generateTrajectory(
@@ -293,16 +293,32 @@ object TrajectoryFactory {
             maxVoltage = kMaxVoltage
     ) }
 
+    val rocketFPrepare = TrajectoryWaypoints.Waypoint(
+            Pose2d(24.4.feet, 4.feet, -143.degree),
+            transform = Pose2d(-4.inch, 0.inch, 0.degree)
+    )
+
     val sideStartReversedToRocketFPrepare by lazy { generateTrajectory(
             true,
             listOf(
                     TrajectoryWaypoints.kSideStartReversed.asWaypoint(),
                     Pose2d(15.214.feet, 8.7.feet, 165.degree).asWaypoint(),
-                    Pose2d(20.6.feet, 5.4.feet, 123.degree).asWaypoint(),
-                    Pose2d(24.4.feet, 4.feet, -143.degree).asWaypoint()
+                    Pose2d(20.82.feet, 4.849.feet, 145.651.degree).asWaypoint(),
+                    rocketFPrepare
             ),
             getConstraints(false, Pose2d()), kMaxVelocity, 7.feet.acceleration, kMaxVoltage
     ) }
+
+    val testTrajectory by lazy {
+        generateTrajectory(
+                false,
+                listOf(
+                        Pose2d(1.5.feet, 23.feet, 0.degree).asWaypoint(),
+                        Pose2d(11.5.feet, 23.feet, 0.degree).asWaypoint()
+                ),
+                getConstraints(false, Pose2d(100.feet, 100.feet, 0.degree)), kMaxVelocity, 7.feet.acceleration, kMaxVoltage
+        )
+    }
 
     /** Generation **/
 
@@ -335,7 +351,7 @@ object TrajectoryFactory {
         optimizeCurvature: Boolean = true
     ): TimedTrajectory<Pose2dWithCurvature> {
 
-        val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kLowGearDifferentialDrive, maxVoltage)
+        val driveDynamicsConstraint = DifferentialDriveDynamicsConstraint(Constants.DriveConstants.kHighGearDifferentialDrive, maxVoltage)
         val allConstraints = ArrayList<TimingConstraint<Pose2dWithCurvature>>()
 
         allConstraints.add(driveDynamicsConstraint)
