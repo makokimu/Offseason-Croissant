@@ -63,8 +63,8 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      * Arcade drive control
      */
     fun arcadeDrive(
-            linearPercent: Double,
-            rotationPercent: Double
+        linearPercent: Double,
+        rotationPercent: Double
     ) {
         val maxInput = max(linearPercent.absoluteValue, rotationPercent.absoluteValue)
                 .withSign(linearPercent)
@@ -100,9 +100,9 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      */
     @Suppress("ComplexMethod")
     fun curvatureDrive(
-            linearPercent: Double,
-            curvaturePercent: Double,
-            isQuickTurn: Boolean
+        linearPercent: Double,
+        curvaturePercent: Double,
+        isQuickTurn: Boolean
     ) {
         val angularPower: Double
         val overPower: Boolean
@@ -160,18 +160,16 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
         tankDrive(leftMotorOutput, rightMotorOutput)
     }
 
-
     /**
      * Tank drive control
      */
     open fun tankDrive(
-            leftPercent: Double,
-            rightPercent: Double
+        leftPercent: Double,
+        rightPercent: Double
     ) {
         leftMotor.setDutyCycle(leftPercent.coerceIn(-1.0, 1.0))
         rightMotor.setDutyCycle(rightPercent.coerceIn(-1.0, 1.0))
     }
-
 
     // PRE GENERATED TRAJECTORY METHODS
 
@@ -181,7 +179,7 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      * @param trajectory The trajectory to follow
      */
     fun followTrajectory(
-            trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>
+        trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>
     ) = StandardTrajectoryTrackerCommand(this, this) { trajectory }
 
     /**
@@ -191,8 +189,8 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      * @param pathMirrored Whether to mirror the path or not
      */
     fun followTrajectory(
-            trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
-            pathMirrored: Boolean = false
+        trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
+        pathMirrored: Boolean = false
     ) = followTrajectory(trajectory.let {
         if (pathMirrored) it.mirror() else it
     })
@@ -204,8 +202,8 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      * @param pathMirrored Whether to mirror the path or not
      */
     fun followTrajectory(
-            trajectory: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
-            pathMirrored: Boolean = false
+        trajectory: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
+        pathMirrored: Boolean = false
     ) = StandardTrajectoryTrackerCommand(this, this, trajectory.map {
         if (pathMirrored) it.mirror() else it
     })
@@ -217,8 +215,8 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      * @param pathMirrored Source with whether to mirror the path or not
      */
     fun followTrajectory(
-            trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
-            pathMirrored: BooleanSource
+        trajectory: Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>,
+        pathMirrored: BooleanSource
     ) = followTrajectory(pathMirrored.map(trajectory.mirror(), trajectory))
 
     /**
@@ -228,11 +226,9 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      * @param pathMirrored Source with whether to mirror the path or not
      */
     fun followTrajectory(
-            trajectory: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
-            pathMirrored: BooleanSource
+        trajectory: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
+        pathMirrored: BooleanSource
     ) = followTrajectory(pathMirrored.map(trajectory.map { it.mirror() }, trajectory))
-
-
 
     // REGIONAL CONDITIONAL COMMAND METHODS
 
@@ -243,7 +239,6 @@ abstract class TankDriveSubsystem : FalconSubsystem(),
      */
     fun withinRegion(region: Rectangle2d) =
             withinRegion(Source(region))
-
 
     /**
      * Returns a condition command that checks if the robot is in a specified region

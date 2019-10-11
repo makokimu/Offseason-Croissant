@@ -4,11 +4,8 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj.frc2.command.* // ktlint-disable no-wildcard-imports
-import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.auto.routines.BottomRocketRoutine2
-import frc.robot.auto.routines.TestRoutine
 import frc.robot.subsystems.climb.ClimbSubsystem
-import frc.robot.subsystems.drive.CharacterizationCommand
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.TurnInPlaceCommand
 import frc.robot.subsystems.drive.VisionDriveCommand
@@ -16,10 +13,8 @@ import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
-import org.ghrobotics.lib.mathematics.units.meter
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
 
@@ -36,8 +31,6 @@ object Controls : Updatable {
 //        button(kB).changeOn { isClimbing = true }
 //        button(kX).changeOn { isClimbing = false }
 //        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
-
-
 
         button(kX).changeOn(BottomRocketRoutine2()())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
@@ -62,7 +55,7 @@ object Controls : Updatable {
         state({ isClimbing }) {
             pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
         }
-        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn{ isClimbing = true }
+        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn { isClimbing = true }
     }
 
 //    val auxXbox = XboxController(1)
@@ -74,7 +67,6 @@ object Controls : Updatable {
     val operatorFalconHID = operatorJoy.mapControls {
 
 //        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
-
 
             // climbing
 
@@ -113,7 +105,6 @@ object Controls : Updatable {
         }
 
         button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true }
-
     }
 
     override fun update() {

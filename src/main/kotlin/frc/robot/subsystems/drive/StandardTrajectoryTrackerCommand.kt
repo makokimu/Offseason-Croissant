@@ -17,9 +17,9 @@ import org.ghrobotics.lib.utils.Source
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class StandardTrajectoryTrackerCommand(
-        private val driveSubsystem: SendableSubsystemBase,
-        private val drivetrain: TrajectoryTrackerDriveBase,
-        val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
+    private val driveSubsystem: SendableSubsystemBase,
+    private val drivetrain: TrajectoryTrackerDriveBase,
+    val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
 ) : FalconCommand(DriveSubsystem) {
 
     /**

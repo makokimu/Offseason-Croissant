@@ -44,7 +44,7 @@ class CharacterizationCommand(private val drivetrain: DriveSubsystem) : FalconCo
         numberArray[2] = autospeed
         numberArray[3] = drivetrain.leftMotor.voltageOutput.value
         numberArray[4] = drivetrain.rightMotor.voltageOutput.value
-        numberArray[5] = DriveSubsystem.leftMotor.master.talonSRX.selectedSensorPosition.toDouble() / 4096.0 * 2 * PI//encoder.position.value
+        numberArray[5] = DriveSubsystem.leftMotor.master.talonSRX.selectedSensorPosition.toDouble() / 4096.0 * 2 * PI // encoder.position.value
         numberArray[6] = DriveSubsystem.rightMotor.master.talonSRX.selectedSensorPosition.toDouble() / 4096.0 * 2 * PI
         numberArray[7] = DriveSubsystem.leftMotor.master.talonSRX.selectedSensorVelocity.toDouble() / 4096.0 * 10.0 * 2 * PI
         numberArray[8] = DriveSubsystem.rightMotor.master.talonSRX.selectedSensorVelocity.toDouble() / 4096.0 * 10.0 * 2 * PI
@@ -55,4 +55,4 @@ class CharacterizationCommand(private val drivetrain: DriveSubsystem) : FalconCo
     override fun end(interrupted: Boolean) {
         drivetrain.setNeutral()
     }
-} 
+}

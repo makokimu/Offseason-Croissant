@@ -28,8 +28,8 @@ abstract class FishyRobot : FalconTimedRobot() {
 
     val job = arrayListOf<Job>()
 
-    var lastRobotMode = Mode.DISABLED
-        private set
+//    var lastRobotMode = Mode.DISABLED
+//        private set
 
     override fun robotInit() {
 
@@ -54,17 +54,14 @@ abstract class FishyRobot : FalconTimedRobot() {
     }
 
     override fun disabledInit() {
-        lastRobotMode = Mode.DISABLED
         super.disabledInit()
     }
 
     override fun autonomousInit() {
-        lastRobotMode = Mode.AUTONOMOUS
         super.autonomousInit()
     }
 
     override fun teleopInit() {
-        lastRobotMode = Mode.TELEOPERATED
         super.teleopInit()
     }
 

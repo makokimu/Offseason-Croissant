@@ -14,8 +14,6 @@ import java.awt.Color
 import java.awt.Font
 import java.text.DecimalFormat
 import frc.robot.auto.paths.TrajectoryFactory
-import javax.transaction.xa.Xid
-import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
@@ -28,7 +26,6 @@ class TrajectoryVelocityPlotTest {
 
         displayTrajectory(Triple(x1, y1, z1))
     }
-
 
     private fun trajectToData(trajectory: TimedTrajectory<Pose2dWithCurvature>): Triple<ArrayList<Double>, ArrayList<Double>, ArrayList<Double>> {
 
@@ -51,7 +48,7 @@ class TrajectoryVelocityPlotTest {
 
             val voltage = Constants.DriveConstants.kHighGearDifferentialDrive.getVoltagesFromkV(
                     Constants.DriveConstants.kHighGearDifferentialDrive.solveInverseKinematics(DifferentialDrive.ChassisState(vd, wd))
-            ).let { max(it.left, it.right)}
+            ).let { max(it.left, it.right) }
             zList += voltage
         }
 

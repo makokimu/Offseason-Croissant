@@ -9,9 +9,9 @@ import org.ghrobotics.lib.mathematics.units.derived.radian
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import kotlin.math.absoluteValue
 
-class TurnInPlaceCommand(val angle: Rotation2d): FalconCommand(DriveSubsystem) {
+class TurnInPlaceCommand(val angle: Rotation2d) : FalconCommand(DriveSubsystem) {
 
-    constructor(angle: SIUnit<Radian>): this(angle.toRotation2d())
+    constructor(angle: SIUnit<Radian>) : this(angle.toRotation2d())
 
     val prevError = 0.0
 
@@ -32,5 +32,4 @@ class TurnInPlaceCommand(val angle: Rotation2d): FalconCommand(DriveSubsystem) {
         const val kCorrectionKp = 1.0
         const val kCorrectionKd = 8.0
     }
-
 }

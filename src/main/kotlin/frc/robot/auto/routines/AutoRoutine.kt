@@ -51,7 +51,7 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
                 pathMirrored.map(position.mirror, position)().translation, // if pathMirrored is true, mirror the pose
                 // otherwise, don't. Use that translation2d for the new position
                 DriveSubsystem.localization().rotation
-        ) + if (forward) (if(isStowed) Constants.kForwardIntakeStowedToCenter else Constants.kForwardIntakeToCenter) else Constants.kBackwardIntakeToCenter
+        ) + if (forward) (if (isStowed) Constants.kForwardIntakeStowedToCenter else Constants.kForwardIntakeToCenter) else Constants.kBackwardIntakeToCenter
         println("RESETTING LOCALIZATION TO ${newPosition.asString()}")
         DriveSubsystem.localization.reset(newPosition)
     })

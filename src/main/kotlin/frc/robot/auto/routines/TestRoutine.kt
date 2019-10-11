@@ -1,14 +1,12 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.frc2.command.Command
 import edu.wpi.first.wpilibj.frc2.command.InstantCommand
 import edu.wpi.first.wpilibj.frc2.command.SequentialCommandGroup
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.subsystems.drive.DriveSubsystem
-import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.second
 
-class TestRoutine: AutoRoutine() {
+class TestRoutine : AutoRoutine() {
 
     override val duration = 0.second
 
@@ -23,14 +21,11 @@ class TestRoutine: AutoRoutine() {
 //    }
 
     override val routine = SequentialCommandGroup(
-            InstantCommand(Runnable{
+            InstantCommand(Runnable {
                 DriveSubsystem.robotPosition = TrajectoryFactory.testTrajectory.firstState.state.pose
                 DriveSubsystem.lowGear = false
             }),
             DriveSubsystem.followTrajectory(
                     TrajectoryFactory.testTrajectory
             ))
-
-
-
 }
