@@ -42,10 +42,6 @@ object Controls : Updatable {
         button(kX).changeOn(BottomRocketRoutine2()())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
         button(kA).changeOn(TurnInPlaceCommand(90.degree))
-        button(kY).changeOn(TurnInPlaceCommand {
-            val error = (TrajectoryWaypoints.kRocketN.translation - DriveSubsystem.robotPosition.translation)
-            Rotation2d(error.x.meter, error.y.meter, true)
-        })
 
         // Vision align
 //            triggerAxisButton(GenericHID.Hand.kRight).change(
