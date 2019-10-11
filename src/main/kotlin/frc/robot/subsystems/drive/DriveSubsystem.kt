@@ -64,9 +64,9 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 //            followers.forEach { configCurrentLimit(true, FalconSRX.CurrentLimitConfig(50.amp, 1.second, 38.amp)) }
 
             // LQR gains
-//            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 8.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0, 0.0)
             // old gains
-            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.0, 0.0)
+//            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.0, 0.0)
         }
     }
 
@@ -90,9 +90,9 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
 
         override fun setClosedLoopGains() {
             // LQR gains
-//            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(0.92, 8.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0, 0.0)
             // Old gains
-            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.0, 0.0)
+//            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.0, 0.0)
         }
     }
 
