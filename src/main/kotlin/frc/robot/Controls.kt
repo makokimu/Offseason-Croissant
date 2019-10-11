@@ -28,34 +28,22 @@ object Controls : Updatable {
     val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
 
-//        button(kB).changeOn { isClimbing = true }
-//        button(kX).changeOn { isClimbing = false }
-//        button(kA).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
-
-        button(kX).changeOn(BottomRocketRoutine2()())
 //        button(kX).changeOn(CharacterizationCommand(DriveSubsystem))
-        button(kA).changeOn(TurnInPlaceCommand(90.degree))
+        button(kA).change(TurnInPlaceCommand(90.degree))
 
-        // Vision align
-//            triggerAxisButton(GenericHID.Hand.kRight).change(
-//                    ConditionalCommand(VisionDriveCommand(true), VisionDriveCommand(false),
-//                            BooleanSupplier { !Superstructure.currentState.isPassedThrough }))
+        // Shifting
+        if (Constants.kIsRocketLeague) {
+            button(kBumperRight).change(VisionDriveCommand(true))
+            button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
+        } else {
+            triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
+            button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
+        }
 
-            // Shifting
-            if (Constants.kIsRocketLeague) {
-                button(kBumperRight).change(VisionDriveCommand(true))
-//                button(kBumperRight).change(ClosedLoopVisionDriveCommand(true))
-                button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
-            } else {
-                triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
-//                triggerAxisButton(GenericHID.Hand.kRight).change(ClosedLoopVisionDriveCommand(true))
-                button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
-            }
-//            button(kB).changeOn(ClimbSubsystem.prepMove)
+        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn { isClimbing = true }
         state({ isClimbing }) {
             pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
         }
-        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn { isClimbing = true }
     }
 
 //    val auxXbox = XboxController(1)

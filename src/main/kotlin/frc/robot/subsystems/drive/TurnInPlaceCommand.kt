@@ -1,38 +1,57 @@
 package frc.robot.subsystems.drive
 
 import com.team254.lib.physics.DifferentialDrive
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.SIUnit
-import org.ghrobotics.lib.mathematics.units.derived.Radian
-import org.ghrobotics.lib.mathematics.units.derived.degree
-import org.ghrobotics.lib.mathematics.units.derived.radian
-import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import org.ghrobotics.lib.mathematics.units.derived.*
+import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.utils.Source
 import kotlin.math.absoluteValue
 
-class TurnInPlaceCommand(val angle: Rotation2d) : FalconCommand(DriveSubsystem) {
+class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSubsystem) {
 
-    constructor(angle: SIUnit<Radian>) : this(angle.toRotation2d())
+    constructor(angle: SIUnit<Radian>) : this({angle.toRotation2d()})
 
-    val prevError = 0.0
+    private var angularVelocity = 0.radian.velocity
+    private var prevError = 0.0
 
-    override fun execute() {
-        val error = (DriveSubsystem.robotPosition.rotation - angle).radian
-        val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
+    private var wantedAngle = Rotation2d()
 
-        println("error $error turn $turn")
-
-        DriveSubsystem.setWheelVelocities(DifferentialDrive.WheelState(-turn, turn))
+    override fun initialize() {
+        wantedAngle = angle()
+        SmartDashboard.putData(this)
     }
 
-    override fun isFinished() = (DriveSubsystem.robotPosition.rotation - angle).radian.absoluteValue < 2.degree.radian
+    var isOnTarget = false
+
+    override fun execute() {
+        val error = (DriveSubsystem.robotPosition.rotation - wantedAngle).radian
+        val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
+        angularVelocity = ((prevError - error) / 0.020).radian.velocity
+
+        DriveSubsystem.setWheelVelocities(DifferentialDrive.WheelState(turn, -turn))
+
+        prevError = error
+    }
+
+    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 2.degree.radian
+            && (angularVelocity.absoluteValue.value < 3.degree.radian)
 
     override fun end(interrupted: Boolean) {
         DriveSubsystem.setNeutral()
     }
 
+//    override fun initSendable(builder: SendableBuilder) {
+//        builder.addDoubleProperty("kp", { kCorrectionKp }, {_new -> kCorrectionKp = _new})
+//        builder.addDoubleProperty("kd", { kCorrectionKd }, {_new -> kCorrectionKd = _new})
+//        super.initSendable(builder)
+//    }
+
     companion object {
-        const val kCorrectionKp = 0.25
-        const val kCorrectionKd = 0.0
+        var kCorrectionKp = 1.75
+        var kCorrectionKd = 15.0
     }
 }
