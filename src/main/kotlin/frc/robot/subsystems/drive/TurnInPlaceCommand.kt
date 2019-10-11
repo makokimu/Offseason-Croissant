@@ -1,5 +1,6 @@
 package frc.robot.subsystems.drive
 
+import com.team254.lib.physics.DifferentialDrive
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.SIUnit
@@ -17,9 +18,11 @@ class TurnInPlaceCommand(val angle: Rotation2d) : FalconCommand(DriveSubsystem) 
 
     override fun execute() {
         val error = (DriveSubsystem.robotPosition.rotation - angle).radian
-
         val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
-        DriveSubsystem.tankDrive(-turn, turn)
+
+        println("error $error turn $turn")
+
+        DriveSubsystem.setWheelVelocities(DifferentialDrive.WheelState(-turn, turn))
     }
 
     override fun isFinished() = (DriveSubsystem.robotPosition.rotation - angle).radian.absoluteValue < 2.degree.radian
@@ -29,7 +32,7 @@ class TurnInPlaceCommand(val angle: Rotation2d) : FalconCommand(DriveSubsystem) 
     }
 
     companion object {
-        const val kCorrectionKp = 1.0
-        const val kCorrectionKd = 8.0
+        const val kCorrectionKp = 0.25
+        const val kCorrectionKd = 0.0
     }
 }
