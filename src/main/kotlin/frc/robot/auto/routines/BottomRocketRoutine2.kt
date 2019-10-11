@@ -7,6 +7,7 @@ import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.drive.TurnInPlaceCommand
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
@@ -14,6 +15,8 @@ import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.volt
 
 class BottomRocketRoutine2 : AutoRoutine() {
@@ -108,13 +111,16 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 // Make sure the intake is holding the hatch panel.
                 +IntakeHatchCommand(false).withTimeout(3.0.second)
                 // Follow the trajectory with vision correction to the near side of the rocket.
-                +super.followVisionAssistedTrajectory(
-                        path5,
-                        Autonomous.isStartingOnLeft,
-                        6.feet, true
-                )
+                +DriveSubsystem.followTrajectory(path5, Autonomous.isStartingOnLeft)
                 +WaitCommand(0.5)
                 +Superstructure.kStowed
+            }
+            // turn to face the goal
+            +TurnInPlaceCommand {
+                Pose2d().mirror
+                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
+                val error = (goal - DriveSubsystem.robotPosition.translation)
+                Rotation2d(error.x.meter, error.y.meter, true)
             }
 
             // Part 4: Score the hatch and go to the loading station for the end of the sandstorm period.

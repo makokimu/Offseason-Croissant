@@ -196,7 +196,7 @@ object TrajectoryFactory {
             listOf(
                     loadingStationUnPassedthroughAdjusted,
                     Pose2d(9.feet, 2.54.feet, -177.degree).asWaypoint(),
-                    Pose2d(14.86.feet, 3.9.feet, (-93.148).degree).asWaypoint()
+                    Pose2d(13.057.feet, 4.221.feet, (-146.0).degree).asWaypoint()
             ),
             getConstraints(true, rocketNAdjusted), kMaxVelocity, kMaxAcceleration, kMaxVoltage
     ) }
