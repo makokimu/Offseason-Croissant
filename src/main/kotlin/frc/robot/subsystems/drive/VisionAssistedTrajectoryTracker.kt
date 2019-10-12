@@ -137,7 +137,7 @@ class VisionAssistedTrajectoryTracker(
     }
 
     companion object {
-        const val kCorrectionKp = 5.5 * 1.5
+        const val kCorrectionKp = 5.5 * 2.5
         const val kCorrectionKd = 0.0
         const val kLinearKp = 0.6
         val kMaxLinearVelocityVision = 2.5.feet.velocity

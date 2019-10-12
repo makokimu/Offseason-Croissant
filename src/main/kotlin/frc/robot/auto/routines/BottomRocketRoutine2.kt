@@ -18,6 +18,8 @@ import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-impo
 import org.ghrobotics.lib.commands.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.derived.volt
 
 class BottomRocketRoutine2 : AutoRoutine() {
@@ -55,16 +57,17 @@ class BottomRocketRoutine2 : AutoRoutine() {
             }
 
             +TurnInPlaceCommand {
-                Pose2d().mirror
-                val goal = TrajectoryWaypoints.kRocketF.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
-                val error = (goal - DriveSubsystem.robotPosition.translation)
-                Rotation2d(error.x.meter, error.y.meter, true)
+//                Pose2d().mirror
+//                val goal = TrajectoryWaypoints.kRocketF.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
+//                val error = (goal - DriveSubsystem.robotPosition.translation)
+//                Rotation2d(error.x.meter, error.y.meter, true)
+                -151.degree.toRotation2d()
             }
 
             +super.followVisionAssistedTrajectory(
                     path2,
                     Autonomous.isStartingOnLeft,
-                    4.feet,
+                    10.feet,
                     true
             )
 
@@ -83,7 +86,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
             val spline4 = super.followVisionAssistedTrajectory(
                     path4,
                     Autonomous.isStartingOnLeft,
-                    4.feet, false
+                    7.feet, false
             )
 
             // Part 2: Place hatch and go to loading station.
@@ -115,19 +118,20 @@ class BottomRocketRoutine2 : AutoRoutine() {
 
             // Part 3: Pickup hatch and go to the near side of the rocket.
             +parallel {
+                val path = DriveSubsystem.followTrajectory(path5, Autonomous.isStartingOnLeft)
+                +path
                 // Make sure the intake is holding the hatch panel.
-                +IntakeHatchCommand(false).withTimeout(4.0.second)
+                +IntakeHatchCommand(false).withTimeout(4.0.second).withExit { path.isFinished }
                 // Follow the trajectory with vision correction to the near side of the rocket.
-                +DriveSubsystem.followTrajectory(path5, Autonomous.isStartingOnLeft)
-                +WaitCommand(0.5)
-                +Superstructure.kStowed
+//                +WaitCommand(0.5)
+//                +Superstructure.kStowed
             }
             // turn to face the goal
             +TurnInPlaceCommand {
-                Pose2d().mirror
-                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
-                val error = (goal - DriveSubsystem.robotPosition.translation)
-                Rotation2d(error.x.meter, error.y.meter, true)
+//                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
+//                val error = (goal - DriveSubsystem.robotPosition.translation)
+//                Rotation2d(error.x.meter, error.y.meter, true)
+                (-28.75).degree.toRotation2d()
             }
             +followVisionAssistedTrajectory(
                     path6,

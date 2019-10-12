@@ -37,8 +37,8 @@ class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSub
         prevError = error
     }
 
-    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 2.degree.radian
-            && (angularVelocity.absoluteValue.value < 3.degree.radian)
+    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 4.degree.radian
+            && (angularVelocity.absoluteValue.value < 5.degree.radian)
 
     override fun end(interrupted: Boolean) {
         DriveSubsystem.setNeutral()
