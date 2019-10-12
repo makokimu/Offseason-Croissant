@@ -1,6 +1,6 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.frc2.command.* // ktlint-disable no-wildcard-imports
+import edu.wpi.first.wpilibj2.command.* // ktlint-disable no-wildcard-imports
 import frc.robot.Constants
 import frc.robot.Robot
 import frc.robot.auto.Autonomous
@@ -31,7 +31,7 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
             DriveSubsystem.localization.reset(Autonomous.startingPosition().pose)
         })
         +routine
-    }.raceWith(WaitUntilCommand { Robot.emergencyActive }) as SendableCommandBase
+    }.raceWith(WaitUntilCommand { Robot.emergencyActive }) as CommandBase
 
     fun followVisionAssistedTrajectory(
         originalTrajectory: TimedTrajectory<Pose2dWithCurvature>,
@@ -61,7 +61,7 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
 
     private fun Pose2d.asString() = "Pose X:${translation.x / kFeetToMeter}\' Y:${translation.y / kFeetToMeter}' Theta:${rotation.degree}deg"
 
-    fun notWithinRegion(region: Rectangle2d) = object : SendableCommandBase() {
+    fun notWithinRegion(region: Rectangle2d) = object : CommandBase() {
         override fun isFinished() = !region.contains(DriveSubsystem.robotPosition.translation)
     }
 

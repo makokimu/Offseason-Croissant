@@ -2,7 +2,7 @@ package org.team5940.pantry.lib
 
 import org.ghrobotics.lib.subsystems.drive.DifferentialTrackerDriveBase
 import edu.wpi.first.wpilibj.Notifier
-import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.robot.subsystems.drive.StandardTrajectoryTrackerCommand
 import org.ghrobotics.lib.commands.FalconSubsystem
 import org.ghrobotics.lib.debug.LiveDashboard

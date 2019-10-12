@@ -1,8 +1,8 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.RunCommand
-import edu.wpi.first.wpilibj.frc2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.RunCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryFactory.kMaxAcceleration

@@ -1,6 +1,6 @@
 package frc.robot.subsystems.climb
 
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.robot.auto.routines.AutoRoutine
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports

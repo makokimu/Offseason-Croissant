@@ -79,7 +79,7 @@ object TrajectoryFactory {
     )
     val rocketNAdjusted = TrajectoryWaypoints.Waypoint(
             trueLocation = TrajectoryWaypoints.kRocketN,
-            transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(4.inch, 3.inch))
+            transform = Constants.kForwardIntakeToCenter.transformBy(Pose2d(4.inch, 0.inch))
     )
 
     /** Trajectories **/
@@ -195,10 +195,21 @@ object TrajectoryFactory {
             true,
             listOf(
                     loadingStationUnPassedthroughAdjusted,
-                    Pose2d(9.feet, 2.54.feet, -177.degree).asWaypoint(),
-                    Pose2d(13.057.feet, 4.221.feet, (-146.0).degree).asWaypoint()
+                    Pose2d(7.549.feet, 2.632.feet, -166.425.degree).asWaypoint(),
+                    rocketNPrep
             ),
             getConstraints(true, rocketNAdjusted), kMaxVelocity, kMaxAcceleration, kMaxVoltage
+    ) }
+
+    val rocketNPrep = Pose2d(11.499.feet, 4.087.feet, -134.035.degree).asWaypoint()
+
+    val rocketNPrepToRocketN by lazy { generateTrajectory(
+            false,
+            listOf(
+                    rocketNPrep,
+                    rocketNAdjusted
+            ),
+            getConstraints(true, rocketNAdjusted, 4.5.feet.velocity), kMaxVelocity, kMaxAcceleration, kMaxVoltage
     ) }
 
     val rocketNToDepot by lazy { generateTrajectory(
@@ -215,7 +226,7 @@ object TrajectoryFactory {
             listOf(
                     rocketFPrepare,
 //                    rocketFAdjusted
-                    Pose2d(22.312.feet, 2.82.feet, (-151.25).degree).transformBy(Pose2d(10.inch, 0.inch, 0.degree)).asWaypoint()
+                    Pose2d(22.312.feet, 2.82.feet, (-151.25).degree).transformBy(Pose2d(10.inch, 4.inch, 0.degree)).asWaypoint()
             ),
             getConstraints(false, Pose2d()), 2.feet.velocity, kMaxAcceleration, kMaxVoltage
     ) }
@@ -240,7 +251,7 @@ object TrajectoryFactory {
                     Pose2d(8.318.feet, 3.157.feet, 180.degree).asWaypoint(),
                     loadingStationUnPassedthroughAdjusted
             ),
-            getConstraints(false, loadingStationUnPassedthroughAdjusted), 9.5.feet.velocity, kMaxAcceleration * 2, 9.volt
+            getConstraints(false, loadingStationUnPassedthroughAdjusted), 9.5.feet.velocity, kMaxAcceleration * 1.25, 9.volt
     ) }
 
     val rocketFToDepot by lazy { generateTrajectory(
@@ -294,17 +305,19 @@ object TrajectoryFactory {
     ) }
 
     val rocketFPrepare = TrajectoryWaypoints.Waypoint(
-            Pose2d(24.4.feet, 4.feet, -143.degree),
-            transform = Pose2d(-4.inch, 0.inch, 0.degree)
+            Pose2d(23.809.feet, 3.399.feet, (-143).degree),
+            transform = Pose2d(0.inch, 0.inch, 0.degree)
     )
+
+    val rocketFPrepareRotated = Pose2d(23.809.feet, 3.399.feet, 127.862.degree)
 
     val sideStartReversedToRocketFPrepare by lazy { generateTrajectory(
             true,
             listOf(
                     TrajectoryWaypoints.kSideStartReversed.asWaypoint(),
                     Pose2d(15.214.feet, 8.7.feet, 165.degree).asWaypoint(),
-                    Pose2d(20.82.feet, 4.849.feet, 145.651.degree).asWaypoint(),
-                    rocketFPrepare
+//                    Pose2d(20.82.feet, 4.849.feet, 145.651.degree).asWaypoint(),
+                    rocketFPrepareRotated.asWaypoint()
             ),
             getConstraints(false, Pose2d()), 9.feet.velocity, 7.feet.acceleration * 1.5, 9.volt
     ) }
@@ -322,7 +335,8 @@ object TrajectoryFactory {
 
     /** Generation **/
 
-    private fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: Pose2d) =
+    private fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: Pose2d,
+                               velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity) =
             listOf(
                     CentripetalAccelerationConstraint(
                             if (elevatorUp)
@@ -333,13 +347,14 @@ object TrajectoryFactory {
                     VelocityLimitRadiusConstraint(
                             trajectoryEndpoint.translation,
                             kVelocityRadiusConstraintRadius,
-                            kVelocityRadiusConstraintVelocity
+                            velocityRadiusConstraintVelocity
                     ),
                     VelocityLimitRegionConstraint(TrajectoryWaypoints.kHabitatL1Platform, kMaxHabitatVelocity)
             )
 
-    fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: TrajectoryWaypoints.Waypoint) =
-            getConstraints(elevatorUp, trajectoryEndpoint.position)
+    fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: TrajectoryWaypoints.Waypoint,
+                       velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity) =
+            getConstraints(elevatorUp, trajectoryEndpoint.position, velocityRadiusConstraintVelocity)
 
     fun generateTrajectory(
         reversed: Boolean,

@@ -1,8 +1,9 @@
 package frc.robot.auto.routines
 
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.PrintCommand
-import edu.wpi.first.wpilibj.frc2.command.WaitCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.PrintCommand
+import edu.wpi.first.wpilibj2.command.RunCommand
+import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
@@ -30,6 +31,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 
     // Third path goes to the near side of the rocket
     private val path5 = TrajectoryFactory.loadingStationReversedToRocketNPrep
+    private val path6 = TrajectoryFactory.rocketNPrepToRocketN
 
     override val duration: SIUnit<Second>
         get() = path4.duration + path5.duration + path1.duration + path2.duration
@@ -52,7 +54,12 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 }).beforeStarting { Intake.hatchMotorOutput = 6.volt }.whenFinished { Intake.hatchMotorOutput = 0.volt }
             }
 
-            +PrintCommand("path2")
+            +TurnInPlaceCommand {
+                Pose2d().mirror
+                val goal = TrajectoryWaypoints.kRocketF.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
+                val error = (goal - DriveSubsystem.robotPosition.translation)
+                Rotation2d(error.x.meter, error.y.meter, true)
+            }
 
             +super.followVisionAssistedTrajectory(
                     path2,
@@ -109,7 +116,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
             // Part 3: Pickup hatch and go to the near side of the rocket.
             +parallel {
                 // Make sure the intake is holding the hatch panel.
-                +IntakeHatchCommand(false).withTimeout(3.0.second)
+                +IntakeHatchCommand(false).withTimeout(4.0.second)
                 // Follow the trajectory with vision correction to the near side of the rocket.
                 +DriveSubsystem.followTrajectory(path5, Autonomous.isStartingOnLeft)
                 +WaitCommand(0.5)
@@ -122,21 +129,15 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 val error = (goal - DriveSubsystem.robotPosition.translation)
                 Rotation2d(error.x.meter, error.y.meter, true)
             }
+            +followVisionAssistedTrajectory(
+                    path6,
+                    Autonomous.isStartingOnLeft,
+                    4.feet
+            )
 
-            // Part 4: Score the hatch and go to the loading station for the end of the sandstorm period.
             +parallel {
-                // Score hatch.
-                // Follow the trajectory to the loading station.
-                +DriveSubsystem.followTrajectory(
-                        TrajectoryFactory.rocketNToLoadingStation,
-                        Autonomous.isStartingOnLeft
-                )
-                // Take the superstructure to a position to pick up the next hatch.
-                +sequential {
-                    //                    +IntakeHatchCommand(releasing = true).withTimeout(0.5.second)
-//                    +IntakeCloseCommand()
-//                    +Superstructure.kHatchLow
-                }
+                +IntakeHatchCommand(true).withTimeout(1.0)
+                +RunCommand(Runnable{ DriveSubsystem.tankDrive(-0.3, -0.3) }).withTimeout(1.0)
             }
         }
 }

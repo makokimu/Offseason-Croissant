@@ -2,7 +2,7 @@
 
 package frc.robot.subsystems.intake
 
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
 import frc.robot.Controls
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay

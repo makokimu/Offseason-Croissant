@@ -5,7 +5,7 @@ package frc.robot.subsystems.climb
 import com.revrobotics.CANSparkMaxLowLevel
 import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.frc2.command.RunCommand
+import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Controls
 import frc.robot.auto.routines.withExit

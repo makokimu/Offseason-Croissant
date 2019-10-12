@@ -1,6 +1,6 @@
 package frc.robot.subsystems.drive
 
-import edu.wpi.first.wpilibj.frc2.command.SendableSubsystemBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.debug.LiveDashboard
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
@@ -17,7 +17,7 @@ import org.ghrobotics.lib.utils.Source
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class StandardTrajectoryTrackerCommand(
-    private val driveSubsystem: SendableSubsystemBase,
+    private val driveSubsystem: SubsystemBase,
     private val drivetrain: TrajectoryTrackerDriveBase,
     val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>
 ) : FalconCommand(DriveSubsystem) {

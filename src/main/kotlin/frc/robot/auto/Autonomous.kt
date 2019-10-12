@@ -1,7 +1,7 @@
 package frc.robot.auto
 
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.CommandBase
 import frc.robot.Network
 import frc.robot.Robot
 import frc.robot.auto.paths.TrajectoryWaypoints
@@ -61,7 +61,7 @@ object Autonomous : Updatable {
     val possibleAutos = hashMapOf(
             Mode.BOTTOM_ROCKET_2 to BottomRocketRoutine2()()
     )
-    var selectedAutonomous: SendableCommandBase = InstantCommand()
+    var selectedAutonomous: CommandBase = InstantCommand()
     val doNothing = selectedAutonomous
 
     fun startAuto() {

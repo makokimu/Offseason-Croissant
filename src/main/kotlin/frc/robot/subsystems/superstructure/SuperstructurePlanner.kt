@@ -1,8 +1,8 @@
 package frc.robot.subsystems.superstructure
 
-import edu.wpi.first.wpilibj.frc2.command.InstantCommand
-import edu.wpi.first.wpilibj.frc2.command.SendableCommandBase
-import edu.wpi.first.wpilibj.frc2.command.WaitUntilCommand
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.CommandBase
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand
 import frc.robot.Constants.SuperStructureConstants.kProximalLen
 import frc.robot.auto.routines.withExit
 import kotlinx.coroutines.GlobalScope
@@ -227,13 +227,13 @@ object SuperstructurePlanner {
     ) = everythingMoveTo(
             SuperstructureState(elevator, proximal, wrist))
 
-    fun everythingMoveTo(goalState: SuperstructureState): SendableCommandBase =
+    fun everythingMoveTo(goalState: SuperstructureState): CommandBase =
             object : FalconCommand(Superstructure, Proximal, Wrist, Elevator) {
                 // This whole {} thing is a Supplier<Command> that will return a Command that moves everything safely (hopefully)
 
                 override fun getName() = "move to ${goalState.asString()}"
 
-                var path: SendableCommandBase? = null
+                var path: CommandBase? = null
                 var pathStarted = false
 
                 override fun initialize() {

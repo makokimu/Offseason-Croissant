@@ -3,7 +3,7 @@ package frc.robot.vision
 import edu.wpi.first.networktables.NetworkTableEntry
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.Timer
-import edu.wpi.first.wpilibj.frc2.command.SendableSubsystemBase
+import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.superstructure.Length
@@ -20,7 +20,7 @@ import kotlin.math.* // ktlint-disable no-wildcard-imports
 //    rotation: Rotation2d = Rotation2d()
 // ) = Translation2d(distance * rotation.cos, distance * rotation.sin)
 
-object LimeLightManager : SendableSubsystemBase() {
+object LimeLightManager : SubsystemBase() {
 
     override fun periodic() = updateFromEstimatedTargetDistance(
             DriveSubsystem.robotPosition,
