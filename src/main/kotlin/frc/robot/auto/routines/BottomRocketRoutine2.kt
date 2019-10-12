@@ -12,10 +12,12 @@ import frc.robot.subsystems.drive.TurnInPlaceCommand
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
+import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
@@ -57,11 +59,17 @@ class BottomRocketRoutine2 : AutoRoutine() {
             }
 
             +TurnInPlaceCommand {
-//                Pose2d().mirror
+                Pose2d().mirror
 //                val goal = TrajectoryWaypoints.kRocketF.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
-//                val error = (goal - DriveSubsystem.robotPosition.translation)
-//                Rotation2d(error.x.meter, error.y.meter, true)
-                -151.degree.toRotation2d()
+                val goalTarget = TargetTracker.getBestTarget(true)
+                if(goalTarget != null) {
+                    val goal = goalTarget.averagedPose2d.translation
+                    val error = (goal - DriveSubsystem.robotPosition.translation)
+                    Rotation2d(error.x.meter, error.y.meter, true)
+                } else {
+                    -151.degree.toRotation2d()
+                }
+//                -151.degree.toRotation2d()
             }
 
             +super.followVisionAssistedTrajectory(

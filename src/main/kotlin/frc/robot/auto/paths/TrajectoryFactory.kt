@@ -255,7 +255,7 @@ object TrajectoryFactory {
                     Pose2d(8.318.feet, 3.157.feet, 180.degree).asWaypoint(),
                     loadingStationUnPassedthroughAdjusted
             ),
-            getConstraints(false, loadingStationUnPassedthroughAdjusted), 9.5.feet.velocity, kMaxAcceleration * 1.25, 9.volt
+            getConstraints(false, loadingStationUnPassedthroughAdjusted), 10.feet.velocity, kMaxAcceleration * 1.75, 10.5.volt
     ) }
 
     val rocketFToDepot by lazy { generateTrajectory(
