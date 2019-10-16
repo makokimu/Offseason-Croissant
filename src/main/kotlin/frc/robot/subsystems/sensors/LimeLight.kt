@@ -19,7 +19,6 @@ import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.monitor
 import org.ghrobotics.lib.utils.onChangeToFalse
 import org.ghrobotics.lib.utils.onChangeToTrue
-import org.team5940.pantry.lib.Updatable
 import kotlin.properties.Delegates
 
 object LimeLight {
@@ -32,19 +31,19 @@ object LimeLight {
         get() = synchronized(currentStateMutex) { field }
         set(newValue) = synchronized(currentStateMutex) { field = newValue }
 
-    var wantsLEDsOn by Delegates.observable(false) {_, _, wantsOn ->
-        ledModeEntry.setDouble(if(wantsOn) 3.0 else 1.0)
+    var wantsLEDsOn by Delegates.observable(false) { _, _, wantsOn ->
+        ledModeEntry.setDouble(if (wantsOn) 3.0 else 1.0)
     }
 
-    var wantedPipeline by Delegates.observable(0.0) {_, _, newPipeline ->
-        if(newPipeline < 0 || newPipeline > 9) {} else pipelineEntry.setDouble(newPipeline)
+    var wantedPipeline by Delegates.observable(0.0) { _, _, newPipeline ->
+        if (newPipeline < 0 || newPipeline > 9) {} else pipelineEntry.setDouble(newPipeline)
     }
 
-    var wantsDriverMode by Delegates.observable(false) {_, _, wantsHighExposure ->
-        camModeEntry.setDouble(if(wantsHighExposure) 1.0 else 0.0)
+    var wantsDriverMode by Delegates.observable(false) { _, _, wantsHighExposure ->
+        camModeEntry.setDouble(if (wantsHighExposure) 1.0 else 0.0)
     }
 
-    var wantedStreamMode by Delegates.observable(2.0) {_, _, newMode ->
+    var wantedStreamMode by Delegates.observable(2.0) { _, _, newMode ->
         streamEntry.setDouble(newMode)
     }
 
@@ -61,12 +60,12 @@ object LimeLight {
     private val streamEntry = table.getEntry("stream")
 
     data class State(
-            val hasTarget: Boolean,
-            val tx: SIUnit<Radian>,
-            val ty: SIUnit<Radian>,
-            val width: Double,
-            val height: Double,
-            val timestamp: SIUnit<Second>
+        val hasTarget: Boolean,
+        val tx: SIUnit<Radian>,
+        val ty: SIUnit<Radian>,
+        val width: Double,
+        val height: Double,
+        val timestamp: SIUnit<Second>
     ) {
         constructor() : this(false, 0.degree, 0.degree, 0.0, 0.0, 0.second)
     }
@@ -92,7 +91,7 @@ object LimeLight {
         enabledMonitor.onChangeToFalse { configureDisabled() }
 
         val newState = State(
-                tvEntry.getDouble(0.0) ==  1.0,
+                tvEntry.getDouble(0.0) == 1.0,
                 -txEntry.getDouble(0.0).degree,
                 tyEntry.getDouble(0.0).degree,
                 widthEntry.getDouble(0.0),
@@ -112,5 +111,4 @@ object LimeLight {
 
         TargetTracker.augmentedPose = estimatedPose
     }
-
 }

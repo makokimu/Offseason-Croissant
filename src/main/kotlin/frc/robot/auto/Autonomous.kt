@@ -47,16 +47,13 @@ object Autonomous : Updatable {
         selectedAutonomous = possibleAutos[autoMode()] ?: doNothing
 
         robotModeMonitor.onChange { newValue ->
-            //maybe stop auto on change to enabled?
+            // maybe stop auto on change to enabled?
         }
 
         isReadyMonitor.onChangeToTrue {
             startAuto()
         }
-
-
     }
-
 
     val possibleAutos = hashMapOf(
             Mode.BOTTOM_ROCKET_2 to BottomRocketRoutine2()()

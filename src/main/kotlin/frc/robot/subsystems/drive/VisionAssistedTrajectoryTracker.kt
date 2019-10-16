@@ -1,14 +1,11 @@
 package frc.robot.subsystems.drive
 
-import frc.robot.Constants
 import frc.robot.Network
 import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Length
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.debug.LiveDashboard
-import org.ghrobotics.lib.mathematics.min
 import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTrackerOutput
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
@@ -133,8 +130,8 @@ class VisionAssistedTrajectoryTracker(
     }
 
     companion object {
-        const val kCorrectionKp = 0.8 * 1.2 * 1.5 * 1.3 //5.5 * 2.0
-        const val kCorrectionKd = 8.0 //5.0
+        const val kCorrectionKp = 0.8 * 1.2 * 1.5 * 1.3 // 5.5 * 2.0
+        const val kCorrectionKd = 8.0 // 5.0
         var visionActive = false
     }
 }

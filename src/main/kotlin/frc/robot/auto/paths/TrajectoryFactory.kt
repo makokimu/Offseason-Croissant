@@ -341,9 +341,12 @@ object TrajectoryFactory {
 
     /** Generation **/
 
-    private fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: Pose2d,
-                               velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity,
-                               velocityRadius: SIUnit<Meter> = kVelocityRadiusConstraintRadius) =
+    private fun getConstraints(
+        elevatorUp: Boolean,
+        trajectoryEndpoint: Pose2d,
+        velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity,
+        velocityRadius: SIUnit<Meter> = kVelocityRadiusConstraintRadius
+    ) =
             listOf(
                     CentripetalAccelerationConstraint(
                             if (elevatorUp)
@@ -359,8 +362,11 @@ object TrajectoryFactory {
                     VelocityLimitRegionConstraint(TrajectoryWaypoints.kHabitatL1Platform, kMaxHabitatVelocity)
             )
 
-    fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: TrajectoryWaypoints.Waypoint,
-                       velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity) =
+    fun getConstraints(
+        elevatorUp: Boolean,
+        trajectoryEndpoint: TrajectoryWaypoints.Waypoint,
+        velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity
+    ) =
             getConstraints(elevatorUp, trajectoryEndpoint.position, velocityRadiusConstraintVelocity)
 
     fun generateTrajectory(

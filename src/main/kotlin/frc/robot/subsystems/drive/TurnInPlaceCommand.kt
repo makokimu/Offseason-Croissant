@@ -1,19 +1,17 @@
 package frc.robot.subsystems.drive
 
 import com.team254.lib.physics.DifferentialDrive
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.SIUnit
-import org.ghrobotics.lib.mathematics.units.derived.*
-import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.mathematics.units.derived.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.utils.Source
 import kotlin.math.absoluteValue
 
 class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSubsystem) {
 
-    constructor(angle: SIUnit<Radian>) : this({angle.toRotation2d()})
+    constructor(angle: SIUnit<Radian>) : this({ angle.toRotation2d() })
 
     private var angularVelocity = 0.radian.velocity
     private var prevError = 0.0
@@ -37,8 +35,8 @@ class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSub
         prevError = error
     }
 
-    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 4.degree.radian
-            && (angularVelocity.absoluteValue.value < 5.degree.radian)
+    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 4.degree.radian &&
+            (angularVelocity.absoluteValue.value < 5.degree.radian)
 
     override fun end(interrupted: Boolean) {
         DriveSubsystem.setNeutral()

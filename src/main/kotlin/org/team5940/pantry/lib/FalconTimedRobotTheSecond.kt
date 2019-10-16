@@ -68,7 +68,7 @@ abstract class FalconTimedRobotTheSecond {
 
         override fun robotPeriodic() {
             this@FalconTimedRobotTheSecond.robotPeriodic()
-            try { CommandScheduler.getInstance().run() } catch(e: Exception) { e.printStackTrace() }
+            try { CommandScheduler.getInstance().run() } catch (e: Exception) { e.printStackTrace() }
         }
 
         override fun autonomousPeriodic() {

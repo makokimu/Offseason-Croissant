@@ -17,9 +17,6 @@ import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.* // ktlint-disable no-wildcard-imports
-import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTracker
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
-import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.derived.volt
@@ -65,7 +62,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                    val goal = goalTarget.averagedPose2d.translation
 //                    val error = (goal - DriveSubsystem.robotPosition.translation)
 //                    Rotation2d(error.x.meter, error.y.meter, true)
-                if(LimeLight.hasTarget) {
+                if (LimeLight.hasTarget) {
                     // plus the rotation of the dt at that timestamp
                     LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
                 } else {
@@ -142,7 +139,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                val error = (goal - DriveSubsystem.robotPosition.translation)
 //                Rotation2d(error.x.meter, error.y.meter, true)
 
-                if(LimeLight.hasTarget) {
+                if (LimeLight.hasTarget) {
                     // plus the rotation of the dt at that timestamp
                     LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
                 } else {
@@ -159,7 +156,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 
             +parallel {
                 +IntakeHatchCommand(true).withTimeout(1.0)
-                +RunCommand(Runnable{ DriveSubsystem.tankDrive(-0.3, -0.3) }).withTimeout(1.0)
+                +RunCommand(Runnable { DriveSubsystem.tankDrive(-0.3, -0.3) }).withTimeout(1.0)
             }
         }
 }
