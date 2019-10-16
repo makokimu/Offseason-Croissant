@@ -90,7 +90,7 @@ object LimeLight {
                 tyEntry.getDouble(0.0).degree,
                 widthEntry.getDouble(0.0),
                 heightEntry.getDouble(0.0),
-                latencyEntry.getDouble(0.0).milli.second + 11.milli.second + Timer.getFPGATimestamp().second
+                Timer.getFPGATimestamp().second - latencyEntry.getDouble(0.0).milli.second - 11.milli.second
         )
         this.currentState = newState
     }
