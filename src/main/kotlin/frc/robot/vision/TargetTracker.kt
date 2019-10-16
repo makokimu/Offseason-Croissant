@@ -54,12 +54,15 @@ object TargetTracker : Loggable, Updatable {
                 !it.isAlive
             }
             // Publish to dashboard
-            visionTargets = targets.asSequence()
+            visionTargets = ArrayList(targets.asSequence()
                     .filter { it.isReal }
                     .map { it.averagedPose2d }
-                    .toList()
+                    .toList()).also { synchronized(mutex) { it.add(augmentedPose) } }
         }
     }
+
+    var augmentedPose = Pose2d()
+    private val mutex = Object()
 
     fun addSamples(creationTime: Double, samples: Iterable<Pose2d>) {
         if (creationTime >= Timer.getFPGATimestamp()) return // Cannot predict the future

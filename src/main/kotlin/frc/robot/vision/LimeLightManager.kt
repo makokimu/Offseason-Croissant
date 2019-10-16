@@ -55,7 +55,7 @@ object LimeLightManager : SubsystemBase() {
     private val pipelineLatency
         get() = (table.getEntry("tl").getDouble(0.0) + 11) / 1000.0
 
-    private fun getDistanceToTarget(): Length {
+    fun getDistanceToTarget(): Length {
         val focalLen = 707.0 * (57.0 / 53.0) // = (isHighRes) ? x_focal_length_high : x_focal_length_low;
         val width = 14.6.inch
         val targetSizePx = table.getEntry("tlong").getDouble(0.0) // getTargetXPixels();

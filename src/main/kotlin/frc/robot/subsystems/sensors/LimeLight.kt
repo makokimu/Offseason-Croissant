@@ -2,11 +2,18 @@ package frc.robot.subsystems.sensors
 
 import edu.wpi.first.networktables.NetworkTableInstance
 import edu.wpi.first.wpilibj.Timer
+import frc.robot.Constants
 import frc.robot.Robot
+import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.vision.LimeLightManager
+import frc.robot.vision.TargetTracker
+import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
+import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.Second
 import org.ghrobotics.lib.mathematics.units.derived.Radian
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.milli
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.monitor
@@ -93,6 +100,17 @@ object LimeLight {
                 Timer.getFPGATimestamp().second - latencyEntry.getDouble(0.0).milli.second - 11.milli.second
         )
         this.currentState = newState
+
+        val estimatedPose = with(LimeLightManager) {
+            val distance = getDistanceToTarget()
+            val tx = newState.tx
+            val rawPose = Pose2d(Translation2d(distance, tx.toRotation2d()))
+            val correctedPose = DriveSubsystem.localization[newState.timestamp] +
+                    (Constants.kCenterToFrontCamera + rawPose)
+            correctedPose
+        }
+
+        TargetTracker.augmentedPose = estimatedPose
     }
 
 }
