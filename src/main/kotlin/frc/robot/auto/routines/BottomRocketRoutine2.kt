@@ -141,7 +141,15 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
 //                val error = (goal - DriveSubsystem.robotPosition.translation)
 //                Rotation2d(error.x.meter, error.y.meter, true)
-                (-28.75).degree.toRotation2d()
+
+                if(LimeLight.hasTarget) {
+                    // plus the rotation of the dt at that timestamp
+                    LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
+                } else {
+                    -28.75.degree.toRotation2d()
+                }
+
+//                (-28.75).degree.toRotation2d()
             }
             +followVisionAssistedTrajectory(
                     path6,
