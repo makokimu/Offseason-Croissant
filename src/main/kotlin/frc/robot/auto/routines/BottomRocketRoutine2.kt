@@ -11,8 +11,8 @@ import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.TurnInPlaceCommand
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeHatchCommand
+import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Superstructure
-import frc.robot.vision.TargetTracker
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
@@ -59,13 +59,15 @@ class BottomRocketRoutine2 : AutoRoutine() {
             }
 
             +TurnInPlaceCommand {
-                Pose2d().mirror
-//                val goal = TrajectoryWaypoints.kRocketF.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
-                val goalTarget = TargetTracker.getBestTarget(true)
-                if(goalTarget != null) {
-                    val goal = goalTarget.averagedPose2d.translation
-                    val error = (goal - DriveSubsystem.robotPosition.translation)
-                    Rotation2d(error.x.meter, error.y.meter, true)
+
+//                val goalTarget = TargetTracker.getBestTarget(true)
+//                if(goalTarget != null) {
+//                    val goal = goalTarget.averagedPose2d.translation
+//                    val error = (goal - DriveSubsystem.robotPosition.translation)
+//                    Rotation2d(error.x.meter, error.y.meter, true)
+                if(LimeLight.hasTarget) {
+                    // plus the rotation of the dt at that timestamp
+                    LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
                 } else {
                     -151.degree.toRotation2d()
                 }

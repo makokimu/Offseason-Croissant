@@ -8,6 +8,7 @@ import frc.robot.auto.Autonomous
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Proximal
 import frc.robot.subsystems.superstructure.Superstructure
@@ -43,9 +44,8 @@ object Robot : FishyRobot() {
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("stream").setNumber(2)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
+        LimeLight
+        LimeLight.configureDisabled()
 
         super.robotInit()
     }
@@ -55,19 +55,9 @@ object Robot : FishyRobot() {
     }
 
     override fun disabledInit() {
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(1)
-    }
-
-    override fun autonomousInit() {
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
-        super.autonomousInit()
     }
 
     override fun teleopInit() {
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(0)
-        NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0)
     }
 }
 

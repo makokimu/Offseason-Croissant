@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.CommandScheduler
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import kotlinx.coroutines.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.utils.loopFrequency
@@ -16,7 +17,7 @@ abstract class FishyRobot : FalconTimedRobot() {
 
     val isAuto get() = wrappedValue.isAutonomous
 
-    private suspend fun periodicUpdate() {
+    private fun periodicUpdate() {
 
         SmartDashboard.putNumber("lastTry", Timer.getFPGATimestamp())
 
@@ -24,9 +25,11 @@ abstract class FishyRobot : FalconTimedRobot() {
         DriveSubsystem.useState()
         Superstructure.updateState()
         Superstructure.useState()
+
+        LimeLight.update()
     }
 
-    val job = arrayListOf<Job>()
+    private val job = arrayListOf<Job>()
 
 //    var lastRobotMode = Mode.DISABLED
 //        private set
@@ -69,12 +72,6 @@ abstract class FishyRobot : FalconTimedRobot() {
         updatableSubsystems.forEach { it.update() }
 //        runBlocking { periodicUpdate() }
         super.robotPeriodic()
-    }
-
-    enum class Mode {
-        AUTONOMOUS,
-        TELEOPERATED,
-        DISABLED,
     }
 
     private val updatableSubsystems = arrayListOf<Updatable>()
