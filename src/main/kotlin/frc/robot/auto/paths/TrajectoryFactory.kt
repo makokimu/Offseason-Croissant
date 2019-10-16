@@ -255,7 +255,9 @@ object TrajectoryFactory {
                     Pose2d(8.318.feet, 3.157.feet, 180.degree).asWaypoint(),
                     loadingStationUnPassedthroughAdjusted
             ),
-            getConstraints(false, loadingStationUnPassedthroughAdjusted), 10.feet.velocity, kMaxAcceleration * 1.75, 10.5.volt
+            getConstraints(false, loadingStationUnPassedthroughAdjusted.position,
+                    3.feet.velocity, 6.feet), 10.feet.velocity,
+            kMaxAcceleration * 1.75, 10.5.volt
     ) }
 
     val rocketFToDepot by lazy { generateTrajectory(
@@ -340,7 +342,8 @@ object TrajectoryFactory {
     /** Generation **/
 
     private fun getConstraints(elevatorUp: Boolean, trajectoryEndpoint: Pose2d,
-                               velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity) =
+                               velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity,
+                               velocityRadius: SIUnit<Meter> = kVelocityRadiusConstraintRadius) =
             listOf(
                     CentripetalAccelerationConstraint(
                             if (elevatorUp)
@@ -350,7 +353,7 @@ object TrajectoryFactory {
                     ),
                     VelocityLimitRadiusConstraint(
                             trajectoryEndpoint.translation,
-                            kVelocityRadiusConstraintRadius,
+                            velocityRadius,
                             velocityRadiusConstraintVelocity
                     ),
                     VelocityLimitRegionConstraint(TrajectoryWaypoints.kHabitatL1Platform, kMaxHabitatVelocity)
