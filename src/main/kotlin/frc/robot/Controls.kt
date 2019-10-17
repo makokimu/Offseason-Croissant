@@ -36,7 +36,7 @@ object Controls : Updatable {
             button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
 
             val cargoCommand = sequential { +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
-            button(10).changeOn(cargoCommand).changeOff(Superstructure.kStowed)
+            button(10).changeOff{ Superstructure.kStowed.schedule() }.change(cargoCommand)
         } else {
             triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }

@@ -203,7 +203,7 @@ object TrajectoryFactory {
     ) }
 
     val rocketNPrepTranslation = Translation2d(11.241.feet, 4.85.feet)
-    
+
     val rocketNPrep = Pose2d(rocketNPrepTranslation, (-157.435).degree)
             .transformBy(Pose2d(3.inch, 0.inch, 0.degree)).asWaypoint()
     val rocketNPrepRotated = Pose2d(rocketNPrepTranslation, (-30).degree).asWaypoint()
