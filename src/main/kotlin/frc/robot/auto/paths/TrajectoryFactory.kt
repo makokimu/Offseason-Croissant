@@ -202,9 +202,11 @@ object TrajectoryFactory {
             endVelocity = 2.feet.velocity
     ) }
 
-    val rocketNPrep = Pose2d(11.241.feet, 4.85.feet, -157.435.degree)
+    val rocketNPrepTranslation = Translation2d(11.241.feet, 4.85.feet)
+    
+    val rocketNPrep = Pose2d(rocketNPrepTranslation, (-157.435).degree)
             .transformBy(Pose2d(3.inch, 0.inch, 0.degree)).asWaypoint()
-    val rocketNPrepRotated = Pose2d(11.241.feet, 4.85.feet, (-30).degree).asWaypoint()
+    val rocketNPrepRotated = Pose2d(rocketNPrepTranslation, (-30).degree).asWaypoint()
 
     val rocketNPrepToRocketN by lazy { generateTrajectory(
             false,
@@ -310,12 +312,14 @@ object TrajectoryFactory {
             maxVoltage = kMaxVoltage
     ) }
 
+    val rocketFPrepTransform = Translation2d(23.809.feet, 3.399.feet)
+
     val rocketFPrepare = TrajectoryWaypoints.Waypoint(
-            Pose2d(23.809.feet, 3.399.feet, (-143).degree),
+            Pose2d(rocketFPrepTransform, (-143).degree),
             transform = Pose2d(0.inch, 0.inch, 0.degree)
     )
 
-    val rocketFPrepareRotated = Pose2d(23.809.feet, 3.399.feet, 127.862.degree).transformBy(Pose2d((-3).inch, -3.inch, 0.degree))
+    val rocketFPrepareRotated = Pose2d(rocketFPrepTransform, 127.862.degree).transformBy(Pose2d((-3).inch, -3.inch, 0.degree))
 
     val sideStartReversedToRocketFPrepare by lazy { generateTrajectory(
             true,
@@ -323,7 +327,7 @@ object TrajectoryFactory {
                     TrajectoryWaypoints.kSideStartReversed.asWaypoint(),
                     Pose2d(15.214.feet, 8.7.feet, 165.degree).asWaypoint(),
 //                    Pose2d(20.82.feet, 4.849.feet, 145.651.degree).asWaypoint(),
-                    rocketFPrepareRotated.transformBy(Pose2d((-11).inch, 0.inch, 0.degree)).asWaypoint()
+                    rocketFPrepareRotated.transformBy(Pose2d((-5).inch, 0.inch, 0.degree)).asWaypoint()
             ),
             getConstraints(false, Pose2d()), 9.feet.velocity, 7.feet.acceleration * 1.5, 9.volt
     ) }
