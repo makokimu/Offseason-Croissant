@@ -139,7 +139,10 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                val error = (goal - DriveSubsystem.robotPosition.translation)
 //                Rotation2d(error.x.meter, error.y.meter, true)
 
-                if (LimeLight.hasTarget) {
+                val heading = DriveSubsystem.robotPosition.rotation.degree
+                val isFacingCargo = heading < 145 && heading > 0
+
+                if (LimeLight.hasTarget && !isFacingCargo) {
                     // plus the rotation of the dt at that timestamp
                     LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
                 } else {

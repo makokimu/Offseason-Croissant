@@ -47,6 +47,23 @@ class ClosedLoopProximalMove(private val target: SIUnit<Radian>) : FalconCommand
     override fun isFinished() = Proximal.isWithTolerance(3.0.degree) // toDegrees(abs(target - Proximal.currentState.position)) < 5.0
 }
 
+class ClosedLoopSourceProximalMove(private val endState: SIUnit<Radian>, private val target: Source<SIUnit<Radian>>) : FalconCommand(Proximal) {
+
+    override fun execute() {
+        Proximal.wantedState = WantedState.Position(target())
+    }
+
+    override fun end(interrupted: Boolean) {
+        if (interrupted) {
+            // stop moving
+            Proximal.wantedState = WantedState.Position(Proximal.currentState.position)
+        }
+    }
+
+    override fun isFinished()= (endState - Proximal.currentState.position).absoluteValue < 3.degree
+    //Proximal.isWithTolerance(3.0.degree) // toDegrees(abs(target - Proximal.currentState.position)) < 5.0
+}
+
 class ClosedLoopWristMove(private val target: SIUnit<Radian>) : FalconCommand(Wrist) {
 
     override fun initialize() {

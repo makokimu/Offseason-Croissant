@@ -34,6 +34,9 @@ object Controls : Updatable {
         if (Constants.kIsRocketLeague) {
             button(kBumperRight).change(VisionDriveCommand(true))
             button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
+
+            val cargoCommand = sequential { +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
+            button(10).changeOn(cargoCommand).changeOff(Superstructure.kStowed)
         } else {
             triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
