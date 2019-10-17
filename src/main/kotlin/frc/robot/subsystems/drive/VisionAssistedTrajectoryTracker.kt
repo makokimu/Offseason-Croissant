@@ -11,10 +11,7 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.Trajectory
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
-import org.ghrobotics.lib.mathematics.units.derived.acceleration
-import org.ghrobotics.lib.mathematics.units.derived.radian
-import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
-import org.ghrobotics.lib.mathematics.units.derived.velocity
+import org.ghrobotics.lib.mathematics.units.derived.*
 import org.ghrobotics.lib.utils.Source
 
 /**
@@ -50,10 +47,18 @@ class VisionAssistedTrajectoryTracker(
         println("VISION INIT")
     }
 
+    var lastOutput = TrajectoryTrackerOutput(0.feet.velocity, 0.feet.acceleration, 0.degree.velocity, 0.degree.acceleration)
+
     override fun execute() {
         val robotPositionWithIntakeOffset = DriveSubsystem.robotPosition // IntakeSubsystem.robotPositionWithIntakeOffset
 
         val nextState = DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition)
+        DriveSubsystem.setOutput(TrajectoryTrackerOutput(
+                nextState.linearVelocity,
+                SIUnit((nextState.linearVelocity - lastOutput.linearVelocity).value / 0.020),
+                nextState.angularVelocity,
+                SIUnit((nextState.angularVelocity - lastOutput.angularVelocity).value / 0.020)))
+        lastOutput = nextState
 
         val withinVisionRadius =
                 robotPositionWithIntakeOffset.translation.distance(

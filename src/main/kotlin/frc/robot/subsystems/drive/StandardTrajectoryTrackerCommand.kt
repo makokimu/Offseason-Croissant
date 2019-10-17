@@ -3,10 +3,14 @@ package frc.robot.subsystems.drive
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.debug.LiveDashboard
+import org.ghrobotics.lib.mathematics.twodim.control.TrajectoryTrackerOutput
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedEntry
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.Trajectory
 import org.ghrobotics.lib.mathematics.units.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.mathematics.units.derived.acceleration
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.subsystems.drive.TrajectoryTrackerDriveBase
 import org.ghrobotics.lib.utils.Source
 
@@ -30,8 +34,17 @@ class StandardTrajectoryTrackerCommand(
         LiveDashboard.isFollowingPath = true
     }
 
+    var lastOutput = TrajectoryTrackerOutput(0.feet.velocity, 0.feet.acceleration, 0.degree.velocity, 0.degree.acceleration)
+
     override fun execute() {
-        DriveSubsystem.setOutput(DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition))
+        val output = DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition)
+        DriveSubsystem.setOutput(TrajectoryTrackerOutput(
+                output.linearVelocity,
+                SIUnit((output.linearVelocity - lastOutput.linearVelocity).value / 0.020),
+                output.angularVelocity,
+                SIUnit((output.angularVelocity - lastOutput.angularVelocity).value / 0.020)))
+        lastOutput = output
+
         val referencePoint = DriveSubsystem.trajectoryTracker.referencePoint
         if (referencePoint != null) {
             val referencePose = referencePoint.state.state.pose
