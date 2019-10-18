@@ -35,8 +35,8 @@ class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSub
         prevError = error
     }
 
-    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 3.degree.radian &&
-            (angularVelocity.absoluteValue.value < 3.degree.radian)
+    override fun isFinished() = (DriveSubsystem.robotPosition.rotation.radian - wantedAngle.radian).absoluteValue < 4.degree.radian &&
+            (angularVelocity.absoluteValue.value < 4.degree.radian)
 
     override fun end(interrupted: Boolean) {
         DriveSubsystem.setNeutral()
@@ -49,7 +49,7 @@ class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSub
 //    }
 
     companion object {
-        var kCorrectionKp = 1.75
-        var kCorrectionKd = 15.0
+        var kCorrectionKp = 1.9
+        var kCorrectionKd = 14.0
     }
 }

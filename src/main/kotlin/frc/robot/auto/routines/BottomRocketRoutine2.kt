@@ -71,9 +71,9 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 (-143).degree.toRotation2d() // TODO mirror
             }
 
-            +TurnInPlaceCommand {
-                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation)
-            }
+//            +TurnInPlaceCommand {
+//                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation)
+//            }
 
             +super.followVisionAssistedTrajectory(
                     path2,
@@ -153,9 +153,11 @@ class BottomRocketRoutine2 : AutoRoutine() {
 ////                (-28.75).degree.toRotation2d()
 //            }.perpetually().withExit { LimeLight.currentState.tx.absoluteValue < 2.degree }.withTimeout(3.0)
             }
-            +TurnInPlaceCommand {
-                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation)
-            }
+
+//            +TurnInPlaceCommand {
+//                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation)
+//            }
+
             +WaitCommand(0.5)
             +followVisionAssistedTrajectory(
                     path6,
