@@ -202,7 +202,7 @@ object TrajectoryFactory {
             endVelocity = 0.feet.velocity
     ) }
 
-    val rocketNPrepTranslation = Translation2d(11.241.feet, 4.85.feet)
+    val rocketNPrepTranslation = Translation2d(14.feet, 4.feet)
 
     val rocketNPrep = Pose2d(rocketNPrepTranslation, (-157.435).degree)
             .transformBy(Pose2d(3.inch, 0.inch, 0.degree)).asWaypoint()
@@ -215,7 +215,7 @@ object TrajectoryFactory {
                     rocketNPrepRotated,
                     rocketNAdjusted
             ),
-            getConstraints(true, rocketNAdjusted, 6.feet.velocity), kMaxVelocity, kMaxAcceleration, kMaxVoltage
+            getConstraints(true, rocketNAdjusted, 3.feet.velocity, 4.5.feet), kMaxVelocity, kMaxAcceleration, kMaxVoltage
     ) }
 
     val rocketNToDepot by lazy { generateTrajectory(
@@ -232,9 +232,9 @@ object TrajectoryFactory {
             listOf(
                     rocketFPrepare,
 //                    rocketFAdjusted
-                    Pose2d(22.312.feet, 2.82.feet, (-151.25).degree).transformBy(Pose2d(14.inch, 4.inch, 0.degree)).asWaypoint()
+                    Pose2d(22.312.feet, 2.82.feet, (-151.25).degree).transformBy(Pose2d(6.inch, 4.inch, 0.degree)).asWaypoint()
             ),
-            getConstraints(false, Pose2d()), 1.5.feet.velocity, kMaxAcceleration / 1.5, kMaxVoltage
+            getConstraints(false, Pose2d()), 2.5.feet.velocity, kMaxAcceleration / 1.5, kMaxVoltage
     ) }
 
     val rocketFToRocketFPrepare by lazy { generateTrajectory(
@@ -369,9 +369,10 @@ object TrajectoryFactory {
     fun getConstraints(
         elevatorUp: Boolean,
         trajectoryEndpoint: TrajectoryWaypoints.Waypoint,
-        velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity
+        velocityRadiusConstraintVelocity: SIUnit<Velocity<Meter>> = kVelocityRadiusConstraintVelocity,
+        velocityRadius: SIUnit<Meter> = kVelocityRadiusConstraintRadius
     ) =
-            getConstraints(elevatorUp, trajectoryEndpoint.position, velocityRadiusConstraintVelocity)
+            getConstraints(elevatorUp, trajectoryEndpoint.position, velocityRadiusConstraintVelocity, velocityRadius)
 
     fun generateTrajectory(
         reversed: Boolean,

@@ -139,19 +139,24 @@ class BottomRocketRoutine2 : AutoRoutine() {
             }
             // turn to face the goal
             +TurnInPlaceCommand {
-//                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
+                //                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
 //                val error = (goal - DriveSubsystem.robotPosition.translation)
 //                Rotation2d(error.x.meter, error.y.meter, true)
 
-                if (LimeLight.hasTarget) {
-                    // plus the rotation of the dt at that timestamp
-                    LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
-                } else {
-                    -28.75.degree.toRotation2d()
-                }
-
-//                (-28.75).degree.toRotation2d()
+//                if (LimeLight.hasTarget) {
+//                    // plus the rotation of the dt at that timestamp
+//                    LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
+//                } else {
+                -28.75.degree.toRotation2d() // TODO mirror it
+//                }
+//
+////                (-28.75).degree.toRotation2d()
+//            }.perpetually().withExit { LimeLight.currentState.tx.absoluteValue < 2.degree }.withTimeout(3.0)
             }
+            +TurnInPlaceCommand {
+                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation)
+            }
+            +WaitCommand(0.5)
             +followVisionAssistedTrajectory(
                     path6,
                     Autonomous.isStartingOnLeft,

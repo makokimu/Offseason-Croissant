@@ -28,7 +28,7 @@ object Controls : Updatable {
     val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
 
-//        button(kY).changeOn(BottomRocketRoutine2()())
+        button(kY).changeOn(BottomRocketRoutine2()())
 //        button(kA).change(TurnInPlaceCommand(90.degree))
 
         // Shifting
