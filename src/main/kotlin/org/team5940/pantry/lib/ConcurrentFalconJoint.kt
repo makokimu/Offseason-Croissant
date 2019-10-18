@@ -27,7 +27,7 @@ abstract class ConcurrentFalconJoint<T : SIKey, V : FalconMotor<T>> : Concurrent
 
     abstract val motor: MultiMotorTransmission<T, V>
 
-    override fun activateEmergency() = motor.activateEmergency()
+    override fun activateEmergency() { motor.activateEmergency(); setNeutral() }
     override fun recoverFromEmergency() = motor.recoverFromEmergency()
     override fun setNeutral() {
         wantedState = WantedState.Nothing

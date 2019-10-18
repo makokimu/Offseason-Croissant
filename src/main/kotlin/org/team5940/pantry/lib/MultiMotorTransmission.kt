@@ -145,7 +145,10 @@ abstract class MultiMotorTransmission<T : SIKey, M : FalconMotor<T>> : FalconMot
 
     fun setClosedLoopGains(p: Double, d: Double, ff: Double = 0.0) = master.setClosedLoopGains(p, d, ff)
 
-    override fun activateEmergency() = zeroClosedLoopGains()
+    override fun activateEmergency() {
+        zeroClosedLoopGains()
+        setNeutral()
+    }
     override fun recoverFromEmergency() = setClosedLoopGains()
 
     data class State<T : SIKey>(

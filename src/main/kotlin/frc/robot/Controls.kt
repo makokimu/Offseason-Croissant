@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.* // ktlint-disable no-wildcard-imports
+import frc.robot.auto.routines.AutoRoutine
 import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
@@ -27,7 +28,7 @@ object Controls : Updatable {
     val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
 
-        button(kY).changeOn(BottomRocketRoutine2()())
+//        button(kY).changeOn(BottomRocketRoutine2()())
 //        button(kA).change(TurnInPlaceCommand(90.degree))
 
         // Shifting

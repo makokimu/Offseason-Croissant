@@ -40,8 +40,7 @@ abstract class AutoRoutine : SequentialCommandGroup(), Source<Command> {
         useAbsoluteVision: Boolean = false
     ) = VisionAssistedTrajectoryTracker(
             pathMirrored.map(originalTrajectory.mirror(), originalTrajectory),
-            radiusFromEnd,
-            useAbsoluteVision
+            radiusFromEnd
     )
 
     protected fun relocalize(position: Pose2d, forward: Boolean, pathMirrored: BooleanSource, isStowed: Boolean = false) = InstantCommand(Runnable {

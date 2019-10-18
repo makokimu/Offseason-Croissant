@@ -62,13 +62,17 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                    val goal = goalTarget.averagedPose2d.translation
 //                    val error = (goal - DriveSubsystem.robotPosition.translation)
 //                    Rotation2d(error.x.meter, error.y.meter, true)
-                if (LimeLight.hasTarget) {
-                    // plus the rotation of the dt at that timestamp
-                    LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
-                } else {
-                    -151.degree.toRotation2d()
-                }
-//                -151.degree.toRotation2d()
+//                if (LimeLight.hasTarget) {
+//                    // plus the rotation of the dt at that timestamp
+//                    LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
+//                } else {
+//                    -151.degree.toRotation2d()
+//                }
+                (-143).degree.toRotation2d() // TODO mirror
+            }
+
+            +TurnInPlaceCommand {
+                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation)
             }
 
             +super.followVisionAssistedTrajectory(
@@ -93,7 +97,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
             val spline4 = super.followVisionAssistedTrajectory(
                     path4,
                     Autonomous.isStartingOnLeft,
-                    7.feet, false
+                    5.feet, false
             )
 
             // Part 2: Place hatch and go to loading station.
@@ -139,10 +143,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                val error = (goal - DriveSubsystem.robotPosition.translation)
 //                Rotation2d(error.x.meter, error.y.meter, true)
 
-                val heading = DriveSubsystem.robotPosition.rotation.degree
-                val isFacingCargo = heading < 145 && heading > 0
-
-                if (LimeLight.hasTarget && !isFacingCargo) {
+                if (LimeLight.hasTarget) {
                     // plus the rotation of the dt at that timestamp
                     LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
                 } else {

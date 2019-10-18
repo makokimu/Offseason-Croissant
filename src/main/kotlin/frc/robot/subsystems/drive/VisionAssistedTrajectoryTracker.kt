@@ -20,9 +20,8 @@ import org.ghrobotics.lib.utils.Source
  * @param trajectorySource Source that contains the trajectory to follow.
  */
 class VisionAssistedTrajectoryTracker(
-    val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
-    private val radiusFromEnd: Length,
-    private val useAbsoluteVision: Boolean = false
+        val trajectorySource: Source<Trajectory<SIUnit<Second>, TimedEntry<Pose2dWithCurvature>>>,
+        private val radiusFromEnd: Length
 ) : FalconCommand(DriveSubsystem) {
 
 //    private var visionFinished = false
@@ -47,18 +46,18 @@ class VisionAssistedTrajectoryTracker(
         println("VISION INIT")
     }
 
-    var lastOutput = TrajectoryTrackerOutput(0.feet.velocity, 0.feet.acceleration, 0.degree.velocity, 0.degree.acceleration)
+    var lastAbsoluteAngle: SIUnit<Radian>? = null
 
     override fun execute() {
         val robotPositionWithIntakeOffset = DriveSubsystem.robotPosition // IntakeSubsystem.robotPositionWithIntakeOffset
 
         val nextState = DriveSubsystem.trajectoryTracker.nextState(DriveSubsystem.robotPosition)
-        DriveSubsystem.setOutput(TrajectoryTrackerOutput(
-                nextState.linearVelocity,
-                SIUnit((nextState.linearVelocity - lastOutput.linearVelocity).value / 0.020),
-                nextState.angularVelocity,
-                SIUnit((nextState.angularVelocity - lastOutput.angularVelocity).value / 0.020)))
-        lastOutput = nextState
+        DriveSubsystem.setOutput(nextState) //TrajectoryTrackerOutput(
+//                nextState.linearVelocity,
+//                SIUnit((nextState.linearVelocity - lastOutput.linearVelocity).value / 0.020),
+//                nextState.angularVelocity,
+//                SIUnit((nextState.angularVelocity - lastOutput.angularVelocity).value / 0.020)))
+//        lastOutput = nextState
 
         val withinVisionRadius =
                 robotPositionWithIntakeOffset.translation.distance(
@@ -89,17 +88,16 @@ class VisionAssistedTrajectoryTracker(
 //            val transform = lastKnownTargetPose inFrameOfReferenceOf robotPositionWithIntakeOffset
 //            val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
 
-            val angle = LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
+            val angle = LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation - DriveSubsystem.robotPosition.rotation
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)
 
             val error = (angle + if (!trajectory.reversed) Rotation2d() else Math.PI.radian.toRotation2d()).radian
-            val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
+            val turn =  kCorrectionKp * error + kCorrectionKd * (error - prevError)
 
             DriveSubsystem.setOutput(
                     TrajectoryTrackerOutput(
-//                            min(linear, kMaxLinearVelocityVision),
                             nextState.linearVelocity,
                             0.meter.acceleration,
                             turn.radian.velocity,
@@ -136,7 +134,7 @@ class VisionAssistedTrajectoryTracker(
 
     companion object {
         const val kCorrectionKp = 0.8 * 1.2 * 1.5 * 1.3 // 5.5 * 2.0
-        const val kCorrectionKd = 8.0 // 5.0
+        const val kCorrectionKd = 0.0 // 5.0
         var visionActive = false
     }
 }
