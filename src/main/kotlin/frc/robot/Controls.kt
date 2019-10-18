@@ -21,15 +21,13 @@ import org.team5940.pantry.lib.Updatable
 object Controls : Updatable {
 
     var isClimbing = false
+    var wantsHab3Mode = false
 
     private val zero = ZeroSuperStructureRoutine()
 
     val driverControllerLowLevel = XboxController(0)
     val driverFalconXbox = driverControllerLowLevel.mapControls {
         registerEmergencyMode()
-
-        button(kY).changeOn(BottomRocketRoutine2()())
-//        button(kA).change(TurnInPlaceCommand(90.degree))
 
         // Shifting
         if (Constants.kIsRocketLeague) {
@@ -43,59 +41,52 @@ object Controls : Updatable {
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
         }
 
-        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn { isClimbing = true }
-        state({ isClimbing }) {
-            pov(0).changeOn(ClimbSubsystem.hab3ClimbCommand)
-        }
+        // get both the buttons that are close together
+        pov(90).changeOn(ClimbSubsystem.hab3prepMove).changeOn { isClimbing = true; wantsHab3Mode = true }
+        pov(45).changeOn(ClimbSubsystem.hab3prepMove).changeOn { isClimbing = true; wantsHab3Mode = true }
     }
-
-//    val auxXbox = XboxController(1)
-//    val auxFalconXbox = auxXbox.mapControls {
-//        button(kY).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
-//    }
 
     val operatorJoy = Joystick(5)
     val operatorFalconHID = operatorJoy.mapControls {
-
-//        button(4).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
-
-            // climbing
-
-            // cargo presets
+        // cargo presets
 //            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
-            button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
-            button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
-            button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
-            button(8).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
+        button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
+        button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
+        button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
+        button(8).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
 
-            // hatch presets
-            button(3).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
-            button(2).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
-            button(1).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
+        // hatch presets
+        button(3).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
+        button(2).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
+        button(1).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
 
-            // Stow (for now like this coz i dont wanna break anything
-            button(10).changeOn(Superstructure.kStowed)
+        // Stow (for now like this coz i dont wanna break anything
+        button(10).changeOn(Superstructure.kStowed)
 
-            button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inch })
-            button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
+        button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inch })
+        button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
 
-            // that one passthrough preset that doesnt snap back to normal
+        // that one passthrough preset that doesnt snap back to normal
 //            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
-            // hatches
-            lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
-            greaterThanAxisButton(1).change(IntakeHatchCommand(releasing = true))
+        // hatches
+        lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
+        greaterThanAxisButton(1).change(IntakeHatchCommand(releasing = true))
 
-            // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
-            // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
-            val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
-            lessThanAxisButton(0).changeOff { (sequential { +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
-            greaterThanAxisButton(0).changeOff { }.change(IntakeCargoCommand(true))
-        state({ isClimbing }) {
+        // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
+        // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
+        val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
+        lessThanAxisButton(0).changeOff { (sequential { +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
+        greaterThanAxisButton(0).changeOff { }.change(IntakeCargoCommand(true))
+
+        button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true; wantsHab3Mode = false }
+        state({ isClimbing && !wantsHab3Mode }) {
             button(12).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
         }
+        state({ isClimbing && wantsHab3Mode }) {
+            button(12).changeOn(ClimbSubsystem.hab3ClimbCommand)
+        }
 
-        button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true }
     }
 
     override fun update() {
