@@ -1,10 +1,12 @@
 package frc.robot.auto.routines
 
+import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.drive.TurnInPlaceCommand
 import frc.robot.subsystems.intake.IntakeCloseCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
@@ -16,81 +18,71 @@ import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.Second
+import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.second
+import org.ghrobotics.lib.utils.map
 import org.ghrobotics.lib.utils.withEquals
 
-class CargoShipRoutine(private val mode: Mode) : AutoRoutine() {
+class CargoShipRoutine : AutoRoutine() {
 
-    enum class Mode(
-        val path1: TimedTrajectory<Pose2dWithCurvature>,
-        val path2: TimedTrajectory<Pose2dWithCurvature>,
-        val path3: TimedTrajectory<Pose2dWithCurvature>
-    ) {
-        SIDE(
-            TrajectoryFactory.sideStartToCargoShipS1,
-            TrajectoryFactory.cargoShipS1ToLoadingStation,
-            TrajectoryFactory.loadingStationToCargoShipS2
-        ),
-        FRONT(
-            TrajectoryFactory.centerStartToCargoShipFL,
-            TrajectoryFactory.cargoShipFLToRightLoadingStation,
-            TrajectoryFactory.loadingStationToCargoShipFR
-        )
-    }
+    val path1 = TrajectoryFactory.sideStartToCargoShipS1
+    val path2 = TrajectoryFactory.cargoShipS1ToS1Prep
+    val path3 = TrajectoryFactory.cargoS1PrepToLoadingStation
+    val path4 = TrajectoryFactory.loadingStationToCargoS1Prep
+    val path5 = TrajectoryFactory.cargoPrepToCargoS1
 
     private val pathMirrored = Autonomous.startingPosition.withEquals(Autonomous.StartingPositions.LEFT)
 
     override val duration: SIUnit<Second>
-        get() = mode.path1.duration + mode.path2.duration + mode.path3.duration
+        get() = path1.duration + path2.duration + path3.duration
 
     override val routine
         get() = sequential {
 
             +parallel {
-                +followVisionAssistedTrajectory(mode.path1, pathMirrored, 4.feet, true)
+                +followVisionAssistedTrajectory(path1, pathMirrored, 3.feet)
                 +sequential {
-                    +WaitCommand(mode.path1.duration.second - 3.5.second.second)
-                    +Superstructure.kHatchLow.withTimeout(2.0.second)
+                    +DriveSubsystem.notWithinRegion(TrajectoryWaypoints.kHabitatL1Platform)
+                    +Superstructure.kMatchStartToStowed
                 }
             }
 
-            val path2 = followVisionAssistedTrajectory(mode.path2, pathMirrored, 4.feet)
+            val path2_ = DriveSubsystem.followTrajectory(path2, pathMirrored)
+            val path3_ = followVisionAssistedTrajectory(path3, pathMirrored, 5.feet)
 
-            // follow path2 while first outtaking, then close the intake, move the superstructure to the back and grab another hatch
+            // back up and turn around
+//            +parallel {
+//                +path2_
+//                +IntakeHatchCommand(true).withTimeout(1.second)
+//            }
+//
             +parallel {
-                +path2
                 +sequential {
-                    +IntakeHatchCommand(true).withTimeout(0.5.second)
-                    +IntakeCloseCommand()
-                    +Superstructure.kBackHatchFromLoadingStation
-                    +IntakeHatchCommand(false).withExit { path2.isFinished }
+                    +path2_
+                    +path3_
                 }
+                +sequential {
+                    +WaitCommand(path3.duration.second + path2.duration.second - 4)
+                    +IntakeHatchCommand(false).withExit { path3_.isFinished }
+                }.withExit { path3_.isFinished }
             }
 
             +relocalize(TrajectoryWaypoints.kLoadingStation, false, pathMirrored)
 
             +parallel {
-                +IntakeHatchCommand(false).withTimeout(0.75.second)
-                +followVisionAssistedTrajectory(mode.path3, pathMirrored, 4.feet, true)
-                +sequential {
-//                    +executeFor(2.second, Superstructure.kStowedPosition)
-                    +WaitCommand(1.0)
-                    +Superstructure.kHatchLow.withTimeout(4.second)
-                }
+                +IntakeHatchCommand(false).withTimeout(1.0)
+                +DriveSubsystem.followTrajectory(path4, pathMirrored)
             }
+            +TurnInPlaceCommand(pathMirrored.map(-90.degree.toRotation2d(), 90.degree.toRotation2d()))
+
+            +DriveSubsystem.followTrajectory(path5, pathMirrored)
 
             +parallel {
-                +IntakeHatchCommand(true).withTimeout(0.5.second)
-                +object : FalconCommand(DriveSubsystem) {
-                    override fun execute() {
-                        DriveSubsystem.tankDrive(-0.3, -0.3)
-                    }
-
-                    override fun end(i: Boolean) {
-                        DriveSubsystem.zeroOutputs()
-                    }
-                }.withTimeout(1.second)
+                +IntakeHatchCommand(true).withTimeout(1.0)
+                +RunCommand(Runnable { DriveSubsystem.tankDrive(-0.3, -0.3) }).withTimeout(1.0)
             }
+
         }
 }
