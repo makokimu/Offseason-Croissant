@@ -43,7 +43,7 @@ object Robot : FishyRobot() {
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 
-        LimeLight.lateinit()
+//        LimeLight.lateinit()
         LimeLight.configureDisabled()
 
         super.robotInit()

@@ -1,5 +1,7 @@
 package frc.robot.auto.routines
 
+import edu.wpi.first.wpilibj2.command.InstantCommand
+import edu.wpi.first.wpilibj2.command.PrintCommand
 import edu.wpi.first.wpilibj2.command.RunCommand
 import edu.wpi.first.wpilibj2.command.WaitCommand
 import frc.robot.auto.Autonomous
@@ -7,6 +9,7 @@ import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.TurnInPlaceCommand
+import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeCloseCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
@@ -20,6 +23,7 @@ import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.Second
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.second
 import org.ghrobotics.lib.utils.map
@@ -41,12 +45,30 @@ class CargoShipRoutine : AutoRoutine() {
     override val routine
         get() = sequential {
 
+
+            +PrintCommand("Starting")
+            +InstantCommand(Runnable { DriveSubsystem.lowGear = false })
+
+//            +parallel {
+//                +followVisionAssistedTrajectory(path1, pathMirrored, 3.feet)
+//                +sequential {
+//                    +DriveSubsystem.notWithinRegion(TrajectoryWaypoints.kHabitatL1Platform)
+//                    +WaitCommand(0.5)
+//                    +Superstructure.kMatchStartToStowed
+//                }
+//            }
+
             +parallel {
-                +followVisionAssistedTrajectory(path1, pathMirrored, 3.feet)
-                +sequential {
+                +followVisionAssistedTrajectory(
+                        path1,
+                        Autonomous.isStartingOnLeft,
+                        3.feet
+                )
+                +(sequential {
                     +DriveSubsystem.notWithinRegion(TrajectoryWaypoints.kHabitatL1Platform)
+                    +WaitCommand(0.5)
                     +Superstructure.kMatchStartToStowed
-                }
+                }).beforeStarting { Intake.hatchMotorOutput = 6.volt }.whenFinished { Intake.hatchMotorOutput = 0.volt }
             }
 
             val path2_ = DriveSubsystem.followTrajectory(path2, pathMirrored)

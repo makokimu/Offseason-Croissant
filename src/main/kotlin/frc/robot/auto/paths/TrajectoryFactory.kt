@@ -299,7 +299,7 @@ object TrajectoryFactory {
                     TrajectoryWaypoints.kSideStart.transformBy(Pose2d(4.feet, 0.feet, 0.degree)).asWaypoint(),
                     Pose2d(18.123.feet, 5.691.feet, (-15.03).degree).asWaypoint(),
                     cargoShipS1Adjusted.position.transformBy(Pose2d((-1).feet, 0.feet, 0.degree)).asWaypoint(),
-                    cargoShipS1Adjusted
+                    cargoShipS1Adjusted.position.transformBy(Pose2d((6).inch, 0.feet, 0.degree)).asWaypoint()
             ),
             getConstraints(true, cargoShipS1Adjusted), kMaxVelocity, kMaxAcceleration * 1.5, kMaxVoltage
     ) }
