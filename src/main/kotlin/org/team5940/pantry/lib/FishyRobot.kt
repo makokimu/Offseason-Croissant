@@ -29,20 +29,22 @@ abstract class FishyRobot : FalconTimedRobot() {
         LimeLight.update()
     }
 
-    private val job = arrayListOf<Job>()
+//    private val job = arrayListOf<Job>()
+var updateJob: Job? = null
+    var ntJob: Job? = null
 
 //    var lastRobotMode = Mode.DISABLED
 //        private set
 
     override fun robotInit() {
 
-        job.add(updateScope.launch {
+        updateJob = (updateScope.launch {
             loopFrequency(75 /* hertz */) {
                 try { periodicUpdate() } catch (ignored: Exception) {}
             }
         })
 
-        job.add(updateScope.launch {
+        ntJob = (updateScope.launch {
             loopFrequency(4) {
                 SmartDashboard.putString("Joint states", Superstructure.currentState.asString())
             }
@@ -71,8 +73,14 @@ abstract class FishyRobot : FalconTimedRobot() {
     override fun robotPeriodic() {
         updatableSubsystems.forEach { it.update() }
 
+        val job = this.updateJob
+        if(job != null) {
+            if(!job.isActive) job.start()
+        }
+
 //        runBlocking { periodicUpdate() }
         super.robotPeriodic()
+
     }
 
     private val updatableSubsystems = arrayListOf<Updatable>()
