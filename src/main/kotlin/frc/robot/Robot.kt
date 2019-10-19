@@ -43,10 +43,18 @@ object Robot : FishyRobot() {
         SmartDashboard.putData(CommandScheduler.getInstance())
         Superstructure.zero.schedule()
 
-        LimeLight
+        LimeLight.lateinit()
         LimeLight.configureDisabled()
 
         super.robotInit()
+    }
+
+    override fun autonomousInit() {
+        LimeLight.configureEnabled()
+    }
+
+    override fun teleopPeriodic() {
+        LimeLight.configureEnabled()
     }
 
     override fun robotPeriodic() {
@@ -54,6 +62,7 @@ object Robot : FishyRobot() {
     }
 
     override fun disabledInit() {
+        LimeLight.configureDisabled()
     }
 
     override fun teleopInit() {

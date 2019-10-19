@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.Controls
 import frc.robot.auto.routines.withExit
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.drive.ManualDriveCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -33,6 +34,8 @@ import org.team5940.pantry.lib.MultiMotorTransmission
 import org.team5940.pantry.lib.WantedState
 import java.awt.Color
 import kotlin.math.PI
+import kotlin.math.absoluteValue
+import kotlin.math.sign
 import kotlin.math.withSign
 
 object ClimbSubsystem : FalconSubsystem() {
@@ -102,13 +105,27 @@ object ClimbSubsystem : FalconSubsystem() {
 //        stiltMotor.setDutyCycle(0.0, 1.volt) // negative voltage is pushing us down
     }
 
-    val fullS3ndClimbCommand = object : FalconCommand(ClimbSubsystem,
+    val hab2ClimbCommand = object : FalconCommand(ClimbSubsystem,
             Elevator, Proximal, Wrist, Superstructure) {
 
         val targetHeight = 13.inch
 //        val yeetForwardSource by lazy { { Controls.operatorJoy.getRawAxis(1) } }
 //        val endCommand by lazy { { Controls.operatorJoy.getRawButton(12) } }
-        val yeetForwardSource by lazy { { Controls.driverControllerLowLevel.getY(GenericHID.Hand.kLeft) } }
+//        val yeetForwardSource by lazy { { Controls.driverControllerLowLevel.getY(GenericHID.Hand.kLeft) } }
+//        val yeetForwardSource by lazy { ManualDriveCommand.speedSource }
+
+        val yeetForwardSource by lazy {
+            { val toRet = Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight) - Controls
+                    .driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft)
+//                    println("speed $toRet")
+                val compensated = toRet * -1.0
+                val deadbanded = ((compensated.absoluteValue - ManualDriveCommand.kDeadband / 1.8) / (1.0 - ManualDriveCommand.kDeadband / 1.8)) * compensated.sign
+
+                // throttle curve should be between [-1. 1] or so.
+                ManualDriveCommand.kisscalc(deadbanded, 0.77, 0.0, 0.00116)
+            }
+        }
+
         val endCommand by lazy { { Controls.driverControllerLowLevel.getRawButton(1) } }
         val elevatorSource by lazy { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
 
@@ -134,7 +151,7 @@ object ClimbSubsystem : FalconSubsystem() {
         override fun execute() {
             if (Elevator.currentState.position < 18.inch + hab2Offset && Elevator.currentState.position > 13.inch + hab2Offset) Proximal.wantedState = WantedState.Position((-37).degree)
             else if (Elevator.currentState.position < 12.5.inch + hab2Offset) {
-                Proximal.wantedState = WantedState.Position((-47).degree)
+                Proximal.wantedState = WantedState.Position((-45).degree)
                 Wrist.wantedState = WantedState.Position(86.degree)
             }
 //            }
@@ -154,7 +171,7 @@ object ClimbSubsystem : FalconSubsystem() {
 //            if(stiltsInPosition || stiltMotor.encoder.position < 12.inch - 4.inch) stiltMotor.setPosition(12.inch - 4.5.inch) else {
 //                setClimbProfile(targetState, yeetUpVelocity.velocity, (-4.5).inch)
 //            }
-            stiltMotor.setPosition(12.inch - 4.5.inch + hab2Offset - 2.inch)
+            stiltMotor.setPosition(12.inch - 4.5.inch + hab2Offset - 1.5.inch)
             Elevator.wantedState = WantedState.Position(12.inch - 0.5.inch)
 
             var s3nd = yeetForwardSource() * -1.0
@@ -191,6 +208,8 @@ object ClimbSubsystem : FalconSubsystem() {
                     LEDs.wantedState = LEDs.State.Default
                 }
             }
+
+//            Superstructure.kMatchStartToStowed.schedule()
         }
     }
 
@@ -200,9 +219,21 @@ object ClimbSubsystem : FalconSubsystem() {
         val targetHeight = 13.inch
         //        val yeetForwardSource by lazy { { Controls.operatorJoy.getRawAxis(1) } }
 //        val endCommand by lazy { { Controls.operatorJoy.getRawButton(12) } }
-        val yeetForwardSource by lazy { { Controls.driverControllerLowLevel.getY(GenericHID.Hand.kLeft) } }
+//        val yeetForwardSource by lazy { { Controls.driverControllerLowLevel.getY(GenericHID.Hand.kLeft) } }
         val endCommand by lazy { { Controls.driverControllerLowLevel.getRawButton(1) } }
         val elevatorSource by lazy { { Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft) } }
+
+        val yeetForwardSource by lazy {
+            { val toRet = Controls.driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kRight) - Controls
+                    .driverControllerLowLevel.getTriggerAxis(GenericHID.Hand.kLeft)
+//                    println("speed $toRet")
+                val compensated = toRet * -1.0
+                val deadbanded = ((compensated.absoluteValue - ManualDriveCommand.kDeadband / 1.8) / (1.0 - ManualDriveCommand.kDeadband / 1.8)) * compensated.sign
+
+                // throttle curve should be between [-1. 1] or so.
+                ManualDriveCommand.kisscalc(deadbanded, 0.77, 0.0, 0.00116)
+            }
+        }
 
         var startTime = 0.0
         //        val yeetUpVelocity = (-6).inch // meters per second
@@ -272,6 +303,8 @@ object ClimbSubsystem : FalconSubsystem() {
                     LEDs.wantedState = LEDs.State.Default
                 }
             }
+
+//            Superstructure.kMatchStartToStowed.schedule()
         }
     }
 

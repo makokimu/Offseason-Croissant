@@ -4,8 +4,6 @@ import edu.wpi.first.wpilibj.GenericHID
 import edu.wpi.first.wpilibj.Joystick
 import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.* // ktlint-disable no-wildcard-imports
-import frc.robot.auto.routines.AutoRoutine
-import frc.robot.auto.routines.BottomRocketRoutine2
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
@@ -81,7 +79,7 @@ object Controls : Updatable {
 
         button(4).changeOn(ClimbSubsystem.prepMove).changeOn { isClimbing = true; wantsHab3Mode = false }
         state({ isClimbing && !wantsHab3Mode }) {
-            button(12).changeOn(ClimbSubsystem.fullS3ndClimbCommand)
+            button(12).changeOn(ClimbSubsystem.hab2ClimbCommand)
         }
         state({ isClimbing && wantsHab3Mode }) {
             button(12).changeOn(ClimbSubsystem.hab3ClimbCommand)
