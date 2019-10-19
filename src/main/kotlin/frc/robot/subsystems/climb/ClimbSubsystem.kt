@@ -272,7 +272,7 @@ object ClimbSubsystem : FalconSubsystem() {
             var s3nd = yeetForwardSource() * -1.0
             if (s3nd < -0.1) s3nd = -0.2
 
-            val wantedIntake = if (Timer.getFPGATimestamp() < startTime + 2.0) 1.0 else if (s3nd > 0.0) s3nd + 0.35 else s3nd
+            val wantedIntake = if (Timer.getFPGATimestamp() < startTime + 3.5) 1.0 else if (s3nd > 0.0) s3nd + 0.35 else s3nd
 
             intakeWheels.setDutyCycle(wantedIntake)
             DriveSubsystem.lowGear = true
