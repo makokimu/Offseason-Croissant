@@ -66,6 +66,7 @@ object Robot : FishyRobot() {
     }
 
     override fun teleopInit() {
+        DriveSubsystem.lowGear = false
     }
 }
 
