@@ -89,6 +89,8 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             master.talonSRX.configReverseSoftLimitEnable(false)
             master.talonSRX.configPeakOutputForward(1.0)
             master.talonSRX.configPeakOutputReverse(-1.0)
+            master.talonSRX.selectProfileSlot(0, 0)
+            master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
 
 //            master.talonSRX.enableVoltageCompensation(true)
             master.voltageCompSaturation = 12.volt
@@ -110,6 +112,8 @@ object Elevator : ConcurrentFalconJoint<Meter, FalconSRX<Meter>>() {
             master.talonSRX.configMotionCruiseVelocity((5500.0 * Constants.SuperStructureConstants.kJointSpeedMultiplier).toInt()) // about 3500 theoretical max
             master.talonSRX.configMotionAcceleration(8000)
             master.talonSRX.configMotionSCurveStrength(0)
+
+            master.talonSRX.configClosedLoopPeakOutput(0, 1.0)
 
             master.setClosedLoopGains(
                     0.45 * 1.2, 4.0, ff = 0.3
