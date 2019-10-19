@@ -69,6 +69,12 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override fun setClosedLoopGains() {
 //            followers.forEach { configCurrentLimit(true, FalconSRX.CurrentLimitConfig(50.amp, 1.second, 38.amp)) }
 
+            with(master.talonSRX) {
+                configClosedLoopPeakOutput(0, 1.0)
+                configPeakOutputForward(1.0)
+                configPeakOutputReverse(-1.0)
+            }
+
             // LQR gains
             if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0, 0.0)
             // old gains
@@ -110,6 +116,13 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override fun setClosedLoopGains() {
             // LQR gains
             if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0, 0.0)
+
+            with(master.talonSRX) {
+                configClosedLoopPeakOutput(0, 1.0)
+                configPeakOutputForward(1.0)
+                configPeakOutputReverse(-1.0)
+            }
+
             // Old gains
 //            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.0, 0.0)
         }

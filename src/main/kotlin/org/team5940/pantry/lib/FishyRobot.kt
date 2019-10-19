@@ -38,7 +38,7 @@ abstract class FishyRobot : FalconTimedRobot() {
 
         job.add(updateScope.launch {
             loopFrequency(75 /* hertz */) {
-                periodicUpdate()
+                try { periodicUpdate() } catch (ignored: Exception) {}
             }
         })
 
@@ -70,6 +70,7 @@ abstract class FishyRobot : FalconTimedRobot() {
 
     override fun robotPeriodic() {
         updatableSubsystems.forEach { it.update() }
+
 //        runBlocking { periodicUpdate() }
         super.robotPeriodic()
     }

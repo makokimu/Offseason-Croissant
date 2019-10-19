@@ -104,8 +104,12 @@ object LimeLight {
             val distance = getDistanceToTarget()
             val tx = newState.tx
             val rawPose = Pose2d(Translation2d(distance, tx.toRotation2d()))
-            val correctedPose = DriveSubsystem.localization[newState.timestamp] +
-                    (Constants.kCenterToFrontCamera + rawPose)
+            val correctedPose = try {
+                DriveSubsystem.localization[newState.timestamp] +
+                        (Constants.kCenterToFrontCamera + rawPose)
+            } catch(ignored: Exception) {
+                DriveSubsystem.robotPosition
+            }
             correctedPose
         }
 

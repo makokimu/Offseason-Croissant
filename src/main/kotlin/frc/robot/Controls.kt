@@ -7,9 +7,11 @@ import edu.wpi.first.wpilibj2.command.* // ktlint-disable no-wildcard-imports
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.VisionDriveCommand
+import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
+import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.inch
@@ -98,9 +100,22 @@ private fun Command.andThen(block: () -> Unit) = sequential { +this@andThen ; +I
 
 private fun FalconXboxBuilder.registerEmergencyMode() {
     button(kBack).changeOn {
-        Robot.activateEmergency()
+//        Robot.activateEmergency()
+        val command = object: FalconCommand(Superstructure, DriveSubsystem, Elevator, Proximal, Wrist, Intake) {
+            override fun execute() {
+                Superstructure.setNeutral()
+                Elevator.setNeutral()
+                Proximal.setNeutral()
+                Wrist.setNeutral()
+                Intake.setNeutral()
+                DriveSubsystem.setNeutral()
+                DriveSubsystem.leftMotor.setClosedLoopGains()
+                DriveSubsystem.rightMotor.setClosedLoopGains()
+            }
+        }.withTimeout(0.5)
+        command.schedule()
     }
     button(kStart).changeOn {
-        Robot.recoverFromEmergency()
+//        Robot.recoverFromEmergency()
     }
 }

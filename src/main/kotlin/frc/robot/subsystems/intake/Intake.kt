@@ -36,6 +36,11 @@ object Intake : FalconSubsystem() {
         cargoMotor.talonSRX.configPeakOutputReverse(-0.8)
     }
 
+    override fun setNeutral() {
+        hatchMotor.setNeutral()
+        cargoMotor.setNeutral()
+    }
+
     var hatchMotorOutput
         get() = hatchMotor.voltageOutput / 12.0
         set(value) = hatchMotor.setVoltage(value)
