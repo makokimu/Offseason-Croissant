@@ -9,7 +9,7 @@ import org.ghrobotics.lib.mathematics.units.derived.* // ktlint-disable no-wildc
 import org.ghrobotics.lib.utils.Source
 import kotlin.math.absoluteValue
 
-class TurnInPlaceCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSubsystem) {
+class PointTurnCommand(val angle: Source<Rotation2d>) : FalconCommand(DriveSubsystem) {
 
     constructor(angle: SIUnit<Radian>) : this({ angle.toRotation2d() })
 

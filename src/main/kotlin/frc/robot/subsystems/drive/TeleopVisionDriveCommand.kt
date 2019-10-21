@@ -17,7 +17,7 @@ import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import kotlin.math.absoluteValue
 
-class VisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
+class TeleopVisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
 
     override fun isFinished() = false
 

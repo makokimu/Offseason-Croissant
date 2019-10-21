@@ -8,16 +8,12 @@ import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.drive.TurnInPlaceCommand
+import frc.robot.subsystems.drive.PointTurnCommand
 import frc.robot.subsystems.intake.Intake
-import frc.robot.subsystems.intake.IntakeCloseCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
-import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
 import org.ghrobotics.lib.commands.sequential
-import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2dWithCurvature
-import org.ghrobotics.lib.mathematics.twodim.trajectory.types.TimedTrajectory
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
 import org.ghrobotics.lib.mathematics.units.SIUnit
 import org.ghrobotics.lib.mathematics.units.Second
@@ -97,7 +93,7 @@ class CargoShipRoutine : AutoRoutine() {
                 +IntakeHatchCommand(false).withTimeout(1.0)
                 +DriveSubsystem.followTrajectory(path4, pathMirrored)
             }
-            +TurnInPlaceCommand(pathMirrored.map(-90.degree.toRotation2d(), 90.degree.toRotation2d()))
+            +PointTurnCommand(pathMirrored.map(-90.degree.toRotation2d(), 90.degree.toRotation2d()))
 
             +DriveSubsystem.followTrajectory(path5, pathMirrored)
 

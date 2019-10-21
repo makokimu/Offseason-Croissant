@@ -88,7 +88,7 @@ class VisionAssistedTrajectoryTracker(
 //            val transform = lastKnownTargetPose inFrameOfReferenceOf robotPositionWithIntakeOffset
 //            val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
 
-            val angle = LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation - DriveSubsystem.robotPosition.rotation
+            val angle = LimeLight.currentState.yaw.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation - DriveSubsystem.robotPosition.rotation
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)

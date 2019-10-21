@@ -31,10 +31,6 @@ class ClosedLoopChezyDriveCommand : ManualDriveCommand() {
             linear *= (-0.0208108 * elevator.inch + 1.66696)
         }
 
-        // limit linear acceleration
-//        if (lastLinearVelocity + kMaxLinearAcceleration * 0.020 < linear) linear = lastLinearVelocity + kMaxLinearAcceleration * 0.020
-//        if (lastLinearVelocity - kMaxLinearAcceleration * 0.020 > linear) linear = lastLinearVelocity - kMaxLinearAcceleration * 0.020
-
         val multiplier = if (DriveSubsystem.lowGear) 8.0 * kFeetToMeter else 12.0 * kFeetToMeter
 
         var wheelSpeeds = curvatureDrive(linear, curvature, isQuickTurn)

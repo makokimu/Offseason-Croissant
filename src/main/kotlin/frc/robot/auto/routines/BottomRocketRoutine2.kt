@@ -8,10 +8,9 @@ import frc.robot.auto.Autonomous
 import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.drive.TurnInPlaceCommand
+import frc.robot.subsystems.drive.PointTurnCommand
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeHatchCommand
-import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.twodim.trajectory.types.duration
@@ -55,7 +54,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 }).beforeStarting { Intake.hatchMotorOutput = 6.volt }.whenFinished { Intake.hatchMotorOutput = 0.volt }
             }
 
-            +TurnInPlaceCommand {
+            +PointTurnCommand {
 
 //                val goalTarget = TargetTracker.getBestTarget(true)
 //                if(goalTarget != null) {
@@ -71,7 +70,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
                 (-143).degree.toRotation2d() * if(Autonomous.isStartingOnLeft()) -1.0 else 1.0
             }
 
-//            +TurnInPlaceCommand {
+//            +PointTurnCommand {
 //                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation) * if(Autonomous.isStartingOnLeft()) -1.0 else 1.0
 //            }
 
@@ -138,7 +137,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //                +Superstructure.kStowed
             }
             // turn to face the goal
-            +TurnInPlaceCommand {
+            +PointTurnCommand {
                 //                val goal = TrajectoryWaypoints.kRocketN.translation.let { if(Autonomous.isStartingOnLeft()) it.mirror else it }
 //                val error = (goal - DriveSubsystem.robotPosition.translation)
 //                Rotation2d(error.x.meter, error.y.meter, true)
@@ -154,7 +153,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
 //            }.perpetually().withExit { LimeLight.currentState.tx.absoluteValue < 2.degree }.withTimeout(3.0)
             }
 
-//            +TurnInPlaceCommand {
+//            +PointTurnCommand {
 //                (LimeLight.currentState.tx.toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation) * if(Autonomous.isStartingOnLeft()) -1.0 else 1.0
 //            }
 

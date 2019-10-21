@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.XboxController
 import edu.wpi.first.wpilibj2.command.* // ktlint-disable no-wildcard-imports
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.drive.VisionDriveCommand
+import frc.robot.subsystems.drive.TeleopVisionDriveCommand
 import frc.robot.subsystems.intake.Intake
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
@@ -31,13 +31,13 @@ object Controls : Updatable {
 
         // Shifting
         if (Constants.kIsRocketLeague) {
-            button(kBumperRight).change(VisionDriveCommand(true))
+            button(kBumperRight).change(TeleopVisionDriveCommand(true))
             button(9).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
 
 //            val cargoCommand = sequential { +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
 //            button(10).changeOff{ Superstructure.kStowed.schedule() }.change(cargoCommand)
         } else {
-            triggerAxisButton(GenericHID.Hand.kRight).change(VisionDriveCommand(true))
+            triggerAxisButton(GenericHID.Hand.kRight).change(TeleopVisionDriveCommand(true))
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
         }
 
