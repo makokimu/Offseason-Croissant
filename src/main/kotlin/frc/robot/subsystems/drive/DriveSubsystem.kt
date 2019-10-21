@@ -40,6 +40,9 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override val followers = listOf(FalconSRX(LEFT_PORTS[1], DefaultNativeUnitModel))
 
         init {
+            master.talonSRX.configFactoryDefault(50)
+            followers[0].talonSRX.configFactoryDefault(50)
+            master.talonSRX.configClosedLoopPeriod(0, 10)
             outputInverted = true
             followers.forEach { it.follow(master) }
             lateInit()
@@ -52,18 +55,6 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
             master.talonSRX.enableCurrentLimit(true)
             followers[0].talonSRX.enableCurrentLimit(true)
 
-            followers.forEach {
-                with(it.talonSRX) {
-                    configClosedLoopPeakOutput(0, 1.0)
-                    configPeakOutputForward(1.0)
-                    configPeakOutputReverse(-1.0)
-                }
-            }
-            with(master.talonSRX) {
-                configClosedLoopPeakOutput(0, 1.0)
-                configPeakOutputForward(1.0)
-                configPeakOutputReverse(-1.0)
-            }
         }
 
         override fun setClosedLoopGains() {
@@ -76,7 +67,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
             }
 
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0, 0.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0 / 5.0, 0.0)
             // old gains
 //            if (lowGear) setClosedLoopGains(0.45, 0.45*20.0) else setClosedLoopGains(1.0, 0.0)
         }
@@ -88,7 +79,10 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         override val followers = listOf(FalconSRX(RIGHT_PORTS[1], DefaultNativeUnitModel))
 
         init {
+            master.talonSRX.configFactoryDefault(50)
+            followers[0].talonSRX.configFactoryDefault(50)
             followers.forEach { it.follow(master) }
+            master.talonSRX.configClosedLoopPeriod(0, 10)
             lateInit()
             master.talonSRX.configContinuousCurrentLimit(38)
             master.talonSRX.configPeakCurrentDuration(500)
@@ -98,24 +92,11 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
             followers[0].talonSRX.configPeakCurrentLimit(60)
             master.talonSRX.enableCurrentLimit(true)
             followers[0].talonSRX.enableCurrentLimit(true)
-
-            followers.forEach {
-                with(it.talonSRX) {
-                    configClosedLoopPeakOutput(0, 1.0)
-                    configPeakOutputForward(1.0)
-                    configPeakOutputReverse(-1.0)
-                }
-            }
-            with(master.talonSRX) {
-                configClosedLoopPeakOutput(0, 1.0)
-                configPeakOutputForward(1.0)
-                configPeakOutputReverse(-1.0)
-            }
         }
 
         override fun setClosedLoopGains() {
             // LQR gains
-            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0, 0.0)
+            if (lowGear) setClosedLoopGains(0.667, 0.0) else setClosedLoopGains(1.0 / 5.0, 0.0)
 
             with(master.talonSRX) {
                 configClosedLoopPeakOutput(0, 1.0)
