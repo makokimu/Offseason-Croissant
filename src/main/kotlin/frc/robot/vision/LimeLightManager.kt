@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.SubsystemBase
 import frc.robot.Constants
 import frc.robot.subsystems.drive.DriveSubsystem
+import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Length
 import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Translation2d
@@ -55,11 +56,11 @@ object LimeLightManager : SubsystemBase() {
     private val pipelineLatency
         get() = (table.getEntry("tl").getDouble(0.0) + 11) / 1000.0
 
-    fun getDistanceToTarget(): Length {
+    fun getDistanceToTarget(isHighRes: Boolean = true): Length {
         val focalLen = 707.0 * (57.0 / 53.0) // = (isHighRes) ? x_focal_length_high : x_focal_length_low;
         val width = 14.6.inch
-        val targetSizePx = table.getEntry("tlong").getDouble(0.0) // getTargetXPixels();
-        val hypotenuse = width * focalLen / targetSizePx
+        val targetSizePx = LimeLight.currentState.width // table.getEntry("tlong").getDouble(0.0) // getTargetXPixels();
+        val hypotenuse = width * focalLen / targetSizePx * (/*720p vs 240p*/ if(!isHighRes) 240.0 / 720.0 else 1.0 )
         val deltaElevation = (45 - 29).inch
         // since a^2 + b^2 = c^2, we find a^2 = c^2 - b^2
         return sqrt(
