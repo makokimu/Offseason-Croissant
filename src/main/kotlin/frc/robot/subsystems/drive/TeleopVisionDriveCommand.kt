@@ -4,6 +4,7 @@ package frc.robot.subsystems.drive
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder
 import frc.robot.Network
+import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.LEDs
 import frc.robot.vision.TargetTracker
@@ -17,7 +18,7 @@ import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.meter
 import kotlin.math.absoluteValue
 
-class TeleopVisionDriveCommand(private val isFront: Boolean) : ManualDriveCommand() {
+class TeleopVisionDriveCommand(private val isFront: Boolean, private val skewCorrect: Boolean = true) : ManualDriveCommand() {
 
     override fun isFinished() = false
 
@@ -52,7 +53,7 @@ class TeleopVisionDriveCommand(private val isFront: Boolean) : ManualDriveComman
         } else {
 //            ElevatorSubsystem.wantedVisionMode = false
             val transform = lastKnownTargetPose inFrameOfReferenceOf DriveSubsystem.robotPosition
-            val angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
+            var angle = Rotation2d(transform.translation.x.meter, transform.translation.y.meter, true)
             val distance = transform.translation.norm.feet.absoluteValue
 
             // limit linear speed based on elevator height, linear function with height above stowed
@@ -65,6 +66,15 @@ class TeleopVisionDriveCommand(private val isFront: Boolean) : ManualDriveComman
             if (distance < 6) {
                 source *= (distance + 1) / 6.0
             }
+
+            val offset = if(!skewCorrect) 0.degree else {
+                var skew = LimeLight.lastSkew
+                if(skew > (-45).degree) skew = skew.absoluteValue else skew += 90.degree
+                if(skew > 5.degree) {
+                    0.05.degree * (if (LimeLight.targetToTheLeft) 1 else -1) * (skew.degree / 13)
+                } else 0.degree
+            }
+            angle -= offset.toRotation2d()
 
             Network.visionDriveAngle.setDouble(angle.degree)
             Network.visionDriveActive.setBoolean(true)

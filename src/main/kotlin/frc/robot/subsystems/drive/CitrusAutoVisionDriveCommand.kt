@@ -47,7 +47,7 @@ class CitrusAutoVisionDriveCommand(private val isStowed: Boolean, private val sk
         // we know we have a new target
         noTarget = 0
 
-        var offset = if(!skewCorrect) 0.degree else {
+        val offset = if(!skewCorrect) 0.degree else {
             var skew = LimeLight.lastSkew
             if(skew > (-45).degree) skew = skew.absoluteValue else skew += 90.degree
             if(skew > 5.degree) {
