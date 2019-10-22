@@ -10,14 +10,17 @@ import org.ghrobotics.lib.mathematics.units.derived.toRotation2d
 import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.inch
 
-class AutonomousVisionDriveCommand(val isStowed: Boolean, val skewCorrect: Boolean = true): FalconCommand(DriveSubsystem) {
+class CitrusAutoVisionDriveCommand(private val isStowed: Boolean, private val skewCorrect: Boolean = true): FalconCommand(DriveSubsystem) {
 
-    var noTarget = 0
-    var cantFindTarget = false
-    var inRange = false
-    var inRangeTime = -1.0
-    val kEndTimeout = 0.6
+    private var noTarget = 0
+    private var cantFindTarget = false
+    private var inRange = false
+    private var inRangeTime = -1.0
+    private val kEndTimeout = 0.6
     private var prevAngleError = 0.degree.toRotation2d()
+    /**
+     * Target distance from the center of the robot to the vision taret
+     */
     private val targetDistance = (if(isStowed) Constants.kCenterToForwardIntakeStowed else Constants.kCenterToForwardIntake).translation.x.absoluteValue
 
     override fun end(interrupted: Boolean) {
@@ -43,20 +46,24 @@ class AutonomousVisionDriveCommand(val isStowed: Boolean, val skewCorrect: Boole
         }
         // we know we have a new target
         noTarget = 0
-        var offset = 0.degree
-        var skew = LimeLight.lastSkew
-        if(skew > (-45).degree) skew = skew.absoluteValue else skew += 90.degree
-        if(skew > 5.degree) offset = 0.05.degree * (if (LimeLight.targetToTheLeft) 1 else -1) * (skew.degree / 13);
-        if(!skewCorrect) offset = 0.degree
+
+        var offset = if(!skewCorrect) 0.degree else {
+            var skew = LimeLight.lastSkew
+            if(skew > (-45).degree) skew = skew.absoluteValue else skew += 90.degree
+            if(skew > 5.degree) {
+                0.05.degree * (if (LimeLight.targetToTheLeft) 1 else -1) * (skew.degree / 13)
+            } else 0.degree
+        }
 
         val globalPose = (LimeLight.lastYaw - offset).toRotation2d() + DriveSubsystem.localization[LimeLight.currentState.timestamp].rotation
         val angleError = (globalPose - DriveSubsystem.robotPosition.rotation)
+
         // idk man maybe 1 feet per second at 1 ft of error?
-        val currentDistance = LimeLight.estimateDistance(false)
-        val linear = (currentDistance - Constants.kCenterToFrontCamera.translation.x - targetDistance).velocity * 1.0 // TODO tune
+        val currentDistance = LimeLight.estimateDistance(true)
+        val linear = (currentDistance - Constants.kCenterToFrontCamera.translation.x - targetDistance).velocity * kLinearKp // TODO tune
 
         // P loop on heading
-        val turn = PointTurnCommand.kCorrectionKp * angleError.radian + PointTurnCommand.kCorrectionKd * (angleError - prevAngleError).radian
+        val turn = kCorrectionKp * angleError.radian + kCorrectionKd * (angleError - prevAngleError).radian
 
         DriveSubsystem.setWheelVelocities(DifferentialDrive.WheelState(linear.value + turn, linear.value - turn))
 
@@ -68,5 +75,16 @@ class AutonomousVisionDriveCommand(val isStowed: Boolean, val skewCorrect: Boole
 
     override fun isFinished() = cantFindTarget || (inRange && (inRangeTime - Timer.getFPGATimestamp()) > kEndTimeout)
 
+    //    override fun initSendable(builder: SendableBuilder) {
+//        builder.addDoubleProperty("kp", { kCorrectionKp }, {_new -> kCorrectionKp = _new})
+//        builder.addDoubleProperty("kd", { kCorrectionKd }, {_new -> kCorrectionKd = _new})
+//        super.initSendable(builder)
+//    }
+
+    companion object {
+        var kCorrectionKp = 1.9
+        var kCorrectionKd = 14.0
+        var kLinearKp = 1.0
+    }
 
 }
