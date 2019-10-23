@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive
 import asSource
 import com.kauailabs.navx.frc.AHRS
 import com.team254.lib.physics.DifferentialDrive
+import edu.wpi.first.wpilibj.Compressor
 import edu.wpi.first.wpilibj.SPI
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand
@@ -125,6 +126,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
             WaitUntilCommand { !region.contains(robotPosition.translation) }
 
     // Shift up and down
+    val compressor = Compressor(9)
     private val shifter = FalconDoubleSolenoid(SHIFTER_PORTS[0], SHIFTER_PORTS[1], kPCMID)
     var lowGear: Boolean by Delegates.observable(false) { _, _, wantsLow ->
 
@@ -134,6 +136,7 @@ object DriveSubsystem : TankDriveSubsystem(), EmergencyHandleable, ConcurrentlyU
         leftMotor.setClosedLoopGains()
         rightMotor.setClosedLoopGains()
     }
+
     class SetGearCommand(wantsLow: Boolean) : InstantCommand(Runnable { lowGear = wantsLow }, this)
 
     private val ahrs = AHRS(SPI.Port.kMXP)
