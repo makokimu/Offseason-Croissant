@@ -14,10 +14,12 @@ import org.ghrobotics.lib.mathematics.twodim.geometry.Pose2d
 import org.ghrobotics.lib.mathematics.twodim.geometry.Rotation2d
 import org.ghrobotics.lib.mathematics.units.derived.degree
 import org.ghrobotics.lib.mathematics.units.derived.radian
+import org.ghrobotics.lib.mathematics.units.derived.velocity
 import org.ghrobotics.lib.mathematics.units.feet
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.mathematics.units.kFeetToMeter
 import org.ghrobotics.lib.mathematics.units.meter
+import kotlin.math.absoluteValue
 
 class ClosedLoopVisionDriveCommand(private val isFront: Boolean) : FalconCommand(DriveSubsystem) {
 
@@ -63,7 +65,9 @@ class ClosedLoopVisionDriveCommand(private val isFront: Boolean) : FalconCommand
 
             val error = angle.radian - offset.radian
 
-            val turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
+            var turn = kCorrectionKp * error + kCorrectionKd * (error - prevError)
+            if(turn.absoluteValue > maxTurn.value) turn = maxTurn.value
+
             DriveSubsystem.setWheelVelocities(DifferentialDrive.WheelState((linear - turn) * multiplier, (linear + turn) * multiplier))
 
             prevError = error
@@ -82,8 +86,9 @@ class ClosedLoopVisionDriveCommand(private val isFront: Boolean) : FalconCommand
     }
 
     companion object {
-        var kCorrectionKp = 1.9
-        var kCorrectionKd = 14.0
+        var kCorrectionKp = 1.0
+        var kCorrectionKd = 0.0
+        val maxTurn = 30.degree.velocity
         var isActive = false
             private set
     }
