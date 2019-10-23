@@ -4,12 +4,12 @@ package misc
 
 fun main() {
 
-    val scoutersPerAlliance = 2
-    val rotations = 10
+    val scoutersPerAlliance = 3
+    val rotations = 11
     val breaks = 0
 
     val totalScouters = arrayListOf(
-            "A","B","C","D","E","F"//,"G","H"
+            "A","B","C","D","E","F","G","H","I"
     )
 
     val currentlyScouting = ArrayList(totalScouters.subList(0, scoutersPerAlliance * 2))
@@ -42,7 +42,7 @@ fun main() {
         // and add him to the bottom of the list.
         onBreak.add(humanToGoOnBreak)
 
-        println("$humanComingOffBreak is coming off break and $humanToGoOnBreak is going on break")
+//        println("$humanComingOffBreak is coming off break and $humanToGoOnBreak is going on break")
 
         lastBreakIndex += 1
         if(lastBreakIndex >= currentlyScouting.size) lastBreakIndex = 0
