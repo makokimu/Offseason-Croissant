@@ -77,7 +77,9 @@ object Controls : Updatable {
 //            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
         // hatches
-        lessThanAxisButton(1).change(IntakeHatchCommand(releasing = false))
+        lessThanAxisButton(1).changeOn(Superstructure.kSlightlyOutStowed).changeOff(Superstructure.kStowed)
+                .change(IntakeHatchCommand(releasing = false))
+
         greaterThanAxisButton(1).change(IntakeHatchCommand(releasing = true))
 
         // cargo -- intake is a bit tricky, it'll go to the intake preset automatically

@@ -20,11 +20,11 @@ class IntakeHatchCommand(val releasing: Boolean) : FalconCommand(Intake) {
         println("intaking hatch command")
         Intake.hatchMotorOutput = 12.volt * (if (releasing) -1 else 1)
         Intake.cargoMotorOutput = 0.volt
-        Intake.wantsOpen = false
+        Intake.wantsOpen = releasing
     }
 
     override fun end(interrupted: Boolean) {
-        Intake.wantsOpen = false
+        Intake.wantsOpen = !releasing
         Intake.hatchMotorOutput = 0.volt
         Intake.cargoMotorOutput = 0.volt
     }
