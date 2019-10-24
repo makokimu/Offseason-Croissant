@@ -3,7 +3,7 @@ package frc.robot.subsystems.superstructure
 import edu.wpi.first.wpilibj.Timer
 import edu.wpi.first.wpilibj2.command.InstantCommand
 import edu.wpi.first.wpilibj2.command.PrintCommand
-import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.intake.IntakeSubsystem
 import frc.robot.subsystems.superstructure.Superstructure.getDumbWrist
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.parallel
@@ -14,7 +14,6 @@ import org.ghrobotics.lib.mathematics.units.derived.* // ktlint-disable no-wildc
 import org.team5940.pantry.lib.SIRotationConstants.kRadianToDegrees
 import org.team5940.pantry.lib.WantedState
 import kotlin.math.abs
-import kotlin.math.min
 
 class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVelocity>, wristMaxVel: SIUnit<AngularVelocity>, private val isFrontToBack: Boolean) : FalconCommand(
         Superstructure, Proximal, Wrist
@@ -129,7 +128,7 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
         val frontToBack
             get() = sequential {
                 +PrintCommand("passing thru front to back")
-                +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
+                +InstantCommand(Runnable { IntakeSubsystem.wantsOpen = false }, IntakeSubsystem)
                 +ClosedLoopElevatorMove(36.inch)
                 +SyncedMove((-160).degree, true)
                 +parallel {
@@ -142,7 +141,7 @@ class SyncedMove(goalAngle: SIUnit<Radian>, proximalMaxVel: SIUnit<AngularVeloci
         val backToFront
             get() = sequential {
                 +PrintCommand("passiing thru back to front")
-                +InstantCommand(Runnable { Intake.wantsOpen = false }, Intake)
+                +InstantCommand(Runnable { IntakeSubsystem.wantsOpen = false }, IntakeSubsystem)
                 +ClosedLoopElevatorMove(36.inch)
                 +SyncedMove(0.0.degree, false)
                 +parallel {

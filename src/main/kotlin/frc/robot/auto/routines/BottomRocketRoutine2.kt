@@ -9,7 +9,7 @@ import frc.robot.auto.paths.TrajectoryFactory
 import frc.robot.auto.paths.TrajectoryWaypoints
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.PointTurnCommand
-import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.intake.IntakeSubsystem
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.Superstructure
 import org.ghrobotics.lib.commands.sequential
@@ -51,7 +51,7 @@ class BottomRocketRoutine2 : AutoRoutine() {
                     +DriveSubsystem.notWithinRegion(TrajectoryWaypoints.kHabitatL1Platform)
                     +WaitCommand(0.5)
                     +Superstructure.kMatchStartToStowed
-                }).beforeStarting { Intake.hatchMotorOutput = 6.volt }.whenFinished { Intake.hatchMotorOutput = 0.volt }
+                }).beforeStarting { IntakeSubsystem.hatchMotorOutput = 6.volt }.whenFinished { IntakeSubsystem.hatchMotorOutput = 0.volt }
             }
 
             +PointTurnCommand {

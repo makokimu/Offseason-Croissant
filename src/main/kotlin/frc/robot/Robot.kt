@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard
 import frc.robot.auto.Autonomous
 import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.DriveSubsystem
-import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.intake.IntakeSubsystem
 import frc.robot.subsystems.sensors.LimeLight
 import frc.robot.subsystems.superstructure.Elevator
 import frc.robot.subsystems.superstructure.Proximal
@@ -29,7 +29,7 @@ object Robot : FishyRobot() {
         +Wrist
         +Elevator
         +Superstructure
-        +Intake
+        +IntakeSubsystem
         +ClimbSubsystem
 
         +TargetTracker

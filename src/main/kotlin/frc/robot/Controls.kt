@@ -8,13 +8,14 @@ import frc.robot.subsystems.climb.ClimbSubsystem
 import frc.robot.subsystems.drive.ClosedLoopVisionDriveCommand
 import frc.robot.subsystems.drive.DriveSubsystem
 import frc.robot.subsystems.drive.TeleopVisionDriveCommand
-import frc.robot.subsystems.intake.Intake
+import frc.robot.subsystems.intake.IntakeSubsystem
 import frc.robot.subsystems.intake.IntakeCargoCommand
 import frc.robot.subsystems.intake.IntakeHatchCommand
 import frc.robot.subsystems.superstructure.* // ktlint-disable no-wildcard-imports
 import org.ghrobotics.lib.commands.FalconCommand
 import org.ghrobotics.lib.commands.sequential
 import org.ghrobotics.lib.mathematics.units.derived.degree
+import org.ghrobotics.lib.mathematics.units.derived.volt
 import org.ghrobotics.lib.mathematics.units.inch
 import org.ghrobotics.lib.wrappers.hid.* // ktlint-disable no-wildcard-imports
 import org.team5940.pantry.lib.Updatable
@@ -41,6 +42,8 @@ object Controls : Updatable {
 
 //            val cargoCommand = sequential { +Superstructure.kCargoIntake; +IntakeCargoCommand(releasing = false) }
 //            button(10).changeOff{ Superstructure.kStowed.schedule() }.change(cargoCommand)
+            button(10).change(StartEndCommand(Runnable{ IntakeSubsystem.hatchMotorOutput = 6.volt },
+                    Runnable{ IntakeSubsystem.setNeutral() }, IntakeSubsystem))
         } else {
             triggerAxisButton(GenericHID.Hand.kRight).change(TeleopVisionDriveCommand(true))
             button(kBumperLeft).changeOn { DriveSubsystem.lowGear = true }.changeOff { DriveSubsystem.lowGear = false }
@@ -58,7 +61,7 @@ object Controls : Updatable {
     val operatorJoy = Joystick(5)
     val operatorFalconHID = operatorJoy.mapControls {
         // cargo presets
-//            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
+//            button(12).changeOn(Superstructure.kCargoIntake.andThen { IntakeSubsystem.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
         button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
         button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
         button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
@@ -79,14 +82,16 @@ object Controls : Updatable {
 //            button(4).changeOn(Superstructure.kBackHatchFromLoadingStation)
 
         // hatches
-        lessThanAxisButton(1).changeOn(Superstructure.kSlightlyOutStowed).changeOff(Superstructure.kStowed)
+        val poked = Superstructure.kSlightlyOutStowed
+        val stowed = Superstructure.kStowed
+        lessThanAxisButton(1).changeOn { poked.schedule() }.changeOff { poked.cancel(); stowed.schedule() }
                 .change(IntakeHatchCommand(releasing = false))
 
         greaterThanAxisButton(1).change(IntakeHatchCommand(releasing = true))
 
         // cargo -- intake is a bit tricky, it'll go to the intake preset automatically
         // the lessThanAxisButton represents "intaking", and the greaterThanAxisButton represents "outtaking"
-        val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake.beforeStarting { Intake.wantsOpen = true }; +IntakeCargoCommand(releasing = false) }
+        val cargoCommand = sequential { +PrintCommand("running cargoCommand"); +Superstructure.kCargoIntake.beforeStarting { IntakeSubsystem.wantsOpen = true }; +IntakeCargoCommand(releasing = false) }
         lessThanAxisButton(0).changeOff { (sequential { +ClosedLoopWristMove(40.degree) ; +Superstructure.kStowed; }).schedule() }.change(cargoCommand)
         greaterThanAxisButton(0).changeOff { }.change(IntakeCargoCommand(true))
 
@@ -112,13 +117,13 @@ private fun Command.andThen(block: () -> Unit) = sequential { +this@andThen ; +I
 private fun FalconXboxBuilder.registerEmergencyMode() {
     button(kBack).changeOn {
 //        Robot.activateEmergency()
-        val command = object: FalconCommand(Superstructure, DriveSubsystem, Elevator, Proximal, Wrist, Intake) {
+        val command = object: FalconCommand(Superstructure, DriveSubsystem, Elevator, Proximal, Wrist, IntakeSubsystem) {
             override fun execute() {
                 Superstructure.setNeutral()
                 Elevator.setNeutral()
                 Proximal.setNeutral()
                 Wrist.setNeutral()
-                Intake.setNeutral()
+                IntakeSubsystem.setNeutral()
                 DriveSubsystem.setNeutral()
                 DriveSubsystem.leftMotor.setClosedLoopGains()
                 DriveSubsystem.rightMotor.setClosedLoopGains()

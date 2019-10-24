@@ -14,7 +14,7 @@ import org.ghrobotics.lib.motors.ctre.FalconSRX
 import org.ghrobotics.lib.wrappers.FalconDoubleSolenoid
 import org.ghrobotics.lib.wrappers.FalconSolenoid
 
-object Intake : FalconSubsystem() {
+object IntakeSubsystem : FalconSubsystem() {
 
     private val hatchMotor = FalconSRX(HATCH_PORT, DefaultNativeUnitModel)
     private val cargoMotor = FalconSRX(CARGO_PORT, DefaultNativeUnitModel)
@@ -42,10 +42,10 @@ object Intake : FalconSubsystem() {
     }
 
     var hatchMotorOutput
-        get() = hatchMotor.voltageOutput / 12.0
+        get() = hatchMotor.voltageOutput
         set(value) = hatchMotor.setVoltage(value)
 
     var cargoMotorOutput
-        get() = cargoMotor.voltageOutput / 12.0
+        get() = cargoMotor.voltageOutput
         set(value) = cargoMotor.setVoltage(value)
 }
