@@ -53,20 +53,23 @@ object Controls : Updatable {
     val operatorJoy = Joystick(5)
     val operatorFalconHID = operatorJoy.mapControls {
         // cargo presets
-//            button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
-        button(7).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
-        button(6).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
-        button(5).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
-        button(8).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
-
+//
+//           button(12).changeOn(Superstructure.kCargoIntake.andThen { Intake.wantsOpen = true }) // .changeOff { Superstructure.kStowed.schedule() }
+        if () {
+            button(1).changeOn(Superstructure.kCargoLow) // .changeOff { Superstructure.kStowed.schedule() }
+            button(3).changeOn(Superstructure.kCargoMid) // .changeOff { Superstructure.kStowed.schedule() }
+            button(4).changeOn(Superstructure.kCargoHigh) // .changeOff { Superstructure.kStowed.schedule() }
+            button(2).changeOn(Superstructure.kCargoShip) // .changeOff { Superstructure.kStowed.schedule() }
+        } else{
         // hatch presets
-        button(3).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
-        button(2).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
-        button(1).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
-
+            button(1).changeOn(Superstructure.kHatchLow) // .changeOff { Superstructure.kStowed.schedule() }
+        button(3).changeOn(Superstructure.kHatchMid) // .changeOff { Superstructure.kStowed.schedule() }
+        button(4).changeOn(Superstructure.kHatchHigh) // .changeOff { Superstructure.kStowed.schedule() }
+        }
         // Stow (for now like this coz i dont wanna break anything
-        button(10).changeOn(Superstructure.kStowed)
+        button(2).changeOn(Superstructure.kStowed)
 
+        //elevator
         button(9).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position + 1.inch })
         button(11).changeOn(ClosedLoopElevatorMove { Elevator.currentState.position - 1.inch })
 
